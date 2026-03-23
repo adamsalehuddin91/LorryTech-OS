@@ -4,9 +4,10 @@ RUN apk add --no-cache \
     nginx supervisor curl zip unzip git \
     libpng-dev libjpeg-turbo-dev freetype-dev \
     oniguruma-dev libxml2-dev sqlite-dev \
+    postgresql-dev \
     nodejs npm \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo pdo_sqlite pdo_mysql mbstring xml gd bcmath opcache
+    && docker-php-ext-install pdo pdo_sqlite pdo_mysql pdo_pgsql mbstring xml gd bcmath opcache
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 WORKDIR /app
