@@ -148,7 +148,7 @@ class DriverPortalController extends Controller
         $vehicles = $driver
             ? $driver->assignments()
                 ->with('vehicle:id,plate_number')
-                ->whereNull('unassigned_date')
+                ->whereNull('returned_date')
                 ->get()
                 ->pluck('vehicle')
                 ->filter()
