@@ -20,9 +20,7 @@ RUN npm ci --production=false
 COPY . .
 RUN npm run build && rm -rf node_modules
 
-RUN php artisan config:cache \
-    && php artisan route:cache \
-    && php artisan view:cache \
+RUN php artisan view:cache \
     && php artisan storage:link
 
 RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache \
