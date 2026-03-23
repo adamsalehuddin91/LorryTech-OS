@@ -19,6 +19,7 @@ COPY package.json package-lock.json ./
 RUN npm ci --production=false
 
 COPY . .
+# bust-cache: migration-rename-fix-v2
 RUN npm run build && rm -rf node_modules
 
 RUN php artisan view:cache \
