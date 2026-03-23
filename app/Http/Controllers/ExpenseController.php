@@ -53,8 +53,8 @@ class ExpenseController extends Controller
     public function create()
     {
         return Inertia::render('Expenses/Create', [
-            'vehicles' => Vehicle::orderBy('plate_number')->get(['id', 'plate_number', 'brand', 'model']),
-            'drivers' => Driver::orderBy('name')->get(['id', 'name']),
+            'vehicles' => Vehicle::orderBy('plate_number')->get(['id', 'plate_number', 'make_model']),
+            'drivers' => Driver::with('user:id,name')->get(['id', 'user_id']),
             'categories' => $this->categoryOptions(),
         ]);
     }
@@ -97,8 +97,8 @@ class ExpenseController extends Controller
 
         return Inertia::render('Expenses/Edit', [
             'expense' => $expense,
-            'vehicles' => Vehicle::orderBy('plate_number')->get(['id', 'plate_number', 'brand', 'model']),
-            'drivers' => Driver::orderBy('name')->get(['id', 'name']),
+            'vehicles' => Vehicle::orderBy('plate_number')->get(['id', 'plate_number', 'make_model']),
+            'drivers' => Driver::with('user:id,name')->get(['id', 'user_id']),
             'categories' => $this->categoryOptions(),
         ]);
     }

@@ -189,7 +189,7 @@ class DashboardService
      */
     protected function getRecentTrips(): array
     {
-        return Trip::with(['vehicle:id,plate_number', 'customer:id,name', 'driver:id,name'])
+        return Trip::with(['vehicle:id,plate_number', 'customer:id,name', 'driver.user:id,name'])
             ->orderByDesc('pickup_date')
             ->limit(5)
             ->get()
