@@ -13,17 +13,62 @@ export default function UploadReceipt({ categories, vehicles }) {
     });
 
     const [preview, setPreview] = useState(null);
+    const [compressing, setCompressing] = useState(false);
 
-    const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        setData('receipt_image', file);
-        if (file) {
+    const compressImage = (file, maxWidth = 1200, quality = 0.7) => {
+        return new Promise((resolve) => {
             const reader = new FileReader();
-            reader.onloadend = () => setPreview(reader.result);
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > maxWidth) {
+                        height = (height * maxWidth) / width;
+                        width = maxWidth;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    canvas.toBlob(
+                        (blob) => {
+                            const compressed = new File([blob], file.name, {
+                                type: 'image/jpeg',
+                                lastModified: Date.now(),
+                            });
+                            resolve(compressed);
+                        },
+                        'image/jpeg',
+                        quality
+                    );
+                };
+                img.src = e.target.result;
+            };
             reader.readAsDataURL(file);
-        } else {
+        });
+    };
+
+    const handleFileChange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) {
+            setData('receipt_image', null);
             setPreview(null);
+            return;
         }
+
+        setCompressing(true);
+        const compressed = await compressImage(file);
+        setData('receipt_image', compressed);
+        setCompressing(false);
+
+        const reader = new FileReader();
+        reader.onloadend = () => setPreview(reader.result);
+        reader.readAsDataURL(compressed);
     };
 
     const handleSubmit = (e) => {
@@ -71,7 +116,7 @@ export default function UploadReceipt({ categories, vehicles }) {
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                                             </svg>
                                             <p className="mt-2 text-sm font-medium text-gray-600">Snap atau pilih gambar resit</p>
-                                            <p className="mt-1 text-xs text-gray-400">JPG, PNG — Maks 5MB</p>
+                                            <p className="mt-1 text-xs text-gray-400">JPG, PNG — auto compress</p>
                                         </>
                                     )}
                                     <input
@@ -167,10 +212,10 @@ export default function UploadReceipt({ categories, vehicles }) {
                                 </Link>
                                 <button
                                     type="submit"
-                                    disabled={processing}
+                                    disabled={processing || compressing}
                                     className="rounded-lg bg-blue-600 px-6 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
                                 >
-                                    {processing ? 'Memuat naik...' : 'Hantar Resit'}
+                                    {compressing ? 'Mengecilkan...' : processing ? 'Memuat naik...' : 'Hantar Resit'}
                                 </button>
                             </div>
                         </form>

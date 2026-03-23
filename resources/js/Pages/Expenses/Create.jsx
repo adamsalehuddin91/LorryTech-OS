@@ -14,17 +14,47 @@ export default function Create({ vehicles, drivers, categories }) {
     });
 
     const [preview, setPreview] = useState(null);
+    const [compressing, setCompressing] = useState(false);
 
-    const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        setData('receipt_image', file);
-        if (file) {
+    const compressImage = (file, maxWidth = 1200, quality = 0.7) => {
+        return new Promise((resolve) => {
             const reader = new FileReader();
-            reader.onloadend = () => setPreview(reader.result);
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    if (width > maxWidth) {
+                        height = (height * maxWidth) / width;
+                        width = maxWidth;
+                    }
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    canvas.toBlob(
+                        (blob) => resolve(new File([blob], file.name, { type: 'image/jpeg', lastModified: Date.now() })),
+                        'image/jpeg',
+                        quality
+                    );
+                };
+                img.src = e.target.result;
+            };
             reader.readAsDataURL(file);
-        } else {
-            setPreview(null);
-        }
+        });
+    };
+
+    const handleFileChange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) { setData('receipt_image', null); setPreview(null); return; }
+        setCompressing(true);
+        const compressed = await compressImage(file);
+        setData('receipt_image', compressed);
+        setCompressing(false);
+        const reader = new FileReader();
+        reader.onloadend = () => setPreview(reader.result);
+        reader.readAsDataURL(compressed);
     };
 
     const handleSubmit = (e) => {
