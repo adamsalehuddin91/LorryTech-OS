@@ -7,6 +7,7 @@ use App\Models\DriverCommission;
 use App\Models\Expense;
 use App\Models\Trip;
 use App\Services\ExpenseService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -81,11 +82,14 @@ class DriverPortalController extends Controller
     public function myTrips(Request $request)
     {
         $driver = $this->getDriver($request);
+        abort_unless($driver, 403, 'Tiada profil pemandu dikaitkan.');
 
         $trips = Trip::with(['vehicle', 'customer'])
             ->where('driver_id', $driver?->id)
             ->when($request->input('month'), function ($q, $month) {
-                $q->whereRaw("strftime('%Y-%m', pickup_date) = ?", [$month]);
+                $start = Carbon::parse($month . '-01')->startOfMonth();
+                $end = (clone $start)->endOfMonth();
+                $q->whereBetween('pickup_date', [$start, $end]);
             })
             ->orderByDesc('pickup_date')
             ->paginate(15)
@@ -100,6 +104,7 @@ class DriverPortalController extends Controller
     public function myCommissions(Request $request)
     {
         $driver = $this->getDriver($request);
+        abort_unless($driver, 403, 'Tiada profil pemandu dikaitkan.');
 
         $commissions = DriverCommission::with('trip')
             ->where('driver_id', $driver?->id)
@@ -127,6 +132,7 @@ class DriverPortalController extends Controller
     public function uploadReceipt(Request $request)
     {
         $driver = $this->getDriver($request);
+        abort_unless($driver, 403, 'Tiada profil pemandu dikaitkan.');
 
         $categories = [
             'fuel' => 'Bahan Api (Diesel)',
@@ -157,6 +163,7 @@ class DriverPortalController extends Controller
     public function storeReceipt(Request $request)
     {
         $driver = $this->getDriver($request);
+        abort_unless($driver, 403, 'Tiada profil pemandu dikaitkan.');
 
         $validated = $request->validate([
             'vehicle_id' => 'required|exists:vehicles,id',
@@ -181,6 +188,7 @@ class DriverPortalController extends Controller
     public function myReceipts(Request $request)
     {
         $driver = $this->getDriver($request);
+        abort_unless($driver, 403, 'Tiada profil pemandu dikaitkan.');
 
         $expenses = Expense::with('vehicle')
             ->where('driver_id', $driver?->id)

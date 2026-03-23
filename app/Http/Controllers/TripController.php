@@ -126,7 +126,7 @@ class TripController extends Controller
 
     public function destroy(Trip $trip)
     {
-        $trip->commission()->delete();
+        $trip->commission?->delete();
         $trip->delete();
 
         return redirect()->route('trips.index')->with('success', 'Perjalanan berjaya dipadam.');

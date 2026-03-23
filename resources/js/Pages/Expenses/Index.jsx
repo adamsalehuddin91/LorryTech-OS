@@ -253,7 +253,7 @@ export default function Index({ expenses, filters, vehicles, auditScore }) {
                                             key={i}
                                             href={link.url || '#'}
                                             className={`px-3 py-1 rounded text-sm ${link.active ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-100'} ${!link.url ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                            dangerouslySetInnerHTML={{ __html: link.label }}
+                                            children={link.label.replace(/&laquo;/g, '\u00AB').replace(/&raquo;/g, '\u00BB')}
                                         />
                                     ))}
                                 </div>

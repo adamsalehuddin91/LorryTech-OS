@@ -95,7 +95,7 @@ class TripService
             ]);
 
             // Recalculate commission
-            $trip->commission()->delete();
+            $trip->commission?->delete();
             $this->calculateCommission($trip);
 
             return $trip->fresh(['vehicle', 'driver.user', 'customer']);

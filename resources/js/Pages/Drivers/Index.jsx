@@ -194,7 +194,7 @@ export default function Index({ drivers, filters }) {
                                                 ? 'bg-blue-600 text-white'
                                                 : 'bg-white text-gray-700 hover:bg-gray-100'
                                         } ${!link.url ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                        dangerouslySetInnerHTML={{ __html: link.label }}
+                                        children={link.label.replace(/&laquo;/g, '\u00AB').replace(/&raquo;/g, '\u00BB')}
                                     />
                                 ))}
                             </div>
