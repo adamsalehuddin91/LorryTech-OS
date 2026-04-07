@@ -8,10 +8,18 @@ use Inertia\Inertia;
 
 class VehicleController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('role:owner');
+    }
+
     public function index(Request $request)
     {
         $vehicles = Vehicle::query()
-            ->when($request->search, fn($q, $search) => $q->where('plate_number', 'like', "%{$search}%")->orWhere('make_model', 'like', "%{$search}%"))
+            ->when($request->search, function ($q, $search) {
+                $safe = $this->escapeLike($search);
+                return $q->where('plate_number', 'like', "%{$safe}%")->orWhere('make_model', 'like', "%{$safe}%");
+            })
             ->when($request->status, fn($q, $status) => $q->where('status', $status))
             ->latest()
             ->paginate(10)

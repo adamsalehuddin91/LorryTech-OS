@@ -304,9 +304,11 @@ export default function Dashboard({
                                                         <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
                                                             trip.payment_status === 'paid'
                                                                 ? 'bg-green-100 text-green-800'
+                                                                : trip.payment_status === 'partial'
+                                                                ? 'bg-yellow-100 text-yellow-800'
                                                                 : 'bg-red-100 text-red-800'
                                                         }`}>
-                                                            {trip.payment_status === 'paid' ? 'Dibayar' : 'Belum'}
+                                                            {trip.payment_status === 'paid' ? 'Dibayar' : trip.payment_status === 'partial' ? 'Separa' : 'Belum Bayar'}
                                                         </span>
                                                     </td>
                                                 </tr>

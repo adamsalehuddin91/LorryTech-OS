@@ -13,16 +13,19 @@ class ExpenseController extends Controller
 {
     public function __construct(
         protected ExpenseService $expenseService
-    ) {}
+    ) {
+        $this->middleware('role:owner');
+    }
 
     public function index(Request $request)
     {
         $query = Expense::with(['vehicle', 'driver']);
 
         if ($search = $request->input('search')) {
-            $query->where(function ($q) use ($search) {
-                $q->where('description', 'like', "%{$search}%")
-                  ->orWhereHas('vehicle', fn($v) => $v->where('plate_number', 'like', "%{$search}%"));
+            $safe = $this->escapeLike($search);
+            $query->where(function ($q) use ($safe) {
+                $q->where('description', 'like', "%{$safe}%")
+                  ->orWhereHas('vehicle', fn($v) => $v->where('plate_number', 'like', "%{$safe}%"));
             });
         }
 

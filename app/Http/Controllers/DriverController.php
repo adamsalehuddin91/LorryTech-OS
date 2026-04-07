@@ -10,10 +10,18 @@ use Inertia\Inertia;
 
 class DriverController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('role:owner');
+    }
+
     public function index(Request $request)
     {
         $drivers = Driver::with('user')
-            ->when($request->search, fn($q, $search) => $q->whereHas('user', fn($q2) => $q2->where('name', 'like', "%{$search}%"))->orWhere('license_number', 'like', "%{$search}%"))
+            ->when($request->search, function ($q, $search) {
+                $safe = $this->escapeLike($search);
+                return $q->whereHas('user', fn($q2) => $q2->where('name', 'like', "%{$safe}%"))->orWhere('license_number', 'like', "%{$safe}%");
+            })
             ->when($request->status, fn($q, $status) => $q->where('status', $status))
             ->latest()
             ->paginate(10)

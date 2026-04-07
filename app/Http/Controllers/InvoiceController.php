@@ -14,16 +14,19 @@ class InvoiceController extends Controller
     public function __construct(
         protected InvoiceService $invoiceService,
         protected PdfService $pdfService
-    ) {}
+    ) {
+        $this->middleware('role:owner');
+    }
 
     public function index(Request $request)
     {
         $query = Invoice::with('customer');
 
         if ($search = $request->input('search')) {
-            $query->where(function ($q) use ($search) {
-                $q->where('invoice_number', 'like', "%{$search}%")
-                  ->orWhereHas('customer', fn($c) => $c->where('name', 'like', "%{$search}%"));
+            $safe = $this->escapeLike($search);
+            $query->where(function ($q) use ($safe) {
+                $q->where('invoice_number', 'like', "%{$safe}%")
+                  ->orWhereHas('customer', fn($c) => $c->where('name', 'like', "%{$safe}%"));
             });
         }
 

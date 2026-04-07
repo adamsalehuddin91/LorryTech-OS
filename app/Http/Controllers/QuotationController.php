@@ -14,16 +14,19 @@ class QuotationController extends Controller
     public function __construct(
         protected QuotationService $quotationService,
         protected PdfService $pdfService
-    ) {}
+    ) {
+        $this->middleware('role:owner');
+    }
 
     public function index(Request $request)
     {
         $query = Quotation::with('customer');
 
         if ($search = $request->input('search')) {
-            $query->where(function ($q) use ($search) {
-                $q->where('quotation_number', 'like', "%{$search}%")
-                  ->orWhereHas('customer', fn($c) => $c->where('name', 'like', "%{$search}%"));
+            $safe = $this->escapeLike($search);
+            $query->where(function ($q) use ($safe) {
+                $q->where('quotation_number', 'like', "%{$safe}%")
+                  ->orWhereHas('customer', fn($c) => $c->where('name', 'like', "%{$safe}%"));
             });
         }
 

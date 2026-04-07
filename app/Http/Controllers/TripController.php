@@ -14,17 +14,20 @@ class TripController extends Controller
 {
     public function __construct(
         protected TripService $tripService
-    ) {}
+    ) {
+        $this->middleware('role:owner');
+    }
 
     public function index(Request $request)
     {
         $query = Trip::with(['vehicle', 'driver.user', 'customer']);
 
         if ($search = $request->input('search')) {
-            $query->where(function ($q) use ($search) {
-                $q->where('trip_number', 'like', "%{$search}%")
-                  ->orWhere('pickup_location', 'like', "%{$search}%")
-                  ->orWhere('delivery_location', 'like', "%{$search}%");
+            $safe = $this->escapeLike($search);
+            $query->where(function ($q) use ($safe) {
+                $q->where('trip_number', 'like', "%{$safe}%")
+                  ->orWhere('pickup_location', 'like', "%{$safe}%")
+                  ->orWhere('delivery_location', 'like', "%{$safe}%");
             });
         }
 
