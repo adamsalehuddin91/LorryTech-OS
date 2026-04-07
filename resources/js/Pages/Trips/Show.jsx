@@ -214,23 +214,23 @@ export default function Show({ trip }) {
                     </div>
 
                     {/* Komisen */}
-                    {trip.commission && (
-                        <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
-                            <div className="border-b border-gray-200 bg-gray-50 px-6 py-4">
-                                <h3 className="text-lg font-semibold text-gray-800">Komisen Pemandu</h3>
-                            </div>
-                            <div className="p-6">
+                    <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
+                        <div className="border-b border-gray-200 bg-gray-50 px-6 py-4">
+                            <h3 className="text-lg font-semibold text-gray-800">Komisen Pemandu</h3>
+                        </div>
+                        <div className="p-6">
+                            {trip.commission ? (
                                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
                                     <div className="rounded-lg border p-4">
                                         <dt className="text-sm font-medium text-gray-500">Kadar Komisen</dt>
                                         <dd className="mt-1 text-sm font-semibold text-gray-900">
-                                            {trip.commission.rate != null ? `${trip.commission.rate}%` : '-'}
+                                            {trip.commission.commission_rate != null ? `${Number(trip.commission.commission_rate).toFixed(1)}%` : '-'}
                                         </dd>
                                     </div>
                                     <div className="rounded-lg border p-4">
                                         <dt className="text-sm font-medium text-gray-500">Jumlah Komisen</dt>
                                         <dd className="mt-1 text-sm font-semibold text-gray-900">
-                                            {formatRM(trip.commission.amount)}
+                                            {formatRM(trip.commission.commission_amount)}
                                         </dd>
                                     </div>
                                     <div className="rounded-lg border p-4">
@@ -240,9 +240,13 @@ export default function Show({ trip }) {
                                         </dd>
                                     </div>
                                 </div>
-                            </div>
+                            ) : (
+                                <p className="text-sm text-gray-500">
+                                    Tiada komisen — pemandu tiada kadar komisen ditetapkan (0%).
+                                </p>
+                            )}
                         </div>
-                    )}
+                    </div>
 
                     {/* Pautan Invois */}
                     {trip.invoice && (
