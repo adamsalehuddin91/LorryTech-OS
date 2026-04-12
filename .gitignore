@@ -26,3 +26,8 @@ database/*.sqlite
 database/*.sqlite-journal
 storage/app/public/*
 !storage/app/public/.gitignore
+
+# Screenshot generator outputs
+screenshot/output/
+generate-icons.cjs
+screenshot/debug-500.js
