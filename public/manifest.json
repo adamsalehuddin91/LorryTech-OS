@@ -1,0 +1,37 @@
+{
+  "name": "LorryTech Driver",
+  "short_name": "LorryTech",
+  "description": "Portal pemandu LorryTech OS",
+  "theme_color": "#111827",
+  "background_color": "#111827",
+  "display": "standalone",
+  "orientation": "portrait",
+  "start_url": "/driver/dashboard",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Upload Resit",
+      "url": "/driver/upload-receipt",
+      "description": "Snap dan upload resit perbelanjaan"
+    },
+    {
+      "name": "Perjalanan Saya",
+      "url": "/driver/trips",
+      "description": "Senarai perjalanan"
+    }
+  ]
+}

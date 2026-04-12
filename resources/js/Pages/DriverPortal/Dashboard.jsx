@@ -1,7 +1,29 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
+import { useState, useEffect } from 'react';
 
 export default function Dashboard({ stats, recentTrips, driverName }) {
+    const [installPrompt, setInstallPrompt] = useState(null);
+    const [showInstallBanner, setShowInstallBanner] = useState(false);
+
+    useEffect(() => {
+        const handler = (e) => {
+            e.preventDefault();
+            setInstallPrompt(e);
+            setShowInstallBanner(true);
+        };
+        window.addEventListener('beforeinstallprompt', handler);
+        return () => window.removeEventListener('beforeinstallprompt', handler);
+    }, []);
+
+    const handleInstall = async () => {
+        if (!installPrompt) return;
+        installPrompt.prompt();
+        const { outcome } = await installPrompt.userChoice;
+        if (outcome === 'accepted') setShowInstallBanner(false);
+        setInstallPrompt(null);
+    };
+
     if (!stats) {
         return (
             <AuthenticatedLayout
@@ -38,6 +60,33 @@ export default function Dashboard({ stats, recentTrips, driverName }) {
 
             <div className="py-12">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8 space-y-6">
+                    {/* PWA Install Banner */}
+                    {showInstallBanner && (
+                        <div className="flex items-center justify-between rounded-lg bg-blue-600 px-4 py-3 text-white shadow-sm">
+                            <div className="flex items-center gap-3">
+                                <span className="text-2xl">📲</span>
+                                <div>
+                                    <p className="font-semibold text-sm">Pasang Aplikasi LorryTech</p>
+                                    <p className="text-xs opacity-80">Akses lebih pantas dari skrin utama telefon</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={handleInstall}
+                                    className="rounded-md bg-white px-3 py-1.5 text-sm font-semibold text-blue-600 hover:bg-blue-50"
+                                >
+                                    Pasang
+                                </button>
+                                <button
+                                    onClick={() => setShowInstallBanner(false)}
+                                    className="rounded-md px-2 py-1.5 text-sm opacity-70 hover:opacity-100"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
                     {/* Stat Cards */}
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                         {statCards.map((card) => (
