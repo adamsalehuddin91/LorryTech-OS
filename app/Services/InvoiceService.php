@@ -45,16 +45,17 @@ class InvoiceService
             $totalAmount = $subtotal + $taxAmount;
 
             $invoice = Invoice::create([
-                'invoice_number' => $invoiceNumber,
-                'customer_id' => $data['customer_id'],
-                'trip_id' => $data['trip_id'] ?? null,
-                'quotation_id' => $data['quotation_id'] ?? null,
-                'subtotal' => $subtotal,
-                'tax_amount' => $taxAmount,
-                'total_amount' => $totalAmount,
-                'payment_status' => 'unpaid',
-                'due_date' => $data['due_date'],
-                'notes' => $data['notes'] ?? null,
+                'invoice_number'     => $invoiceNumber,
+                'company_setting_id' => $data['company_setting_id'] ?? null,
+                'customer_id'        => $data['customer_id'],
+                'trip_id'            => $data['trip_id'] ?? null,
+                'quotation_id'       => $data['quotation_id'] ?? null,
+                'subtotal'           => $subtotal,
+                'tax_amount'         => $taxAmount,
+                'total_amount'       => $totalAmount,
+                'payment_status'     => 'unpaid',
+                'due_date'           => $data['due_date'],
+                'notes'              => $data['notes'] ?? null,
             ]);
 
             foreach ($data['items'] as $item) {
@@ -84,13 +85,14 @@ class InvoiceService
             $totalAmount = $subtotal + $taxAmount;
 
             $invoice->update([
-                'customer_id' => $data['customer_id'],
-                'trip_id' => $data['trip_id'] ?? null,
-                'subtotal' => $subtotal,
-                'tax_amount' => $taxAmount,
-                'total_amount' => $totalAmount,
-                'due_date' => $data['due_date'],
-                'notes' => $data['notes'] ?? null,
+                'company_setting_id' => $data['company_setting_id'] ?? null,
+                'customer_id'        => $data['customer_id'],
+                'trip_id'            => $data['trip_id'] ?? null,
+                'subtotal'           => $subtotal,
+                'tax_amount'         => $taxAmount,
+                'total_amount'       => $totalAmount,
+                'due_date'           => $data['due_date'],
+                'notes'              => $data['notes'] ?? null,
             ]);
 
             $invoice->items()->delete();

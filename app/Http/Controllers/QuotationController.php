@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Quotation;
+use App\Models\CompanySetting;
 use App\Models\Customer;
 use App\Services\QuotationService;
 use App\Services\PdfService;
@@ -46,12 +47,14 @@ class QuotationController extends Controller
     {
         return Inertia::render('Quotations/Create', [
             'customers' => Customer::orderBy('name')->get(),
+            'companies' => CompanySetting::orderBy('name')->get(),
         ]);
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
+            'company_setting_id' => 'nullable|exists:company_settings,id',
             'customer_id' => 'required|exists:customers,id',
             'valid_until' => 'nullable|date',
             'tax_rate' => 'nullable|numeric|min:0|max:100',
@@ -78,17 +81,19 @@ class QuotationController extends Controller
 
     public function edit(Quotation $quotation)
     {
-        $quotation->load(['customer', 'items']);
+        $quotation->load(['customer', 'items', 'companySetting']);
 
         return Inertia::render('Quotations/Edit', [
             'quotation' => $quotation,
             'customers' => Customer::orderBy('name')->get(),
+            'companies' => CompanySetting::orderBy('name')->get(),
         ]);
     }
 
     public function update(Request $request, Quotation $quotation)
     {
         $validated = $request->validate([
+            'company_setting_id' => 'nullable|exists:company_settings,id',
             'customer_id' => 'required|exists:customers,id',
             'valid_until' => 'nullable|date',
             'tax_rate' => 'nullable|numeric|min:0|max:100',

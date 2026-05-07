@@ -11,6 +11,7 @@ class Invoice extends Model
 
     protected $fillable = [
         'invoice_number',
+        'company_setting_id',
         'customer_id',
         'trip_id',
         'quotation_id',
@@ -28,6 +29,11 @@ class Invoice extends Model
         'tax_amount' => 'decimal:2',
         'total_amount' => 'decimal:2',
     ];
+
+    public function companySetting()
+    {
+        return $this->belongsTo(CompanySetting::class);
+    }
 
     public function customer()
     {

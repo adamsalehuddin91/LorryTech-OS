@@ -48,14 +48,15 @@ class QuotationService
             $totalAmount = $subtotal + $taxAmount;
 
             $quotation = Quotation::create([
-                'quotation_number' => $quotationNumber,
-                'customer_id' => $data['customer_id'],
-                'subtotal' => $subtotal,
-                'tax_amount' => $taxAmount,
-                'total_amount' => $totalAmount,
-                'status' => 'draft',
-                'valid_until' => $data['valid_until'] ?? null,
-                'notes' => $data['notes'] ?? null,
+                'quotation_number'   => $quotationNumber,
+                'company_setting_id' => $data['company_setting_id'] ?? null,
+                'customer_id'        => $data['customer_id'],
+                'subtotal'           => $subtotal,
+                'tax_amount'         => $taxAmount,
+                'total_amount'       => $totalAmount,
+                'status'             => 'draft',
+                'valid_until'        => $data['valid_until'] ?? null,
+                'notes'              => $data['notes'] ?? null,
             ]);
 
             foreach ($data['items'] as $item) {
@@ -85,12 +86,13 @@ class QuotationService
             $totalAmount = $subtotal + $taxAmount;
 
             $quotation->update([
-                'customer_id' => $data['customer_id'],
-                'subtotal' => $subtotal,
-                'tax_amount' => $taxAmount,
-                'total_amount' => $totalAmount,
-                'valid_until' => $data['valid_until'] ?? null,
-                'notes' => $data['notes'] ?? null,
+                'company_setting_id' => $data['company_setting_id'] ?? null,
+                'customer_id'        => $data['customer_id'],
+                'subtotal'           => $subtotal,
+                'tax_amount'         => $taxAmount,
+                'total_amount'       => $totalAmount,
+                'valid_until'        => $data['valid_until'] ?? null,
+                'notes'              => $data['notes'] ?? null,
             ]);
 
             $quotation->items()->delete();

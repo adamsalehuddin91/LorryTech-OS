@@ -11,8 +11,8 @@ class PdfService
 {
     public function generateInvoicePdf(Invoice $invoice)
     {
-        $invoice->load(['customer', 'items']);
-        $company = CompanySetting::first();
+        $invoice->load(['customer', 'items', 'companySetting']);
+        $company = $invoice->companySetting ?? CompanySetting::first();
 
         return Pdf::loadView('pdf.invoice', [
             'invoice' => $invoice,
@@ -22,8 +22,8 @@ class PdfService
 
     public function generateQuotationPdf(Quotation $quotation)
     {
-        $quotation->load(['customer', 'items']);
-        $company = CompanySetting::first();
+        $quotation->load(['customer', 'items', 'companySetting']);
+        $company = $quotation->companySetting ?? CompanySetting::first();
 
         return Pdf::loadView('pdf.quotation', [
             'quotation' => $quotation,

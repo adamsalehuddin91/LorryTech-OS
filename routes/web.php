@@ -17,6 +17,15 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
+// SCREENSHOT ONLY — remove after use
+Route::get('/dev-autologin/{role}', function ($role) {
+    if (app()->environment('production')) abort(404);
+    $email = $role === 'driver' ? 'ali@lorrytech.my' : 'admin@lorrytech.my';
+    $user = \App\Models\User::where('email', $email)->first();
+    auth()->login($user);
+    return redirect($role === 'driver' ? '/driver/dashboard' : '/dashboard');
+});
+
 Route::get('/dashboard', DashboardController::class)
     ->middleware(['auth', 'verified'])
     ->name('dashboard');

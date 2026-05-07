@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Invoice;
+use App\Models\CompanySetting;
 use App\Models\Customer;
 use App\Services\InvoiceService;
 use App\Services\PdfService;
@@ -46,12 +47,14 @@ class InvoiceController extends Controller
     {
         return Inertia::render('Invoices/Create', [
             'customers' => Customer::orderBy('name')->get(),
+            'companies' => CompanySetting::orderBy('name')->get(),
         ]);
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
+            'company_setting_id' => 'nullable|exists:company_settings,id',
             'customer_id' => 'required|exists:customers,id',
             'due_date' => 'required|date',
             'tax_rate' => 'nullable|numeric|min:0|max:100',
@@ -78,17 +81,19 @@ class InvoiceController extends Controller
 
     public function edit(Invoice $invoice)
     {
-        $invoice->load(['customer', 'items']);
+        $invoice->load(['customer', 'items', 'companySetting']);
 
         return Inertia::render('Invoices/Edit', [
-            'invoice' => $invoice,
+            'invoice'   => $invoice,
             'customers' => Customer::orderBy('name')->get(),
+            'companies' => CompanySetting::orderBy('name')->get(),
         ]);
     }
 
     public function update(Request $request, Invoice $invoice)
     {
         $validated = $request->validate([
+            'company_setting_id' => 'nullable|exists:company_settings,id',
             'customer_id' => 'required|exists:customers,id',
             'due_date' => 'required|date',
             'tax_rate' => 'nullable|numeric|min:0|max:100',

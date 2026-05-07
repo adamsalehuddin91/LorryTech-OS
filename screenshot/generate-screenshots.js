@@ -24,15 +24,19 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const OUT = path.join(__dirname, 'output');
 if (!fs.existsSync(OUT)) fs.mkdirSync(OUT, { recursive: true });
 
-const BASE_URL    = process.env.LORRY_URL    || 'https://lorrytech.swiftapps.my';
+const BASE_URL    = process.env.LORRY_URL    || 'http://127.0.0.1:8000';
 const OWNER_EMAIL = process.env.LORRY_EMAIL  || 'admin@lorrytech.my';
 const OWNER_PASS  = process.env.LORRY_PASS   || 'password';
 const DRIVER_EMAIL= process.env.DRIVER_EMAIL || 'ali@lorrytech.my';
 const DRIVER_PASS = process.env.DRIVER_PASS  || 'password';
 
-// iPhone 14 Pro (shots.so standard)
+// iPhone 14 Pro (shots.so standard) — driver portal
 const PHONE_W = 390;
 const PHONE_H = 844;
+
+// Desktop — owner/kerani web view
+const DESKTOP_W = 1280;
+const DESKTOP_H = 800;
 
 const FORMATS = {
   square:   { w: 1080, h: 1080 },   // Facebook feed
@@ -44,19 +48,13 @@ function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 // ── Login helper ──────────────────────────────────────────────────────────────
 async function login(page, email, password) {
-  await page.goto(`${BASE_URL}/login`, { waitUntil: 'networkidle2' });
-  // Wait for React to render the form
-  await page.waitForSelector('#email', { timeout: 10000 });
-  await page.click('#email');
-  await page.type('#email', email);
-  await page.click('#password');
-  await page.type('#password', password);
-  // Submit via Enter (button has no explicit type="submit" in DOM)
-  await Promise.all([
-    page.keyboard.press('Enter'),
-    page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 15000 }),
-  ]);
-  console.log(`  Logged in as ${email} → ${page.url()}`);
+  // Use dev autologin route (bypasses form login issues in headless mode)
+  const role = email.includes('ali@') || email.includes('abu@') ? 'driver' : 'owner';
+  await page.goto(`${BASE_URL}/dev-autologin/${role}`, { waitUntil: 'networkidle2' });
+  await wait(800);
+  const url = page.url();
+  if (url.includes('/login')) throw new Error(`Dev autologin failed → ${url}`);
+  console.log(`  Logged in as ${email} → ${url}`);
 }
 
 // ── Screenshot a page ─────────────────────────────────────────────────────────
@@ -67,9 +65,9 @@ async function snap(page, url, filename, opts = {}) {
   await wait(waitMs);
   if (scrollY) await page.evaluate((y) => window.scrollBy(0, y), scrollY);
   await wait(400);
-  const outPath = path.join(OUT, `raw-${filename}.png`);
+  const outPath = path.join(OUT, `${filename}.png`);
   await page.screenshot({ path: outPath });
-  console.log(`  Captured: raw-${filename}.png`);
+  console.log(`  Captured: ${filename}.png`);
   return outPath;
 }
 
@@ -180,43 +178,78 @@ async function compositeCard(mockupPath, formatKey, label, tagline) {
 }
 
 // ── Main ──────────────────────────────────────────────────────────────────────
-const SCREENS = [
+// Driver portal — mobile (390x844)
+const MOBILE_SCREENS = [
   {
-    label: '01-owner-dashboard',
-    tagline: 'Papan Pemuka Pemilik — P&L & Fleet Overview',
-    role: 'owner',
-    url: `${BASE_URL}/dashboard`,
-    opts: { waitMs: 2000, waitForSelector: '.grid' },
-  },
-  {
-    label: '02-trips',
-    tagline: 'Rekod Perjalanan & Hasil Penghantaran',
-    role: 'owner',
-    url: `${BASE_URL}/trips`,
-    opts: { waitMs: 1500 },
-  },
-  {
-    label: '03-expenses',
-    tagline: 'Peti Resit Digital — Audit Score LHDN',
-    role: 'owner',
-    url: `${BASE_URL}/expenses`,
-    opts: { waitMs: 1800 },
-  },
-  {
-    label: '04-driver-dashboard',
-    tagline: 'Portal Pemandu — Komisyen & Perjalanan',
+    label: 'mobile-01-driver-dashboard',
     role: 'driver',
     url: `${BASE_URL}/driver/dashboard`,
     opts: { waitMs: 1800 },
+    viewport: { width: PHONE_W, height: PHONE_H },
   },
   {
-    label: '05-driver-upload',
-    tagline: 'Snap & Upload Resit Terus Dari Telefon',
+    label: 'mobile-02-driver-upload',
     role: 'driver',
     url: `${BASE_URL}/driver/upload-receipt`,
     opts: { waitMs: 1500 },
+    viewport: { width: PHONE_W, height: PHONE_H },
+  },
+  {
+    label: 'mobile-03-driver-trips',
+    role: 'driver',
+    url: `${BASE_URL}/driver/trips`,
+    opts: { waitMs: 1500 },
+    viewport: { width: PHONE_W, height: PHONE_H },
   },
 ];
+
+// Owner/Kerani — desktop web (1280x800)
+const WEB_SCREENS = [
+  {
+    label: 'web-01-dashboard',
+    role: 'owner',
+    url: `${BASE_URL}/dashboard`,
+    opts: { waitMs: 2500 },
+    viewport: { width: DESKTOP_W, height: DESKTOP_H },
+  },
+  {
+    label: 'web-02-trips',
+    role: 'owner',
+    url: `${BASE_URL}/trips`,
+    opts: { waitMs: 1800 },
+    viewport: { width: DESKTOP_W, height: DESKTOP_H },
+  },
+  {
+    label: 'web-03-invoices',
+    role: 'owner',
+    url: `${BASE_URL}/invoices`,
+    opts: { waitMs: 1800 },
+    viewport: { width: DESKTOP_W, height: DESKTOP_H },
+  },
+  {
+    label: 'web-04-expenses',
+    role: 'owner',
+    url: `${BASE_URL}/expenses`,
+    opts: { waitMs: 1800 },
+    viewport: { width: DESKTOP_W, height: DESKTOP_H },
+  },
+  {
+    label: 'web-05-vehicles',
+    role: 'owner',
+    url: `${BASE_URL}/vehicles`,
+    opts: { waitMs: 1500 },
+    viewport: { width: DESKTOP_W, height: DESKTOP_H },
+  },
+  {
+    label: 'web-06-drivers',
+    role: 'owner',
+    url: `${BASE_URL}/drivers`,
+    opts: { waitMs: 1500 },
+    viewport: { width: DESKTOP_W, height: DESKTOP_H },
+  },
+];
+
+const SCREENS = [...WEB_SCREENS, ...MOBILE_SCREENS];
 
 (async () => {
   console.log('LorryTech OS — Screenshot Generator');
@@ -242,7 +275,6 @@ const SCREENS = [
     if (screen.role === 'owner') {
       if (!ownerPage) {
         ownerPage = await ownerCtx.newPage();
-        await ownerPage.setViewport({ width: PHONE_W, height: PHONE_H, deviceScaleFactor: 2 });
         await ownerPage.setCacheEnabled(false);
         console.log(`  Logging in as owner...`);
         await login(ownerPage, OWNER_EMAIL, OWNER_PASS);
@@ -251,7 +283,6 @@ const SCREENS = [
     } else {
       if (!driverPage) {
         driverPage = await driverCtx.newPage();
-        await driverPage.setViewport({ width: PHONE_W, height: PHONE_H, deviceScaleFactor: 2 });
         await driverPage.setCacheEnabled(false);
         console.log(`  Logging in as driver...`);
         await login(driverPage, DRIVER_EMAIL, DRIVER_PASS);
@@ -259,24 +290,18 @@ const SCREENS = [
       page = driverPage;
     }
 
-    const rawPath = await snap(page, screen.url, screen.label, screen.opts);
-    const mockupPath = await makePhoneMockup(rawPath, screen.label);
+    // Set viewport per screen (desktop vs mobile)
+    const vp = screen.viewport || { width: PHONE_W, height: PHONE_H };
+    await page.setViewport({ ...vp, deviceScaleFactor: 2 });
 
-    // Generate all 3 social formats
-    for (const fmt of ['square', 'portrait', 'story']) {
-      await compositeCard(mockupPath, fmt, screen.label, screen.tagline);
-    }
+    await snap(page, screen.url, screen.label, screen.opts);
   }
 
   await browser.close();
 
   console.log('\n=====================================');
-  console.log('Done! Output files:');
+  console.log('Done! Raw screenshots for shots.so (390x844):');
   fs.readdirSync(OUT)
-    .filter(f => !f.startsWith('raw-') && !f.startsWith('mockup-'))
-    .forEach(f => console.log(`  screenshot/output/${f}`));
-  console.log('\nshots.so raw files (390x844):');
-  fs.readdirSync(OUT)
-    .filter(f => f.startsWith('raw-'))
+    .sort()
     .forEach(f => console.log(`  screenshot/output/${f}`));
 })();

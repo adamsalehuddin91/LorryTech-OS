@@ -1,8 +1,10 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
+import CompanySelector from '@/Components/CompanySelector';
 
-export default function Edit({ invoice, customers }) {
+export default function Edit({ invoice, customers, companies }) {
     const { data, setData, put, processing, errors } = useForm({
+        company_setting_id: invoice.company_setting_id ? String(invoice.company_setting_id) : (companies?.length === 1 ? String(companies[0].id) : ''),
         customer_id: invoice.customer_id || '',
         due_date: invoice.due_date || '',
         tax_rate: invoice.tax_rate || 0,
@@ -62,6 +64,14 @@ export default function Edit({ invoice, customers }) {
                 <div className="mx-auto max-w-4xl sm:px-6 lg:px-8">
                     <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
                         <form onSubmit={handleSubmit} className="p-6 space-y-6">
+
+                            <CompanySelector
+                                companies={companies}
+                                value={data.company_setting_id}
+                                onChange={(v) => setData('company_setting_id', v)}
+                                error={errors.company_setting_id}
+                            />
+
                             {/* Pelanggan & Tarikh Akhir */}
                             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                                 <div>

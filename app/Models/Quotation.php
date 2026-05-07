@@ -8,6 +8,7 @@ class Quotation extends Model
 {
     protected $fillable = [
         'quotation_number',
+        'company_setting_id',
         'customer_id',
         'valid_until',
         'status',
@@ -24,6 +25,11 @@ class Quotation extends Model
         'tax_amount' => 'decimal:2',
         'total_amount' => 'decimal:2',
     ];
+
+    public function companySetting()
+    {
+        return $this->belongsTo(CompanySetting::class);
+    }
 
     public function customer()
     {
