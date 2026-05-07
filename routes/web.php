@@ -6,6 +6,7 @@ use App\Http\Controllers\DriverController;
 use App\Http\Controllers\TripController;
 use App\Http\Controllers\QuotationController;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DriverPortalController;
@@ -31,6 +32,7 @@ Route::get('/dashboard', DashboardController::class)
     ->name('dashboard');
 
 Route::middleware(['auth', 'role:owner'])->group(function () {
+    Route::resource('customers', CustomerController::class);
     Route::resource('vehicles', VehicleController::class);
     Route::resource('drivers', DriverController::class);
     Route::resource('trips', TripController::class);
