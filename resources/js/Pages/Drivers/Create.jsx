@@ -12,6 +12,12 @@ export default function Create() {
         phone: '',
         emergency_contact: '',
         status: 'active',
+        ic_number: '',
+        kwsp_no: '',
+        socso_no: '',
+        bank_name: '',
+        bank_account_no: '',
+        base_salary: '',
     });
 
     const handleSubmit = (e) => {
@@ -34,7 +40,7 @@ export default function Create() {
                     <div className="bg-white rounded-xl shadow-sm border border-gray-200">
                         <div className="p-6 border-b border-gray-200">
                             <h3 className="text-lg font-semibold text-gray-900">Maklumat Pemandu</h3>
-                            <p className="mt-1 text-sm text-gray-500">Isi maklumat pemandu baharu.</p>
+                            <p className="mt-1 text-sm text-gray-500">Isi maklumat pemandu baharu. Bahagian Penggajian diperlukan untuk jana slip gaji.</p>
                         </div>
 
                         <form onSubmit={handleSubmit} className="p-6 space-y-6">
@@ -192,6 +198,91 @@ export default function Create() {
                                     <option value="inactive">Tidak Aktif</option>
                                 </select>
                                 {errors.status && <p className="mt-1 text-sm text-red-600">{errors.status}</p>}
+                            </div>
+
+                            {/* ── Maklumat Penggajian ── */}
+                            <div className="pt-4 border-t border-gray-200">
+                                <h4 className="text-sm font-semibold text-gray-800 mb-4">Maklumat Penggajian</h4>
+
+                                {/* IC & Gaji Pokok */}
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">No. IC</label>
+                                        <input
+                                            type="text"
+                                            value={data.ic_number}
+                                            onChange={(e) => setData('ic_number', e.target.value)}
+                                            className={`w-full border rounded-lg px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500 ${errors.ic_number ? 'border-red-500' : 'border-gray-300'}`}
+                                            placeholder="e.g. 851026-06-5431"
+                                        />
+                                        {errors.ic_number && <p className="mt-1 text-sm text-red-600">{errors.ic_number}</p>}
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Gaji Pokok (RM/bulan)</label>
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            min="0"
+                                            value={data.base_salary}
+                                            onChange={(e) => setData('base_salary', e.target.value)}
+                                            className={`w-full border rounded-lg px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500 ${errors.base_salary ? 'border-red-500' : 'border-gray-300'}`}
+                                            placeholder="1700.00"
+                                        />
+                                        {errors.base_salary && <p className="mt-1 text-sm text-red-600">{errors.base_salary}</p>}
+                                    </div>
+                                </div>
+
+                                {/* KWSP & SOCSO */}
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">No. KWSP Pekerja</label>
+                                        <input
+                                            type="text"
+                                            value={data.kwsp_no}
+                                            onChange={(e) => setData('kwsp_no', e.target.value)}
+                                            className={`w-full border rounded-lg px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500 ${errors.kwsp_no ? 'border-red-500' : 'border-gray-300'}`}
+                                            placeholder="e.g. 18554016"
+                                        />
+                                        {errors.kwsp_no && <p className="mt-1 text-sm text-red-600">{errors.kwsp_no}</p>}
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">No. SOCSO Pekerja</label>
+                                        <input
+                                            type="text"
+                                            value={data.socso_no}
+                                            onChange={(e) => setData('socso_no', e.target.value)}
+                                            className={`w-full border rounded-lg px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500 ${errors.socso_no ? 'border-red-500' : 'border-gray-300'}`}
+                                            placeholder="e.g. 891121-06-5516"
+                                        />
+                                        {errors.socso_no && <p className="mt-1 text-sm text-red-600">{errors.socso_no}</p>}
+                                    </div>
+                                </div>
+
+                                {/* Bank */}
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Nama Bank</label>
+                                        <input
+                                            type="text"
+                                            value={data.bank_name}
+                                            onChange={(e) => setData('bank_name', e.target.value)}
+                                            className={`w-full border rounded-lg px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500 ${errors.bank_name ? 'border-red-500' : 'border-gray-300'}`}
+                                            placeholder="e.g. Maybank"
+                                        />
+                                        {errors.bank_name && <p className="mt-1 text-sm text-red-600">{errors.bank_name}</p>}
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">No. Akaun Bank</label>
+                                        <input
+                                            type="text"
+                                            value={data.bank_account_no}
+                                            onChange={(e) => setData('bank_account_no', e.target.value)}
+                                            className={`w-full border rounded-lg px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500 ${errors.bank_account_no ? 'border-red-500' : 'border-gray-300'}`}
+                                            placeholder="e.g. 1623-8483-4071"
+                                        />
+                                        {errors.bank_account_no && <p className="mt-1 text-sm text-red-600">{errors.bank_account_no}</p>}
+                                    </div>
+                                </div>
                             </div>
 
                             {/* Actions */}

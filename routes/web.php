@@ -10,6 +10,8 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DriverPortalController;
+use App\Http\Controllers\CompanySettingController;
+use App\Http\Controllers\PayrollController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -51,6 +53,19 @@ Route::middleware(['auth', 'role:owner'])->group(function () {
     // Expenses
     Route::resource('expenses', ExpenseController::class);
     Route::patch('expenses/{expense}/verify', [ExpenseController::class, 'toggleVerify'])->name('expenses.verify');
+
+    // Company Settings
+    Route::get('settings/company', [CompanySettingController::class, 'edit'])->name('settings.company');
+    Route::post('settings/company', [CompanySettingController::class, 'update'])->name('settings.company.update');
+
+    // Payroll
+    Route::get('payroll', [PayrollController::class, 'index'])->name('payroll.index');
+    Route::post('payroll/generate', [PayrollController::class, 'generate'])->name('payroll.generate');
+    Route::get('payroll/{payroll}', [PayrollController::class, 'show'])->name('payroll.show');
+    Route::patch('payroll/{payroll}/approve', [PayrollController::class, 'approve'])->name('payroll.approve');
+    Route::patch('payroll/{payroll}/mark-paid', [PayrollController::class, 'markPaid'])->name('payroll.mark-paid');
+    Route::delete('payroll/{payroll}', [PayrollController::class, 'destroy'])->name('payroll.destroy');
+    Route::get('payroll/{payroll}/pdf', [PayrollController::class, 'pdf'])->name('payroll.pdf');
 });
 
 // Driver Portal

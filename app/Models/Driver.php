@@ -14,12 +14,24 @@ class Driver extends Model
         'phone',
         'emergency_contact',
         'status',
+        'ic_number',
+        'kwsp_no',
+        'socso_no',
+        'bank_name',
+        'bank_account_no',
+        'base_salary',
     ];
 
     protected $casts = [
         'license_expiry' => 'date',
         'commission_rate' => 'decimal:2',
+        'base_salary'    => 'decimal:2',
     ];
+
+    public function payrolls()
+    {
+        return $this->hasMany(\App\Models\Payroll::class);
+    }
 
     public function user()
     {

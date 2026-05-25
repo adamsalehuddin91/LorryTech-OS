@@ -38,32 +38,44 @@ class DriverController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8',
-            'license_number' => 'nullable|string',
-            'license_expiry' => 'nullable|date',
-            'commission_rate' => 'required|numeric|min:0|max:100',
-            'phone' => 'nullable|string|max:20',
+            'name'              => 'required|string|max:255',
+            'email'             => 'required|email|unique:users,email',
+            'password'          => 'required|string|min:8',
+            'license_number'    => 'nullable|string',
+            'license_expiry'    => 'nullable|date',
+            'commission_rate'   => 'required|numeric|min:0|max:100',
+            'phone'             => 'nullable|string|max:20',
             'emergency_contact' => 'nullable|string',
-            'status' => 'required|in:active,inactive',
+            'status'            => 'required|in:active,inactive',
+            'ic_number'         => 'nullable|string|max:20',
+            'kwsp_no'           => 'nullable|string|max:20',
+            'socso_no'          => 'nullable|string|max:20',
+            'bank_name'         => 'nullable|string|max:50',
+            'bank_account_no'   => 'nullable|string|max:30',
+            'base_salary'       => 'nullable|numeric|min:0',
         ]);
 
         $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
+            'name'     => $validated['name'],
+            'email'    => $validated['email'],
             'password' => Hash::make($validated['password']),
-            'role' => 'driver',
+            'role'     => 'driver',
         ]);
 
         Driver::create([
-            'user_id' => $user->id,
-            'license_number' => $validated['license_number'],
-            'license_expiry' => $validated['license_expiry'],
-            'commission_rate' => $validated['commission_rate'],
-            'phone' => $validated['phone'],
+            'user_id'           => $user->id,
+            'license_number'    => $validated['license_number'],
+            'license_expiry'    => $validated['license_expiry'],
+            'commission_rate'   => $validated['commission_rate'],
+            'phone'             => $validated['phone'],
             'emergency_contact' => $validated['emergency_contact'],
-            'status' => $validated['status'],
+            'status'            => $validated['status'],
+            'ic_number'         => $validated['ic_number'],
+            'kwsp_no'           => $validated['kwsp_no'],
+            'socso_no'          => $validated['socso_no'],
+            'bank_name'         => $validated['bank_name'],
+            'bank_account_no'   => $validated['bank_account_no'],
+            'base_salary'       => $validated['base_salary'] ?? 0,
         ]);
 
         return redirect()->route('drivers.index')->with('success', 'Pemandu berjaya ditambah.');
@@ -84,28 +96,40 @@ class DriverController extends Controller
     public function update(Request $request, Driver $driver)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $driver->user_id,
-            'license_number' => 'nullable|string',
-            'license_expiry' => 'nullable|date',
-            'commission_rate' => 'required|numeric|min:0|max:100',
-            'phone' => 'nullable|string|max:20',
+            'name'              => 'required|string|max:255',
+            'email'             => 'required|email|unique:users,email,' . $driver->user_id,
+            'license_number'    => 'nullable|string',
+            'license_expiry'    => 'nullable|date',
+            'commission_rate'   => 'required|numeric|min:0|max:100',
+            'phone'             => 'nullable|string|max:20',
             'emergency_contact' => 'nullable|string',
-            'status' => 'required|in:active,inactive',
+            'status'            => 'required|in:active,inactive',
+            'ic_number'         => 'nullable|string|max:20',
+            'kwsp_no'           => 'nullable|string|max:20',
+            'socso_no'          => 'nullable|string|max:20',
+            'bank_name'         => 'nullable|string|max:50',
+            'bank_account_no'   => 'nullable|string|max:30',
+            'base_salary'       => 'nullable|numeric|min:0',
         ]);
 
         $driver->user->update([
-            'name' => $validated['name'],
+            'name'  => $validated['name'],
             'email' => $validated['email'],
         ]);
 
         $driver->update([
-            'license_number' => $validated['license_number'],
-            'license_expiry' => $validated['license_expiry'],
-            'commission_rate' => $validated['commission_rate'],
-            'phone' => $validated['phone'],
+            'license_number'    => $validated['license_number'],
+            'license_expiry'    => $validated['license_expiry'],
+            'commission_rate'   => $validated['commission_rate'],
+            'phone'             => $validated['phone'],
             'emergency_contact' => $validated['emergency_contact'],
-            'status' => $validated['status'],
+            'status'            => $validated['status'],
+            'ic_number'         => $validated['ic_number'],
+            'kwsp_no'           => $validated['kwsp_no'],
+            'socso_no'          => $validated['socso_no'],
+            'bank_name'         => $validated['bank_name'],
+            'bank_account_no'   => $validated['bank_account_no'],
+            'base_salary'       => $validated['base_salary'] ?? 0,
         ]);
 
         return redirect()->route('drivers.index')->with('success', 'Pemandu berjaya dikemaskini.');

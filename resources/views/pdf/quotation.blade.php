@@ -15,135 +15,203 @@
             margin: 0;
             padding: 0;
         }
+        .header-table { width: 100%; margin-bottom: 16px; border-collapse: collapse; }
+        .company-name { font-size: 17px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
+        .divider { border: none; border-top: 2px solid #333333; margin: 14px 0; }
+        .meta-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
+        .section-label { font-weight: bold; font-size: 12px; }
+        .items-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        .items-table th {
+            background-color: #2c3e50;
+            color: #ffffff;
+            font-weight: bold;
+            padding: 9px 8px;
+            border: 1px solid #2c3e50;
+        }
+        .items-table td { padding: 8px; border: 1px solid #dddddd; }
+        .items-table tr.alt td { background-color: #f7f7f7; }
+        .signature-table { width: 100%; border-collapse: collapse; margin-top: 30px; }
+        .signature-box {
+            border: 1px solid #cccccc;
+            padding: 10px 14px;
+            min-height: 70px;
+        }
+        .footer-note { font-size: 10px; color: #888888; text-align: center; border-top: 1px solid #dddddd; padding-top: 10px; margin-top: 20px; }
     </style>
 </head>
 <body>
 
-    {{-- Company Header --}}
-    <table style="width: 100%; margin-bottom: 20px;">
+    {{-- Company Header: Logo LEFT | Company info RIGHT --}}
+    <table class="header-table">
         <tr>
-            <td style="width: 60%; vertical-align: top;">
-                <span style="font-size: 18px; font-weight: bold;">{{ $company->name }}</span><br>
-                @if($company->address)
-                    {{ $company->address }}<br>
-                @endif
-                @if($company->phone)
-                    Tel: {{ $company->phone }}<br>
-                @endif
-                @if($company->email)
-                    Emel: {{ $company->email }}<br>
-                @endif
-                @if($company->registration_number)
-                    No. Pendaftaran: {{ $company->registration_number }}<br>
+            <td style="width: 22%; vertical-align: middle;">
+                @if(!empty($company->logo_url))
+                    <img src="{{ $company->logo_url }}"
+                         style="max-width: 110px; max-height: 80px;">
                 @endif
             </td>
-            <td style="width: 40%; vertical-align: top; text-align: right;">
-                <span style="font-size: 24px; font-weight: bold;">SEBUT HARGA</span><br><br>
-                <table style="width: 100%;">
-                    <tr>
-                        <td style="text-align: right; padding: 2px 8px; font-weight: bold;">No. Sebut Harga:</td>
-                        <td style="text-align: right; padding: 2px 0;">{{ $quotation->quotation_number }}</td>
-                    </tr>
-                    <tr>
-                        <td style="text-align: right; padding: 2px 8px; font-weight: bold;">Tarikh:</td>
-                        <td style="text-align: right; padding: 2px 0;">{{ date('d/m/Y', strtotime($quotation->date)) }}</td>
-                    </tr>
-                    <tr>
-                        <td style="text-align: right; padding: 2px 8px; font-weight: bold;">Sah Sehingga:</td>
-                        <td style="text-align: right; padding: 2px 0;">{{ date('d/m/Y', strtotime($quotation->valid_until)) }}</td>
-                    </tr>
-                </table>
+            <td style="width: 78%; vertical-align: top; padding-left: 14px;">
+                <span class="company-name">
+                    {{ $company->name }}
+                    @if($company->registration_number)
+                        <span style="font-size: 12px; font-weight: normal;">({{ $company->registration_number }})</span>
+                    @endif
+                </span><br>
+                @if($company->address)
+                    <span style="font-size: 11px;">{{ $company->address }}</span><br>
+                @endif
+                @if($company->email)
+                    <span style="font-size: 11px;">Email : {{ $company->email }}</span><br>
+                @endif
+                @if($company->phone)
+                    <span style="font-size: 11px;">Tel No : {{ $company->phone }}</span>
+                @endif
             </td>
         </tr>
     </table>
 
-    <hr style="border: none; border-top: 2px solid #333333; margin-bottom: 20px;">
+    {{-- Quotation label + Date + Number + Valid Until --}}
+    <table class="meta-table">
+        <tr>
+            <td style="vertical-align: top; width: 60%;">
+                <span style="font-size: 14px; font-weight: bold; text-decoration: underline;">Sebut Harga</span><br>
+                <span style="margin-top: 4px; display: inline-block;">Date: {{ date('d/m/Y', strtotime($quotation->date)) }}</span>
+            </td>
+            <td style="vertical-align: top; width: 40%; text-align: right;">
+                No. Sebut Harga : {{ $quotation->quotation_number }}<br>
+                <span style="font-size: 11px; color: #666666;">
+                    Sah Sehingga : {{ date('d/m/Y', strtotime($quotation->valid_until)) }}
+                </span>
+            </td>
+        </tr>
+    </table>
 
-    {{-- Customer Section --}}
+    <hr class="divider">
+
+    {{-- Billing Address --}}
     <table style="width: 100%; margin-bottom: 20px;">
         <tr>
-            <td style="vertical-align: top;">
-                <span style="font-weight: bold; font-size: 13px;">Bil Kepada:</span><br><br>
-                <span style="font-weight: bold;">{{ $quotation->customer->name }}</span><br>
+            <td>
+                <span class="section-label">Bil Kepada :</span><br>
+                {{ $quotation->customer->name }}
                 @if($quotation->customer->company)
-                    {{ $quotation->customer->company }}<br>
+                    <br>{{ $quotation->customer->company }}
                 @endif
                 @if($quotation->customer->address)
-                    {{ $quotation->customer->address }}<br>
+                    <br>{{ $quotation->customer->address }}
                 @endif
                 @if($quotation->customer->phone)
-                    Tel: {{ $quotation->customer->phone }}<br>
-                @endif
-                @if($quotation->customer->email)
-                    Emel: {{ $quotation->customer->email }}<br>
+                    <br>Tel: {{ $quotation->customer->phone }}
                 @endif
             </td>
         </tr>
     </table>
 
     {{-- Items Table --}}
-    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-        <tr>
-            <td style="background-color: #2c3e50; color: #ffffff; font-weight: bold; padding: 10px 8px; border: 1px solid #2c3e50; text-align: center; width: 5%;">#</td>
-            <td style="background-color: #2c3e50; color: #ffffff; font-weight: bold; padding: 10px 8px; border: 1px solid #2c3e50; text-align: left;">Penerangan</td>
-            <td style="background-color: #2c3e50; color: #ffffff; font-weight: bold; padding: 10px 8px; border: 1px solid #2c3e50; text-align: center; width: 10%;">Kuantiti</td>
-            <td style="background-color: #2c3e50; color: #ffffff; font-weight: bold; padding: 10px 8px; border: 1px solid #2c3e50; text-align: right; width: 18%;">Harga Seunit (RM)</td>
-            <td style="background-color: #2c3e50; color: #ffffff; font-weight: bold; padding: 10px 8px; border: 1px solid #2c3e50; text-align: right; width: 18%;">Jumlah (RM)</td>
-        </tr>
-        @foreach($quotation->items as $index => $item)
+    <table class="items-table">
+        <thead>
             <tr>
-                <td style="padding: 8px; border: 1px solid #dddddd; text-align: center;{{ $index % 2 === 1 ? ' background-color: #f9f9f9;' : '' }}">{{ $index + 1 }}</td>
-                <td style="padding: 8px; border: 1px solid #dddddd; text-align: left;{{ $index % 2 === 1 ? ' background-color: #f9f9f9;' : '' }}">{{ $item->description }}</td>
-                <td style="padding: 8px; border: 1px solid #dddddd; text-align: center;{{ $index % 2 === 1 ? ' background-color: #f9f9f9;' : '' }}">{{ $item->quantity }}</td>
-                <td style="padding: 8px; border: 1px solid #dddddd; text-align: right;{{ $index % 2 === 1 ? ' background-color: #f9f9f9;' : '' }}">{{ number_format($item->unit_price, 2) }}</td>
-                <td style="padding: 8px; border: 1px solid #dddddd; text-align: right;{{ $index % 2 === 1 ? ' background-color: #f9f9f9;' : '' }}">{{ number_format($item->quantity * $item->unit_price, 2) }}</td>
+                <th style="text-align: center; width: 6%;">BIL</th>
+                <th style="text-align: left;">PERKHIDMATAN ( PENGANGKUTAN )</th>
+                <th style="text-align: center; width: 12%;">KUANTITI</th>
+                <th style="text-align: right; width: 20%;">HARGA SEUNIT (RM)</th>
+                <th style="text-align: right; width: 18%;">JUMLAH (RM)</th>
             </tr>
-        @endforeach
+        </thead>
+        <tbody>
+            @foreach($quotation->items as $index => $item)
+                <tr class="{{ $index % 2 === 1 ? 'alt' : '' }}">
+                    <td style="text-align: center;">{{ $index + 1 }}.</td>
+                    <td style="text-align: left;">{{ $item->description }}</td>
+                    <td style="text-align: center;">{{ $item->quantity }}</td>
+                    <td style="text-align: right;">{{ number_format($item->unit_price, 2) }}</td>
+                    <td style="text-align: right;">{{ number_format($item->quantity * $item->unit_price, 2) }}</td>
+                </tr>
+            @endforeach
+            {{-- Blank rows (min 3 rows shown) --}}
+            @for($i = count($quotation->items); $i < 3; $i++)
+                <tr>
+                    <td style="height: 28px;">&nbsp;</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            @endfor
+        </tbody>
     </table>
 
-    {{-- Totals Section --}}
-    <table style="width: 100%; margin-bottom: 20px;">
+    {{-- Totals --}}
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
         <tr>
-            <td style="width: 60%;"></td>
-            <td style="width: 40%;">
+            <td style="width: 62%;"></td>
+            <td style="width: 38%;">
                 <table style="width: 100%; border-collapse: collapse;">
                     <tr>
-                        <td style="padding: 6px 8px; text-align: right; border-bottom: 1px solid #dddddd;">Subtotal:</td>
-                        <td style="padding: 6px 8px; text-align: right; border-bottom: 1px solid #dddddd; width: 40%;">RM {{ number_format($quotation->subtotal, 2) }}</td>
+                        <td style="padding: 4px 8px; text-align: right; border-bottom: 1px solid #dddddd;">Sub-Total :</td>
+                        <td style="padding: 4px 0; text-align: right; border-bottom: 1px solid #dddddd; white-space: nowrap;">
+                            RM{{ number_format($quotation->subtotal, 2) }}
+                        </td>
                     </tr>
+                    @if(($quotation->tax ?? 0) > 0)
+                        <tr>
+                            <td style="padding: 4px 8px; text-align: right; border-bottom: 1px solid #dddddd;">Cukai :</td>
+                            <td style="padding: 4px 0; text-align: right; border-bottom: 1px solid #dddddd; white-space: nowrap;">
+                                RM{{ number_format($quotation->tax, 2) }}
+                            </td>
+                        </tr>
+                    @endif
                     <tr>
-                        <td style="padding: 6px 8px; text-align: right; border-bottom: 1px solid #dddddd;">Cukai:</td>
-                        <td style="padding: 6px 8px; text-align: right; border-bottom: 1px solid #dddddd;">RM {{ number_format($quotation->tax ?? 0, 2) }}</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 6px 8px; text-align: right; font-weight: bold; font-size: 14px; border-top: 2px solid #333333;">Jumlah Keseluruhan:</td>
-                        <td style="padding: 6px 8px; text-align: right; font-weight: bold; font-size: 14px; border-top: 2px solid #333333;">RM {{ number_format($quotation->total, 2) }}</td>
+                        <td style="padding: 6px 8px; text-align: right; font-weight: bold; font-size: 13px; border-top: 2px solid #333333;">
+                            Jumlah Keseluruhan :
+                        </td>
+                        <td style="padding: 6px 0; text-align: right; font-weight: bold; font-size: 13px; border-top: 2px solid #333333; white-space: nowrap;">
+                            RM{{ number_format($quotation->total, 2) }}
+                        </td>
                     </tr>
                 </table>
             </td>
         </tr>
     </table>
 
-    {{-- Notes Section --}}
+    {{-- Notes --}}
     @if($quotation->notes)
-        <table style="width: 100%; margin-bottom: 20px;">
+        <table style="width: 100%; margin-bottom: 16px;">
             <tr>
-                <td style="padding: 10px; background-color: #fffde7; border: 1px solid #e0d97e;">
-                    <span style="font-weight: bold;">Nota:</span><br>
-                    {{ $quotation->notes }}
+                <td style="padding: 8px 10px; background-color: #fffde7; border: 1px solid #e0d97e; font-size: 11px;">
+                    <strong>Nota:</strong> {{ $quotation->notes }}
                 </td>
             </tr>
         </table>
     @endif
 
-    {{-- Footer --}}
-    <table style="width: 100%; margin-top: 30px;">
+    {{-- Signature Block --}}
+    <table class="signature-table">
         <tr>
-            <td style="text-align: center; padding-top: 20px; border-top: 1px solid #dddddd; color: #777777; font-size: 11px;">
-                Sebut harga ini sah sehingga tarikh yang dinyatakan.
+            <td style="width: 48%; vertical-align: top; padding-right: 10px;">
+                <div class="signature-box">
+                    <strong>Disediakan oleh:</strong><br><br><br>
+                    <hr style="border: none; border-top: 1px solid #aaaaaa; margin: 6px 0;">
+                    Nama&nbsp;&nbsp;: ................................<br>
+                    Tarikh : ................................<br>
+                    Cop&nbsp;&nbsp;&nbsp;&nbsp;:
+                </div>
+            </td>
+            <td style="width: 4%;"></td>
+            <td style="width: 48%; vertical-align: top; padding-left: 10px;">
+                <div class="signature-box">
+                    <strong>Disahkan / Dipersetujui oleh:</strong><br><br><br>
+                    <hr style="border: none; border-top: 1px solid #aaaaaa; margin: 6px 0;">
+                    Nama&nbsp;&nbsp;: ................................<br>
+                    Tarikh : ................................<br>
+                    Cop&nbsp;&nbsp;&nbsp;&nbsp;:
+                </div>
             </td>
         </tr>
     </table>
+
+    {{-- Footer --}}
+    <p class="footer-note">Sebut harga ini sah sehingga tarikh yang dinyatakan. Harga tertakluk kepada pengesahan.</p>
 
 </body>
 </html>

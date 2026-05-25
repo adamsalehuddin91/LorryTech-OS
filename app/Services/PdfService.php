@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Invoice;
+use App\Models\Payroll;
 use App\Models\Quotation;
 use App\Models\CompanySetting;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -17,7 +18,7 @@ class PdfService
         return Pdf::loadView('pdf.invoice', [
             'invoice' => $invoice,
             'company' => $company,
-        ])->setPaper('a4', 'portrait');
+        ])->setOptions(['isRemoteEnabled' => true])->setPaper('a4', 'portrait');
     }
 
     public function generateQuotationPdf(Quotation $quotation)
@@ -28,7 +29,17 @@ class PdfService
         return Pdf::loadView('pdf.quotation', [
             'quotation' => $quotation,
             'company' => $company,
-        ])->setPaper('a4', 'portrait');
+        ])->setOptions(['isRemoteEnabled' => true])->setPaper('a4', 'portrait');
+    }
+
+    public function generatePayrollPdf(Payroll $payroll)
+    {
+        $company = CompanySetting::first();
+
+        return Pdf::loadView('pdf.slip-gaji', [
+            'payroll' => $payroll,
+            'company' => $company,
+        ])->setOptions(['isRemoteEnabled' => true])->setPaper('a4', 'portrait');
     }
 
     public function streamPdf($pdf, string $filename)
