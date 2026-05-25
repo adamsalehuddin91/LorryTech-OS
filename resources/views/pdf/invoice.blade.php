@@ -56,8 +56,8 @@
             <td style="width: 78%; vertical-align: top; padding-left: 14px;">
                 <span class="company-name">
                     {{ $company->name }}
-                    @if($company->registration_number)
-                        <span style="font-size: 12px; font-weight: normal;">({{ $company->registration_number }})</span>
+                    @if($company->reg_no)
+                        <span style="font-size: 12px; font-weight: normal;">({{ $company->reg_no }})</span>
                     @endif
                 </span><br>
                 @if($company->address)
@@ -154,16 +154,16 @@
                         <tr>
                             <td colspan="2" style="font-weight: bold; padding-bottom: 6px;">Payment Method:</td>
                         </tr>
-                        @if($company->bank_details->account_name ?? null)
+                        @if($company->bank_details['account_name'] ?? null)
                             <tr>
                                 <td style="padding: 2px 6px 2px 0;">Name :</td>
-                                <td>{{ $company->bank_details->account_name }}</td>
+                                <td>{{ $company->bank_details['account_name'] }}</td>
                             </tr>
                         @endif
-                        @if(($company->bank_details->account_number ?? null) && ($company->bank_details->bank_name ?? null))
+                        @if(($company->bank_details['account_number'] ?? null) && ($company->bank_details['bank_name'] ?? null))
                             <tr>
                                 <td style="padding: 2px 6px 2px 0;">Account No :</td>
-                                <td>{{ $company->bank_details->account_number }} ( {{ $company->bank_details->bank_name }} )</td>
+                                <td>{{ $company->bank_details['account_number'] }} ( {{ $company->bank_details['bank_name'] }} )</td>
                             </tr>
                         @endif
                     </table>

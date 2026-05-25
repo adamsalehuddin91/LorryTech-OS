@@ -53,8 +53,8 @@
             <td style="width: 78%; vertical-align: top; padding-left: 14px;">
                 <span class="company-name">
                     {{ $company->name }}
-                    @if($company->registration_number)
-                        <span style="font-size: 12px; font-weight: normal;">({{ $company->registration_number }})</span>
+                    @if($company->reg_no)
+                        <span style="font-size: 12px; font-weight: normal;">({{ $company->reg_no }})</span>
                     @endif
                 </span><br>
                 @if($company->address)
