@@ -7,7 +7,8 @@ export default function Edit({ driver }) {
         email:             driver.user?.email || '',
         license_number:    driver.license_number || '',
         license_expiry:    driver.license_expiry || '',
-        commission_rate:   driver.commission_rate ?? '',
+        commission_rate:          driver.commission_rate ?? '',
+        lalamove_commission_rate: driver.lalamove_commission_rate ?? '',
         phone:             driver.phone || '',
         emergency_contact: driver.emergency_contact || '',
         status:            driver.status || 'active',
@@ -110,26 +111,34 @@ export default function Edit({ driver }) {
                                 </div>
                             </div>
 
-                            {/* Kadar Komisen & Telefon */}
+                            {/* Kadar Komisen */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Kadar Komisen (%)
-                                    </label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Kadar Komisen Job Tepi (%)</label>
                                     <input
-                                        type="number"
-                                        step="0.01"
-                                        min="0"
-                                        max="100"
+                                        type="number" step="0.01" min="0" max="100"
                                         value={data.commission_rate}
                                         onChange={(e) => setData('commission_rate', e.target.value)}
-                                        className={`w-full border rounded-lg px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500 ${
-                                            errors.commission_rate ? 'border-red-500' : 'border-gray-300'
-                                        }`}
+                                        className={`w-full border rounded-lg px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500 ${errors.commission_rate ? 'border-red-500' : 'border-gray-300'}`}
                                         placeholder="0.00"
                                     />
                                     {errors.commission_rate && <p className="mt-1 text-sm text-red-600">{errors.commission_rate}</p>}
                                 </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Kadar Komisen Lalamove (%)</label>
+                                    <input
+                                        type="number" step="0.01" min="0" max="100"
+                                        value={data.lalamove_commission_rate}
+                                        onChange={(e) => setData('lalamove_commission_rate', e.target.value)}
+                                        className={`w-full border rounded-lg px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500 ${errors.lalamove_commission_rate ? 'border-red-500' : 'border-gray-300'}`}
+                                        placeholder="0.00"
+                                    />
+                                    {errors.lalamove_commission_rate && <p className="mt-1 text-sm text-red-600">{errors.lalamove_commission_rate}</p>}
+                                </div>
+                            </div>
+
+                            {/* Telefon */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
                                         Telefon

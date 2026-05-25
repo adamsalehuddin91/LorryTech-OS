@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Driver;
 use App\Models\DriverCommission;
+use App\Models\DriverJob;
 use App\Models\Expense;
 use App\Models\Trip;
 use App\Services\ExpenseService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class DriverPortalController extends Controller
@@ -198,6 +200,92 @@ class DriverPortalController extends Controller
 
         return Inertia::render('DriverPortal/MyReceipts', [
             'expenses' => $expenses,
+        ]);
+    }
+
+    public function logJob(Request $request)
+    {
+        $driver = $this->getDriver($request);
+        abort_unless($driver, 403, 'Tiada profil pemandu dikaitkan.');
+
+        return Inertia::render('DriverPortal/LogJob', [
+            'lalamoveRate' => (float) $driver->lalamove_commission_rate,
+            'sideJobRate'  => (float) $driver->commission_rate,
+        ]);
+    }
+
+    public function storeJob(Request $request)
+    {
+        $driver = $this->getDriver($request);
+        abort_unless($driver, 403, 'Tiada profil pemandu dikaitkan.');
+
+        $validated = $request->validate([
+            'job_type'          => 'required|in:lalamove,side_job',
+            'job_date'          => 'required|date',
+            'pickup_location'   => 'required|string|max:255',
+            'delivery_location' => 'required|string|max:255',
+            'customer_name'     => 'nullable|string|max:255',
+            'gross_amount'      => 'required|numeric|min:0.01',
+            'notes'             => 'nullable|string|max:500',
+            'proof_image'       => 'nullable|image|max:5120',
+        ]);
+
+        $rate = $validated['job_type'] === 'lalamove'
+            ? (float) $driver->lalamove_commission_rate
+            : (float) $driver->commission_rate;
+
+        $commissionAmount = round($validated['gross_amount'] * $rate / 100, 2);
+
+        $proofPath = null;
+        if ($request->hasFile('proof_image')) {
+            $proofPath = '/storage/' . $request->file('proof_image')->store('driver-jobs', 'public');
+        }
+
+        DriverJob::create([
+            'driver_id'         => $driver->id,
+            'job_type'          => $validated['job_type'],
+            'job_date'          => $validated['job_date'],
+            'pickup_location'   => $validated['pickup_location'],
+            'delivery_location' => $validated['delivery_location'],
+            'customer_name'     => $validated['customer_name'] ?? null,
+            'gross_amount'      => $validated['gross_amount'],
+            'commission_rate'   => $rate,
+            'commission_amount' => $commissionAmount,
+            'proof_image'       => $proofPath,
+            'notes'             => $validated['notes'] ?? null,
+            'status'            => 'pending',
+        ]);
+
+        return redirect()->route('driver.my-jobs')->with('success', 'Kerja berjaya dilog. Menunggu pengesahan.');
+    }
+
+    public function myJobs(Request $request)
+    {
+        $driver = $this->getDriver($request);
+        abort_unless($driver, 403, 'Tiada profil pemandu dikaitkan.');
+
+        $jobs = DriverJob::where('driver_id', $driver->id)
+            ->orderByDesc('job_date')
+            ->paginate(15)
+            ->withQueryString()
+            ->through(fn($j) => [
+                'id'               => $j->id,
+                'job_type'         => $j->job_type,
+                'job_type_label'   => $j->job_type_label,
+                'job_date'         => $j->job_date->format('d/m/Y'),
+                'pickup_location'  => $j->pickup_location,
+                'delivery_location'=> $j->delivery_location,
+                'customer_name'    => $j->customer_name,
+                'gross_amount'     => $j->gross_amount,
+                'commission_rate'  => $j->commission_rate,
+                'commission_amount'=> $j->commission_amount,
+                'proof_image'      => $j->proof_image,
+                'status'           => $j->status,
+                'rejection_reason' => $j->rejection_reason,
+            ]);
+
+        return Inertia::render('DriverPortal/MyJobs', [
+            'jobs' => $jobs,
         ]);
     }
 }

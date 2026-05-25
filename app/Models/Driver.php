@@ -20,12 +20,14 @@ class Driver extends Model
         'bank_name',
         'bank_account_no',
         'base_salary',
+        'lalamove_commission_rate',
     ];
 
     protected $casts = [
-        'license_expiry' => 'date',
-        'commission_rate' => 'decimal:2',
-        'base_salary'    => 'decimal:2',
+        'license_expiry'           => 'date',
+        'commission_rate'          => 'decimal:2',
+        'lalamove_commission_rate' => 'decimal:2',
+        'base_salary'              => 'decimal:2',
     ];
 
     public function payrolls()
@@ -56,5 +58,10 @@ class Driver extends Model
     public function expenses()
     {
         return $this->hasMany(Expense::class);
+    }
+
+    public function jobs()
+    {
+        return $this->hasMany(DriverJob::class);
     }
 }

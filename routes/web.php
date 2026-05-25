@@ -12,6 +12,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DriverPortalController;
 use App\Http\Controllers\CompanySettingController;
 use App\Http\Controllers\PayrollController;
+use App\Http\Controllers\DriverJobController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -58,6 +59,11 @@ Route::middleware(['auth', 'role:owner'])->group(function () {
     Route::get('settings/company', [CompanySettingController::class, 'edit'])->name('settings.company');
     Route::post('settings/company', [CompanySettingController::class, 'update'])->name('settings.company.update');
 
+    // Driver Jobs (owner verify)
+    Route::get('driver-jobs', [DriverJobController::class, 'index'])->name('driver-jobs.index');
+    Route::patch('driver-jobs/{driverJob}/verify', [DriverJobController::class, 'verify'])->name('driver-jobs.verify');
+    Route::patch('driver-jobs/{driverJob}/reject', [DriverJobController::class, 'reject'])->name('driver-jobs.reject');
+
     // Payroll
     Route::get('payroll', [PayrollController::class, 'index'])->name('payroll.index');
     Route::post('payroll/generate', [PayrollController::class, 'generate'])->name('payroll.generate');
@@ -76,6 +82,9 @@ Route::middleware(['auth', 'role:driver'])->prefix('driver')->group(function () 
     Route::get('/upload-receipt', [DriverPortalController::class, 'uploadReceipt'])->name('driver.upload-receipt');
     Route::post('/upload-receipt', [DriverPortalController::class, 'storeReceipt'])->name('driver.store-receipt');
     Route::get('/receipts', [DriverPortalController::class, 'myReceipts'])->name('driver.receipts');
+    Route::get('/log-job', [DriverPortalController::class, 'logJob'])->name('driver.log-job');
+    Route::post('/log-job', [DriverPortalController::class, 'storeJob'])->name('driver.store-job');
+    Route::get('/my-jobs', [DriverPortalController::class, 'myJobs'])->name('driver.my-jobs');
 });
 
 Route::middleware('auth')->group(function () {
