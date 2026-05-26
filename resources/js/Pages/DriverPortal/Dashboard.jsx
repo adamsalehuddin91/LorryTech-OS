@@ -113,7 +113,7 @@ export default function Dashboard({ stats, recentTrips, driverName }) {
             <div className="px-5 mt-6">
                 <div className="flex items-center justify-between mb-3">
                     <h2 className="text-base font-bold text-gray-900">Perjalanan Terkini</h2>
-                    <Link href={route('driver.trips')} className="text-sm text-blue-600 font-medium">Lihat semua</Link>
+                    <Link href={route('driver.work', { tab: 'tugasan' })} className="text-sm text-blue-600 font-medium">Lihat semua</Link>
                 </div>
 
                 {recentTrips?.length > 0 ? (

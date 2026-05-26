@@ -128,7 +128,7 @@ const driverNavItems = [
     },
     {
         label: 'Perjalanan Saya',
-        routeName: 'driver.trips',
+        routeName: 'driver.work',
         href: null,
         icon: (
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
