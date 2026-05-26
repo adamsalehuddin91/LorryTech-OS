@@ -256,13 +256,24 @@ class DriverPortalController extends Controller
             'status'            => 'pending',
         ]);
 
-        return redirect()->route('driver.my-jobs')->with('success', 'Kerja berjaya dilog. Menunggu pengesahan.');
+        return redirect()->route('driver.work')->with('success', 'Kerja berjaya dilog. Menunggu pengesahan.');
     }
 
-    public function myJobs(Request $request)
+    public function myWork(Request $request)
     {
         $driver = $this->getDriver($request);
         abort_unless($driver, 403, 'Tiada profil pemandu dikaitkan.');
+
+        $trips = Trip::with(['vehicle', 'customer'])
+            ->where('driver_id', $driver->id)
+            ->when($request->input('month'), function ($q, $month) {
+                $start = Carbon::parse($month . '-01')->startOfMonth();
+                $end = (clone $start)->endOfMonth();
+                $q->whereBetween('pickup_date', [$start, $end]);
+            })
+            ->orderByDesc('pickup_date')
+            ->paginate(15)
+            ->withQueryString();
 
         $jobs = DriverJob::where('driver_id', $driver->id)
             ->orderByDesc('job_date')
@@ -284,8 +295,10 @@ class DriverPortalController extends Controller
                 'rejection_reason' => $j->rejection_reason,
             ]);
 
-        return Inertia::render('DriverPortal/MyJobs', [
-            'jobs' => $jobs,
+        return Inertia::render('DriverPortal/MyWork', [
+            'trips'   => $trips,
+            'jobs'    => $jobs,
+            'filters' => $request->only(['tab', 'month']),
         ]);
     }
 }

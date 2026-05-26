@@ -77,14 +77,13 @@ Route::middleware(['auth', 'role:owner'])->group(function () {
 // Driver Portal
 Route::middleware(['auth', 'role:driver'])->prefix('driver')->group(function () {
     Route::get('/dashboard', [DriverPortalController::class, 'dashboard'])->name('driver.dashboard');
-    Route::get('/trips', [DriverPortalController::class, 'myTrips'])->name('driver.trips');
+    Route::get('/work', [DriverPortalController::class, 'myWork'])->name('driver.work');
     Route::get('/commissions', [DriverPortalController::class, 'myCommissions'])->name('driver.commissions');
     Route::get('/upload-receipt', [DriverPortalController::class, 'uploadReceipt'])->name('driver.upload-receipt');
     Route::post('/upload-receipt', [DriverPortalController::class, 'storeReceipt'])->name('driver.store-receipt');
     Route::get('/receipts', [DriverPortalController::class, 'myReceipts'])->name('driver.receipts');
     Route::get('/log-job', [DriverPortalController::class, 'logJob'])->name('driver.log-job');
     Route::post('/log-job', [DriverPortalController::class, 'storeJob'])->name('driver.store-job');
-    Route::get('/my-jobs', [DriverPortalController::class, 'myJobs'])->name('driver.my-jobs');
 });
 
 Route::middleware('auth')->group(function () {
