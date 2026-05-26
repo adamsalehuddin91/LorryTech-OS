@@ -8,7 +8,6 @@ export default function Company({ company }) {
     const [preview, setPreview] = useState(company.logo_url || null);
 
     const { data, setData, post, processing, errors } = useForm({
-        _method:              'PUT',
         name:                 company.name || '',
         reg_no:               company.reg_no || '',
         tin:                  company.tin || '',
