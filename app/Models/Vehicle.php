@@ -17,6 +17,7 @@ class Vehicle extends Model
         'permit_apad_expiry',
         'current_mileage',
         'notes',
+        'photo',
     ];
 
     protected $casts = [

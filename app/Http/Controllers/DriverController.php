@@ -6,6 +6,7 @@ use App\Models\Driver;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class DriverController extends Controller
@@ -54,7 +55,13 @@ class DriverController extends Controller
             'bank_name'         => 'nullable|string|max:50',
             'bank_account_no'   => 'nullable|string|max:30',
             'base_salary'       => 'nullable|numeric|min:0',
+            'photo'             => 'nullable|image|max:5120',
         ]);
+
+        $photo = null;
+        if ($request->hasFile('photo')) {
+            $photo = '/storage/' . $request->file('photo')->store('drivers', 'public');
+        }
 
         $user = User::create([
             'name'     => $validated['name'],
@@ -78,6 +85,7 @@ class DriverController extends Controller
             'bank_name'                => $validated['bank_name'],
             'bank_account_no'          => $validated['bank_account_no'],
             'base_salary'              => $validated['base_salary'] ?? 0,
+            'photo'                    => $photo,
         ]);
 
         return redirect()->route('drivers.index')->with('success', 'Pemandu berjaya ditambah.');
@@ -113,6 +121,7 @@ class DriverController extends Controller
             'bank_name'         => 'nullable|string|max:50',
             'bank_account_no'   => 'nullable|string|max:30',
             'base_salary'       => 'nullable|numeric|min:0',
+            'photo'             => 'nullable|image|max:5120',
         ]);
 
         $driver->user->update([
@@ -120,7 +129,7 @@ class DriverController extends Controller
             'email' => $validated['email'],
         ]);
 
-        $driver->update([
+        $driverData = [
             'license_number'           => $validated['license_number'],
             'license_expiry'           => $validated['license_expiry'],
             'commission_rate'          => $validated['commission_rate'],
@@ -134,8 +143,16 @@ class DriverController extends Controller
             'bank_name'                => $validated['bank_name'],
             'bank_account_no'          => $validated['bank_account_no'],
             'base_salary'              => $validated['base_salary'] ?? 0,
-        ]);
+        ];
 
+        if ($request->hasFile('photo')) {
+            if ($driver->photo) {
+                Storage::disk('public')->delete(str_replace('/storage/', '', $driver->photo));
+            }
+            $driverData['photo'] = '/storage/' . $request->file('photo')->store('drivers', 'public');
+        }
+
+        $driver->update($driverData);
         return redirect()->route('drivers.index')->with('success', 'Pemandu berjaya dikemaskini.');
     }
 

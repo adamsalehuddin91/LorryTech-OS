@@ -201,7 +201,7 @@ export default function LogJob({ lalamoveRate, sideJobRate }) {
                                 </div>
                             )}
                         </div>
-                        <input type="file" accept="image/*" capture="environment" onChange={handleFile} className="hidden" />
+                        <input type="file" accept="image/*" onChange={handleFile} className="hidden" />
                     </label>
                 </div>
 

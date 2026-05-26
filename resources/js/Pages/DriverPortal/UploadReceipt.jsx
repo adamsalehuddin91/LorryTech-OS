@@ -104,7 +104,7 @@ export default function UploadReceipt({ categories, vehicles }) {
                             </div>
                         )}
                     </div>
-                    <input type="file" accept="image/*" capture="environment" onChange={handleFile} className="hidden" />
+                    <input type="file" accept="image/*" onChange={handleFile} className="hidden" />
                     {errors.receipt_image && <p className="mt-1.5 text-sm text-red-500">{errors.receipt_image}</p>}
                 </label>
 

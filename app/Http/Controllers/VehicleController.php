@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Vehicle;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class VehicleController extends Controller
@@ -36,17 +37,22 @@ class VehicleController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'plate_number' => 'required|string|unique:vehicles',
-            'make_model' => 'required|string',
-            'year' => 'nullable|integer|min:1990|max:2030',
-            'capacity_kg' => 'nullable|numeric|min:0',
-            'status' => 'required|in:active,maintenance,inactive',
-            'roadtax_expiry' => 'nullable|date',
+            'plate_number'     => 'required|string|unique:vehicles',
+            'make_model'       => 'required|string',
+            'year'             => 'nullable|integer|min:1990|max:2030',
+            'capacity_kg'      => 'nullable|numeric|min:0',
+            'status'           => 'required|in:active,maintenance,inactive',
+            'roadtax_expiry'   => 'nullable|date',
             'insurance_expiry' => 'nullable|date',
             'permit_apad_expiry' => 'nullable|date',
-            'current_mileage' => 'nullable|integer|min:0',
-            'notes' => 'nullable|string',
+            'current_mileage'  => 'nullable|integer|min:0',
+            'notes'            => 'nullable|string',
+            'photo'            => 'nullable|image|max:5120',
         ]);
+
+        if ($request->hasFile('photo')) {
+            $validated['photo'] = '/storage/' . $request->file('photo')->store('vehicles', 'public');
+        }
 
         Vehicle::create($validated);
         return redirect()->route('vehicles.index')->with('success', 'Kenderaan berjaya ditambah.');
@@ -66,17 +72,27 @@ class VehicleController extends Controller
     public function update(Request $request, Vehicle $vehicle)
     {
         $validated = $request->validate([
-            'plate_number' => 'required|string|unique:vehicles,plate_number,' . $vehicle->id,
-            'make_model' => 'required|string',
-            'year' => 'nullable|integer|min:1990|max:2030',
-            'capacity_kg' => 'nullable|numeric|min:0',
-            'status' => 'required|in:active,maintenance,inactive',
-            'roadtax_expiry' => 'nullable|date',
+            'plate_number'     => 'required|string|unique:vehicles,plate_number,' . $vehicle->id,
+            'make_model'       => 'required|string',
+            'year'             => 'nullable|integer|min:1990|max:2030',
+            'capacity_kg'      => 'nullable|numeric|min:0',
+            'status'           => 'required|in:active,maintenance,inactive',
+            'roadtax_expiry'   => 'nullable|date',
             'insurance_expiry' => 'nullable|date',
             'permit_apad_expiry' => 'nullable|date',
-            'current_mileage' => 'nullable|integer|min:0',
-            'notes' => 'nullable|string',
+            'current_mileage'  => 'nullable|integer|min:0',
+            'notes'            => 'nullable|string',
+            'photo'            => 'nullable|image|max:5120',
         ]);
+
+        if ($request->hasFile('photo')) {
+            if ($vehicle->photo) {
+                Storage::disk('public')->delete(str_replace('/storage/', '', $vehicle->photo));
+            }
+            $validated['photo'] = '/storage/' . $request->file('photo')->store('vehicles', 'public');
+        } else {
+            unset($validated['photo']);
+        }
 
         $vehicle->update($validated);
         return redirect()->route('vehicles.index')->with('success', 'Kenderaan berjaya dikemaskini.');

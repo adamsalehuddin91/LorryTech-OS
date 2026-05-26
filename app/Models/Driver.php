@@ -21,6 +21,7 @@ class Driver extends Model
         'bank_account_no',
         'base_salary',
         'lalamove_commission_rate',
+        'photo',
     ];
 
     protected $casts = [
