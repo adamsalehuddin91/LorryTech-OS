@@ -1,4 +1,4 @@
-import { Link, usePage, router } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { Head } from '@inertiajs/react';
 
 // Utama | Resit | [Snap center] | Kerja | Komisyen — 2+center+2 balanced
@@ -64,10 +64,6 @@ export default function DriverLayout({ title, children }) {
         }
     };
 
-    const handleLogout = () => {
-        router.post(route('logout'));
-    };
-
     return (
         <>
             <Head title={title ? `${title} — LorryTech` : 'LorryTech Driver'} />
@@ -89,15 +85,17 @@ export default function DriverLayout({ title, children }) {
                         {auth?.user?.name && (
                             <span className="text-xs text-gray-500 truncate max-w-[120px]">{auth.user.name}</span>
                         )}
-                        <button
-                            onClick={handleLogout}
+                        <Link
+                            href={route('logout')}
+                            method="post"
+                            as="button"
                             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-red-50 hover:text-red-600 text-gray-500 text-xs font-medium transition-colors"
                         >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                             </svg>
                             Keluar
-                        </button>
+                        </Link>
                     </div>
                 </header>
 
