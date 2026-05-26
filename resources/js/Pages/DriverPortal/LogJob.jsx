@@ -180,29 +180,29 @@ export default function LogJob({ lalamoveRate, sideJobRate }) {
                     <label className="block text-sm font-semibold text-gray-800 mb-2">
                         {data.job_type === 'lalamove' ? 'Screenshot Lalamove (Optional)' : 'Bukti Job (Optional)'}
                     </label>
-                    <label className="block cursor-pointer">
-                        <div className={`rounded-2xl border-2 border-dashed overflow-hidden transition-all ${preview ? 'border-blue-400' : 'border-gray-200'}`}>
-                            {preview ? (
-                                <div className="relative">
-                                    <img src={preview} alt="Proof" className="w-full max-h-40 object-cover" />
-                                    <button
-                                        type="button"
-                                        onClick={(e) => { e.preventDefault(); setData('proof_image', null); setPreview(null); }}
-                                        className="absolute top-2 right-2 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center text-lg shadow"
-                                    >×</button>
-                                </div>
-                            ) : (
-                                <div className="flex items-center gap-3 px-4 py-4 bg-gray-50">
-                                    <div className="w-10 h-10 rounded-xl bg-gray-200 flex items-center justify-center text-xl">📷</div>
-                                    <div>
-                                        <p className="text-sm text-gray-600 font-medium">Tap untuk upload gambar</p>
-                                        <p className="text-xs text-gray-400">Screenshot, resit, atau bukti job</p>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                        <input type="file" accept="image/*" onChange={handleFile} className="hidden" />
-                    </label>
+                    <div className={`rounded-2xl border-2 border-dashed overflow-hidden transition-all ${preview ? 'border-blue-400' : 'border-gray-200'}`}>
+                        {preview ? (
+                            <div className="relative">
+                                <img src={preview} alt="Proof" className="w-full max-h-40 object-cover" />
+                                <button
+                                    type="button"
+                                    onClick={() => { setData('proof_image', null); setPreview(null); }}
+                                    className="absolute top-2 right-2 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center text-lg shadow"
+                                >×</button>
+                            </div>
+                        ) : (
+                            <div className="flex gap-2 px-4 py-4 bg-gray-50">
+                                <label className="flex-1 cursor-pointer flex items-center justify-center gap-2 py-3 rounded-xl bg-white border border-gray-200 text-sm text-gray-600 font-medium hover:bg-gray-50">
+                                    📷 Kamera
+                                    <input type="file" accept="image/*" capture="environment" onChange={handleFile} className="hidden" />
+                                </label>
+                                <label className="flex-1 cursor-pointer flex items-center justify-center gap-2 py-3 rounded-xl bg-white border border-gray-200 text-sm text-gray-600 font-medium hover:bg-gray-50">
+                                    🖼️ Galeri
+                                    <input type="file" accept="image/*" onChange={handleFile} className="hidden" />
+                                </label>
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 {/* Notes */}

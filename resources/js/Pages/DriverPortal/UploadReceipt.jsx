@@ -71,7 +71,7 @@ export default function UploadReceipt({ categories, vehicles }) {
 
             <form onSubmit={handleSubmit} className="px-5 mt-5 space-y-5 pb-6">
                 {/* Camera Area */}
-                <label className="block cursor-pointer">
+                <div>
                     <div className={`rounded-2xl border-2 border-dashed overflow-hidden transition-all ${
                         preview ? 'border-blue-400' : errors.receipt_image ? 'border-red-400' : 'border-gray-300'
                     }`}>
@@ -80,7 +80,7 @@ export default function UploadReceipt({ categories, vehicles }) {
                                 <img src={preview} alt="Preview" className="w-full max-h-56 object-cover" />
                                 <button
                                     type="button"
-                                    onClick={(e) => { e.preventDefault(); setData('receipt_image', null); setPreview(null); }}
+                                    onClick={() => { setData('receipt_image', null); setPreview(null); }}
                                     className="absolute top-2 right-2 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center text-lg leading-none shadow"
                                 >
                                     ×
@@ -92,21 +92,20 @@ export default function UploadReceipt({ categories, vehicles }) {
                                 )}
                             </div>
                         ) : (
-                            <div className="flex flex-col items-center justify-center py-10 px-6 bg-gray-50">
-                                <div className="w-16 h-16 rounded-2xl bg-blue-100 flex items-center justify-center mb-3">
-                                    <svg className="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    </svg>
-                                </div>
-                                <p className="text-sm font-semibold text-gray-700">Tap untuk snap atau pilih gambar</p>
-                                <p className="text-xs text-gray-400 mt-1">Auto compress • JPG, PNG</p>
+                            <div className="flex gap-2 px-4 py-4 bg-gray-50">
+                                <label className="flex-1 cursor-pointer flex items-center justify-center gap-2 py-4 rounded-xl bg-white border border-gray-200 text-sm text-gray-600 font-medium hover:bg-gray-50">
+                                    📷 Kamera
+                                    <input type="file" accept="image/*" capture="environment" onChange={handleFile} className="hidden" />
+                                </label>
+                                <label className="flex-1 cursor-pointer flex items-center justify-center gap-2 py-4 rounded-xl bg-white border border-gray-200 text-sm text-gray-600 font-medium hover:bg-gray-50">
+                                    🖼️ Galeri
+                                    <input type="file" accept="image/*" onChange={handleFile} className="hidden" />
+                                </label>
                             </div>
                         )}
                     </div>
-                    <input type="file" accept="image/*" onChange={handleFile} className="hidden" />
                     {errors.receipt_image && <p className="mt-1.5 text-sm text-red-500">{errors.receipt_image}</p>}
-                </label>
+                </div>
 
                 {/* Category Grid */}
                 <div>
