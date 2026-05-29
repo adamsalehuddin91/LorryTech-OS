@@ -138,6 +138,14 @@ export default function Index({ payrolls, drivers, currentMonth }) {
                                 >
                                     PDF
                                 </a>
+                                {p.status === 'draft' && (
+                                    <button
+                                        onClick={() => confirm('Padam slip gaji ini?') && router.delete(route('payroll.destroy', p.id))}
+                                        className="rounded-md bg-red-50 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-100"
+                                    >
+                                        Padam
+                                    </button>
+                                )}
                             </div>
                         </div>
                     ))}
