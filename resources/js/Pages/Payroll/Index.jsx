@@ -39,7 +39,7 @@ export default function Index({ payrolls, drivers, currentMonth }) {
         });
     };
 
-    const availableDrivers = drivers.filter(d => !d.has_payroll);
+    const availableDrivers = drivers;
 
     return (
         <AuthenticatedLayout header={<h2 className="text-xl font-semibold text-gray-800">Penggajian</h2>}>
@@ -80,7 +80,7 @@ export default function Index({ payrolls, drivers, currentMonth }) {
                             <option value="">Pilih Pemandu...</option>
                             {availableDrivers.map(d => (
                                 <option key={d.id} value={d.id}>
-                                    {d.name} {d.base_salary > 0 ? `(RM${parseFloat(d.base_salary).toFixed(0)}/bln)` : '(Gaji belum ditetapkan)'}
+                                    {d.name} {d.has_payroll ? '(Sudah Jana)' : d.base_salary > 0 ? `(RM${parseFloat(d.base_salary).toFixed(0)}/bln)` : '(Gaji belum ditetapkan)'}
                                 </option>
                             ))}
                         </select>
