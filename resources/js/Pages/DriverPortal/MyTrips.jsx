@@ -51,14 +51,14 @@ export default function MyTrips({ trips, filters }) {
                                     <div className="space-y-1.5">
                                         <div className="flex items-center gap-2">
                                             <div className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0" />
-                                            <p className="text-sm text-gray-800 font-medium truncate">{trip.pickup_location}</p>
+                                            <p className="text-sm text-slate-300 font-medium truncate">{trip.pickup_location}</p>
                                         </div>
                                         <div className="flex items-center gap-2 pl-0.5">
                                             <div className="w-1 border-l-2 border-dashed border-gray-300 h-3 ml-0.5" />
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <div className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0" />
-                                            <p className="text-sm text-gray-800 truncate">{trip.delivery_location}</p>
+                                            <p className="text-sm text-slate-300 truncate">{trip.delivery_location}</p>
                                         </div>
                                     </div>
                                     <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">

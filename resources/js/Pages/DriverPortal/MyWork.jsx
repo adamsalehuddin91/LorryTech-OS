@@ -110,11 +110,11 @@ export default function MyWork({ trips, jobs, filters }) {
                                         <div className="space-y-1 my-2">
                                             <div className="flex items-center gap-2">
                                                 <div className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0" />
-                                                <p className="text-sm text-gray-800 truncate">{job.pickup_location}</p>
+                                                <p className="text-sm text-slate-300 truncate">{job.pickup_location}</p>
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <div className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0" />
-                                                <p className="text-sm text-gray-800 truncate">{job.delivery_location}</p>
+                                                <p className="text-sm text-slate-300 truncate">{job.delivery_location}</p>
                                             </div>
                                             {job.customer_name && (
                                                 <p className="text-xs text-gray-400 pl-4">👤 {job.customer_name}</p>
@@ -168,14 +168,14 @@ export default function MyWork({ trips, jobs, filters }) {
                                         <div className="space-y-1.5">
                                             <div className="flex items-center gap-2">
                                                 <div className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0" />
-                                                <p className="text-sm text-gray-800 font-medium truncate">{trip.pickup_location}</p>
+                                                <p className="text-sm text-slate-300 font-medium truncate">{trip.pickup_location}</p>
                                             </div>
                                             <div className="pl-[5px]">
                                                 <div className="border-l-2 border-dashed border-gray-300 h-3 ml-[1px]" />
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <div className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0" />
-                                                <p className="text-sm text-gray-800 truncate">{trip.delivery_location}</p>
+                                                <p className="text-sm text-slate-300 truncate">{trip.delivery_location}</p>
                                             </div>
                                         </div>
 

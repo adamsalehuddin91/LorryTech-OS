@@ -101,7 +101,7 @@ export default function LogJob({ lalamoveRate, sideJobRate }) {
 
                 {/* Amount */}
                 <div>
-                    <label className="block text-sm font-semibold text-gray-800 mb-2">
+                    <label className="block text-sm font-semibold text-slate-200 mb-2">
                         Jumlah Diterima (RM) <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
@@ -119,7 +119,7 @@ export default function LogJob({ lalamoveRate, sideJobRate }) {
 
                 {/* Date */}
                 <div>
-                    <label className="block text-sm font-semibold text-gray-800 mb-2">Tarikh <span className="text-red-500">*</span></label>
+                    <label className="block text-sm font-semibold text-slate-200 mb-2">Tarikh <span className="text-red-500">*</span></label>
                     <input
                         type="date" value={data.job_date}
                         onChange={(e) => setData('job_date', e.target.value)}
@@ -131,7 +131,7 @@ export default function LogJob({ lalamoveRate, sideJobRate }) {
                 {/* Route */}
                 <div className="space-y-3">
                     <div>
-                        <label className="block text-sm font-semibold text-gray-800 mb-2">
+                        <label className="block text-sm font-semibold text-slate-200 mb-2">
                             Dari (Pickup) <span className="text-red-500">*</span>
                         </label>
                         <div className="relative">
@@ -146,7 +146,7 @@ export default function LogJob({ lalamoveRate, sideJobRate }) {
                         {errors.pickup_location && <p className="mt-1 text-sm text-red-500">{errors.pickup_location}</p>}
                     </div>
                     <div>
-                        <label className="block text-sm font-semibold text-gray-800 mb-2">
+                        <label className="block text-sm font-semibold text-slate-200 mb-2">
                             Ke (Hantar) <span className="text-red-500">*</span>
                         </label>
                         <div className="relative">
@@ -165,7 +165,7 @@ export default function LogJob({ lalamoveRate, sideJobRate }) {
                 {/* Customer (side job only) */}
                 {data.job_type === 'side_job' && (
                     <div>
-                        <label className="block text-sm font-semibold text-gray-800 mb-2">Nama Pelanggan</label>
+                        <label className="block text-sm font-semibold text-slate-200 mb-2">Nama Pelanggan</label>
                         <input
                             type="text" value={data.customer_name}
                             onChange={(e) => setData('customer_name', e.target.value)}
@@ -177,7 +177,7 @@ export default function LogJob({ lalamoveRate, sideJobRate }) {
 
                 {/* Proof Image */}
                 <div>
-                    <label className="block text-sm font-semibold text-gray-800 mb-2">
+                    <label className="block text-sm font-semibold text-slate-200 mb-2">
                         {data.job_type === 'lalamove' ? 'Screenshot Lalamove (Optional)' : 'Bukti Job (Optional)'}
                     </label>
                     <div className={`rounded-2xl border-2 border-dashed overflow-hidden transition-all ${preview ? 'border-blue-400' : 'border-gray-200'}`}>
@@ -207,7 +207,7 @@ export default function LogJob({ lalamoveRate, sideJobRate }) {
 
                 {/* Notes */}
                 <div>
-                    <label className="block text-sm font-semibold text-gray-800 mb-2">Nota (Optional)</label>
+                    <label className="block text-sm font-semibold text-slate-200 mb-2">Nota (Optional)</label>
                     <textarea
                         value={data.notes}
                         onChange={(e) => setData('notes', e.target.value)}

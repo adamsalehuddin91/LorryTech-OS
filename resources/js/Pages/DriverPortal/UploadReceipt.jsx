@@ -109,7 +109,7 @@ export default function UploadReceipt({ categories, vehicles }) {
 
                 {/* Category Grid */}
                 <div>
-                    <label className="block text-sm font-semibold text-gray-800 mb-3">Kategori</label>
+                    <label className="block text-sm font-semibold text-slate-200 mb-3">Kategori</label>
                     <div className="grid grid-cols-4 gap-2">
                         {Object.entries(CATEGORY_ICONS).map(([key, { icon, label }]) => (
                             <button
@@ -132,7 +132,7 @@ export default function UploadReceipt({ categories, vehicles }) {
 
                 {/* Amount */}
                 <div>
-                    <label className="block text-sm font-semibold text-gray-800 mb-2">Jumlah (RM)</label>
+                    <label className="block text-sm font-semibold text-slate-200 mb-2">Jumlah (RM)</label>
                     <div className="relative">
                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-semibold">RM</span>
                         <input
@@ -148,7 +148,7 @@ export default function UploadReceipt({ categories, vehicles }) {
 
                 {/* Vehicle */}
                 <div>
-                    <label className="block text-sm font-semibold text-gray-800 mb-2">Kenderaan</label>
+                    <label className="block text-sm font-semibold text-slate-200 mb-2">Kenderaan</label>
                     <select
                         value={data.vehicle_id}
                         onChange={(e) => setData('vehicle_id', e.target.value)}
@@ -163,7 +163,7 @@ export default function UploadReceipt({ categories, vehicles }) {
                 {/* Date & Desc */}
                 <div className="grid grid-cols-2 gap-3">
                     <div>
-                        <label className="block text-sm font-semibold text-gray-800 mb-2">Tarikh Resit</label>
+                        <label className="block text-sm font-semibold text-slate-200 mb-2">Tarikh Resit</label>
                         <input
                             type="date" value={data.receipt_date}
                             onChange={(e) => setData('receipt_date', e.target.value)}
@@ -172,7 +172,7 @@ export default function UploadReceipt({ categories, vehicles }) {
                         {errors.receipt_date && <p className="mt-1 text-xs text-red-500">{errors.receipt_date}</p>}
                     </div>
                     <div>
-                        <label className="block text-sm font-semibold text-gray-800 mb-2">Nota</label>
+                        <label className="block text-sm font-semibold text-slate-200 mb-2">Nota</label>
                         <input
                             type="text" value={data.description}
                             onChange={(e) => setData('description', e.target.value)}
