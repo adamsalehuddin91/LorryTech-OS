@@ -7,6 +7,7 @@ use App\Models\Payroll;
 use App\Services\PayrollService;
 use App\Services\PdfService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class PayrollController extends Controller
@@ -37,14 +38,15 @@ class PayrollController extends Controller
                 'paid_date'        => $p->paid_date?->format('d/m/Y'),
             ]);
 
-        $drivers = Driver::with('user')
+        $drivers = DB::table('drivers')
+            ->join('users', 'drivers.user_id', '=', 'users.id')
+            ->select('drivers.id', 'drivers.base_salary', 'users.name')
             ->get()
             ->map(fn($d) => [
                 'id'          => $d->id,
-                'name'        => $d->user->name ?? '-',
+                'name'        => $d->name,
                 'base_salary' => $d->base_salary,
-                'has_payroll' => $payrolls->contains('driver_name', $d->user->name ?? '-')
-                                 || Payroll::where('driver_id', $d->id)->where('month', $month)->exists(),
+                'has_payroll' => Payroll::where('driver_id', $d->id)->where('month', $month)->exists(),
             ]);
 
         return Inertia::render('Payroll/Index', [
