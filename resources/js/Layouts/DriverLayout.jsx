@@ -70,7 +70,7 @@ export default function DriverLayout({ title, children }) {
 
             {/* Wrapper styled as centered smartphone frame boundary */}
             <div className="min-h-screen bg-[#060814] flex justify-center">
-                <div className="w-full max-w-md bg-[#0B0F19] text-gray-100 flex flex-col h-screen overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.8)] border-x border-white/[0.03]">
+                <div className="w-full max-w-md bg-[#0B0F19] text-gray-100 flex flex-col h-screen shadow-[0_0_40px_rgba(0,0,0,0.8)] border-x border-white/[0.03]">
 
                     {/* Glassmorphic Top Header */}
                     <header className="shrink-0 bg-[#0B0F19]/80 backdrop-blur-md border-b border-white/[0.06] px-5 py-4 flex items-center justify-between shadow-sm z-30">
