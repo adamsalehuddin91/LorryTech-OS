@@ -38,7 +38,6 @@ class PayrollController extends Controller
             ]);
 
         $drivers = Driver::with('user')
-            ->where('status', 'active')
             ->get()
             ->map(fn($d) => [
                 'id'          => $d->id,
