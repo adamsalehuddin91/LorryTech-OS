@@ -74,7 +74,12 @@ export default function Index({ jobs, counts, filters }) {
     };
 
     return (
-        <AuthenticatedLayout header={<h2 className="text-xl font-semibold text-gray-800">Semak Kerja Pemandu</h2>}>
+        <AuthenticatedLayout header={
+            <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-gray-800">Semak Kerja Pemandu</h2>
+                <Link href={route('driver-jobs.map')} className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-blue-700">🗺️ Peta Hari Ini</Link>
+            </div>
+        }>
             <Head title="Semak Kerja Pemandu" />
 
             {/* Image Modal */}

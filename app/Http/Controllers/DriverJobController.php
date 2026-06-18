@@ -27,6 +27,12 @@ class DriverJobController extends Controller
                 'job_date'         => $j->job_date->format('d/m/Y'),
                 'pickup_location'  => $j->pickup_location,
                 'delivery_location'=> $j->delivery_location,
+                'pickup_lat'       => $j->pickup_lat,
+                'pickup_lng'       => $j->pickup_lng,
+                'delivery_lat'     => $j->delivery_lat,
+                'delivery_lng'     => $j->delivery_lng,
+                'distance_km'      => $j->distance_km,
+                'duration_min'     => $j->duration_min,
                 'customer_name'    => $j->customer_name,
                 'gross_amount'     => $j->gross_amount,
                 'commission_rate'  => $j->commission_rate,
@@ -49,6 +55,35 @@ class DriverJobController extends Controller
             'jobs'    => $jobs,
             'counts'  => $counts,
             'filters' => $request->only(['status', 'job_type']),
+        ]);
+    }
+
+    // Admin map — today's (or a date's) jobs that have route coords.
+    public function map(Request $request)
+    {
+        $date = $request->get('date', now()->toDateString());
+
+        $jobs = DriverJob::with('driver.user')
+            ->whereDate('job_date', $date)
+            ->whereNotNull('pickup_lat')->whereNotNull('delivery_lat')
+            ->orderBy('created_at')
+            ->get()
+            ->map(fn ($j) => [
+                'id'                => $j->id,
+                'driver_name'       => $j->driver->user->name ?? '-',
+                'job_type_label'    => $j->job_type_label,
+                'pickup_location'   => $j->pickup_location,
+                'delivery_location' => $j->delivery_location,
+                'pickup'            => ['lat' => (float) $j->pickup_lat, 'lng' => (float) $j->pickup_lng],
+                'delivery'          => ['lat' => (float) $j->delivery_lat, 'lng' => (float) $j->delivery_lng],
+                'distance_km'       => (float) $j->distance_km,
+                'status'            => $j->status,
+            ]);
+
+        return Inertia::render('DriverJobs/Map', [
+            'date'     => $date,
+            'jobs'     => $jobs,
+            'total_km' => round($jobs->sum('distance_km'), 1),
         ]);
     }
 

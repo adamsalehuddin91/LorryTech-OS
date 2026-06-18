@@ -298,6 +298,8 @@ class DriverPortalController extends Controller
                 'job_date'         => $j->job_date->format('d/m/Y'),
                 'pickup_location'  => $j->pickup_location,
                 'delivery_location'=> $j->delivery_location,
+                'distance_km'      => $j->distance_km,
+                'duration_min'     => $j->duration_min,
                 'customer_name'    => $j->customer_name,
                 'gross_amount'     => $j->gross_amount,
                 'commission_rate'  => $j->commission_rate,
