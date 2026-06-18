@@ -48,52 +48,49 @@ export default function Map({ date, jobs, total_km }) {
     }, [jobs]);
 
     return (
-        <AuthenticatedLayout>
+        <AuthenticatedLayout header={<h2 className="text-xl font-semibold text-gray-800">Peta Kerja Driver</h2>}>
             <Head title="Peta Kerja Driver" />
             <div className="p-4 space-y-4 max-w-5xl mx-auto">
                 <div className="flex items-center justify-between flex-wrap gap-3">
-                    <div>
-                        <h1 className="text-xl font-bold text-slate-100">Peta Kerja Driver</h1>
-                        <p className="text-sm text-slate-400">Laluan & jarak kerja driver mengikut tarikh</p>
-                    </div>
+                    <p className="text-sm text-gray-500">Laluan & jarak kerja driver mengikut tarikh</p>
                     <div className="flex items-center gap-2">
                         <input
                             type="date" value={date}
                             onChange={(e) => router.get(route('driver-jobs.map'), { date: e.target.value }, { preserveState: true })}
                             className="rounded-lg border-gray-300 text-sm text-gray-700"
                         />
-                        <Link href={route('driver-jobs.index')} className="rounded-lg bg-white/10 border border-white/10 px-3 py-2 text-sm text-slate-200">Senarai</Link>
+                        <Link href={route('driver-jobs.index')} className="rounded-lg bg-gray-100 border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200">Senarai</Link>
                     </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
-                    <div className="rounded-xl bg-white/5 border border-white/10 p-3">
-                        <p className="text-xs text-slate-400 uppercase">Jumlah Job</p>
-                        <p className="text-xl font-bold text-slate-100">{jobs.length}</p>
+                    <div className="rounded-xl bg-white border border-gray-200 shadow-sm p-3">
+                        <p className="text-xs text-gray-500 uppercase tracking-wide">Jumlah Job</p>
+                        <p className="text-2xl font-bold text-gray-900">{jobs.length}</p>
                     </div>
-                    <div className="rounded-xl bg-white/5 border border-white/10 p-3">
-                        <p className="text-xs text-slate-400 uppercase">Jumlah KM (anggaran)</p>
-                        <p className="text-xl font-bold text-blue-400">{total_km} km</p>
+                    <div className="rounded-xl bg-white border border-gray-200 shadow-sm p-3">
+                        <p className="text-xs text-gray-500 uppercase tracking-wide">Jumlah KM (anggaran)</p>
+                        <p className="text-2xl font-bold text-blue-600">{total_km} km</p>
                     </div>
                 </div>
 
                 {MAPS_KEY
-                    ? <div ref={mapRef} className="h-[440px] rounded-2xl border border-white/10 bg-gray-100" />
-                    : <p className="text-amber-400 text-sm rounded-xl bg-amber-500/10 border border-amber-500/20 p-3">Maps key belum di-set (VITE_GOOGLE_MAPS_API_KEY).</p>}
+                    ? <div ref={mapRef} className="h-[440px] rounded-2xl border border-gray-200 bg-gray-100 shadow-sm" />
+                    : <p className="text-amber-700 text-sm rounded-xl bg-amber-50 border border-amber-200 p-3">Maps key belum di-set (VITE_GOOGLE_MAPS_API_KEY).</p>}
 
                 <div className="space-y-2">
                     {jobs.length === 0 && (
-                        <p className="text-slate-400 text-sm text-center py-8">Tiada kerja (berlokasi peta) untuk tarikh ini.</p>
+                        <p className="text-gray-400 text-sm text-center py-8">Tiada kerja (berlokasi peta) untuk tarikh ini.</p>
                     )}
                     {jobs.map((j) => (
-                        <div key={j.id} className="rounded-xl bg-white/5 border border-white/10 p-3 flex items-center justify-between gap-3">
+                        <div key={j.id} className="rounded-xl bg-white border border-gray-200 shadow-sm p-3 flex items-center justify-between gap-3">
                             <div className="min-w-0">
-                                <p className="text-sm font-semibold text-slate-100">
-                                    {j.driver_name} <span className="text-xs font-normal text-slate-400">· {j.job_type_label}</span>
+                                <p className="text-sm font-semibold text-gray-900">
+                                    {j.driver_name} <span className="text-xs font-normal text-gray-400">· {j.job_type_label}</span>
                                 </p>
-                                <p className="text-xs text-slate-400 truncate">{j.pickup_location} → {j.delivery_location}</p>
+                                <p className="text-xs text-gray-500 truncate">{j.pickup_location} → {j.delivery_location}</p>
                             </div>
-                            <span className="text-sm font-bold text-blue-400 shrink-0">{j.distance_km} km</span>
+                            <span className="text-sm font-bold text-blue-600 shrink-0">{j.distance_km} km</span>
                         </div>
                     ))}
                 </div>
