@@ -18,6 +18,7 @@ class DriverJob extends Model
         'delivery_lng',
         'distance_km',
         'duration_min',
+        'route_polyline',
         'customer_name',
         'gross_amount',
         'commission_rate',

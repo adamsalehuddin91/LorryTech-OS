@@ -12,7 +12,7 @@ function loadGoogleMaps() {
     if (mapsPromise) return mapsPromise;
     mapsPromise = new Promise((resolve, reject) => {
         const s = document.createElement('script');
-        s.src = `https://maps.googleapis.com/maps/api/js?key=${MAPS_KEY}&libraries=places`;
+        s.src = `https://maps.googleapis.com/maps/api/js?key=${MAPS_KEY}&libraries=places,geometry`;
         s.async = true;
         s.onload = resolve;
         s.onerror = reject;
@@ -52,6 +52,7 @@ export default function LogJob({ lalamoveRate, sideJobRate }) {
         delivery_lng:      null,
         distance_km:       null,
         duration_min:      null,
+        route_polyline:    null,
         customer_name:     '',
         gross_amount:      '',
         notes:             '',
@@ -133,7 +134,9 @@ export default function LogJob({ lalamoveRate, sideJobRate }) {
             if (status === 'OK' && leg) {
                 const km = +(leg.distance.value / 1000).toFixed(2);
                 const min = Math.round(leg.duration.value / 60);
-                setData((d) => ({ ...d, distance_km: km, duration_min: min }));
+                // encode road route once → reused on admin map (no extra API call)
+                const poly = window.google.maps.geometry?.encoding?.encodePath(res.routes[0].overview_path) || null;
+                setData((d) => ({ ...d, distance_km: km, duration_min: min, route_polyline: poly }));
                 setCalcStatus('done');
                 if (dirRenderer.current) dirRenderer.current.setDirections(res); // lukis laluan atas peta
             } else {

@@ -77,6 +77,7 @@ class DriverJobController extends Controller
                 'pickup'            => ['lat' => (float) $j->pickup_lat, 'lng' => (float) $j->pickup_lng],
                 'delivery'          => ['lat' => (float) $j->delivery_lat, 'lng' => (float) $j->delivery_lng],
                 'distance_km'       => (float) $j->distance_km,
+                'route_polyline'    => $j->route_polyline,
                 'status'            => $j->status,
             ]);
 

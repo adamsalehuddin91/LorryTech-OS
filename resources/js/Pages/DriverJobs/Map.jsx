@@ -11,7 +11,7 @@ function loadGoogleMaps() {
     if (mapsPromise) return mapsPromise;
     mapsPromise = new Promise((resolve, reject) => {
         const s = document.createElement('script');
-        s.src = `https://maps.googleapis.com/maps/api/js?key=${MAPS_KEY}`;
+        s.src = `https://maps.googleapis.com/maps/api/js?key=${MAPS_KEY}&libraries=geometry`;
         s.async = true; s.onload = resolve; s.onerror = reject;
         document.head.appendChild(s);
     });
@@ -39,7 +39,11 @@ export default function Map({ date, jobs, total_km }) {
                 const color = driverColor[j.driver_name];
                 new window.google.maps.Marker({ position: j.pickup, map, label: { text: 'A', color: '#fff', fontSize: '10px', fontWeight: 'bold' }, title: `${j.driver_name} (Dari): ${j.pickup_location}` });
                 new window.google.maps.Marker({ position: j.delivery, map, label: { text: 'B', color: '#fff', fontSize: '10px', fontWeight: 'bold' }, title: `${j.driver_name} (Ke): ${j.delivery_location}` });
-                new window.google.maps.Polyline({ path: [j.pickup, j.delivery], map, geodesic: true, strokeColor: color, strokeOpacity: 0.85, strokeWeight: 3 });
+                // Real road route from saved polyline (no extra API call); fallback straight line.
+                const path = j.route_polyline
+                    ? window.google.maps.geometry.encoding.decodePath(j.route_polyline)
+                    : [j.pickup, j.delivery];
+                new window.google.maps.Polyline({ path, map, geodesic: !j.route_polyline, strokeColor: color, strokeOpacity: 0.85, strokeWeight: 4 });
                 bounds.extend(j.pickup); bounds.extend(j.delivery);
             });
             if (jobs.length) map.fitBounds(bounds);
