@@ -3,7 +3,8 @@ import { Head, Link, useForm } from '@inertiajs/react';
 import { useState } from 'react';
 
 export default function Edit({ vehicle }) {
-    const { data, setData, put, processing, errors } = useForm({
+    const { data, setData, post, processing, errors } = useForm({
+        _method: 'put', // POST + spoof — PHP can't parse multipart PUT (file upload)
         plate_number: vehicle.plate_number || '',
         model: vehicle.model || '',
         year: vehicle.year || '',
@@ -28,7 +29,7 @@ export default function Edit({ vehicle }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        put(route('vehicles.update', vehicle.id), { forceFormData: true });
+        post(route('vehicles.update', vehicle.id), { forceFormData: true });
     };
 
     return (

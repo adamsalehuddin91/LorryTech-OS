@@ -3,7 +3,8 @@ import { Head, Link, useForm } from '@inertiajs/react';
 import { useState } from 'react';
 
 export default function Edit({ driver }) {
-    const { data, setData, put, processing, errors } = useForm({
+    const { data, setData, post, processing, errors } = useForm({
+        _method:           'put', // POST + spoof — PHP can't parse multipart PUT (file upload)
         name:              driver.user?.name || '',
         email:             driver.user?.email || '',
         license_number:    driver.license_number || '',
@@ -33,7 +34,7 @@ export default function Edit({ driver }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        put(route('drivers.update', driver.id), { forceFormData: true });
+        post(route('drivers.update', driver.id), { forceFormData: true });
     };
 
     return (
