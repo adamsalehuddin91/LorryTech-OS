@@ -62,6 +62,7 @@ Route::middleware(['auth', 'role:owner'])->group(function () {
     // Driver Jobs (owner verify)
     Route::get('driver-jobs', [DriverJobController::class, 'index'])->name('driver-jobs.index');
     Route::get('driver-jobs/map', [DriverJobController::class, 'map'])->name('driver-jobs.map');
+    Route::post('driver-jobs/{driverJob}/polyline', [DriverJobController::class, 'savePolyline'])->name('driver-jobs.polyline');
     Route::patch('driver-jobs/{driverJob}/verify', [DriverJobController::class, 'verify'])->name('driver-jobs.verify');
     Route::patch('driver-jobs/{driverJob}/reject', [DriverJobController::class, 'reject'])->name('driver-jobs.reject');
 

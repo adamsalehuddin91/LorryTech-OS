@@ -105,6 +105,14 @@ class DriverJobController extends Controller
         ]);
     }
 
+    // Backfill: save a route polyline computed client-side (for jobs logged without one).
+    public function savePolyline(Request $request, DriverJob $driverJob)
+    {
+        $data = $request->validate(['route_polyline' => 'required|string|max:65000']);
+        $driverJob->update(['route_polyline' => $data['route_polyline']]);
+        return response()->json(['ok' => true]);
+    }
+
     public function verify(Request $request, DriverJob $driverJob)
     {
         abort_unless($driverJob->status === 'pending', 422, 'Hanya job pending boleh disahkan.');

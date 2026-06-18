@@ -32,6 +32,7 @@ export default function Map({ date, jobs, total_km, total_cost, cost_per_km, sum
                 center: { lat: 3.139, lng: 101.687 }, zoom: 11, disableDefaultUI: false, streetViewControl: false, mapTypeControl: false,
             });
             const bounds = new window.google.maps.LatLngBounds();
+            const dirService = new window.google.maps.DirectionsService();
             const driverColor = {};
             let ci = 0;
             jobs.forEach((j) => {
@@ -39,12 +40,24 @@ export default function Map({ date, jobs, total_km, total_cost, cost_per_km, sum
                 const color = driverColor[j.driver_name];
                 new window.google.maps.Marker({ position: j.pickup, map, label: { text: 'A', color: '#fff', fontSize: '10px', fontWeight: 'bold' }, title: `${j.driver_name} (Dari): ${j.pickup_location}` });
                 new window.google.maps.Marker({ position: j.delivery, map, label: { text: 'B', color: '#fff', fontSize: '10px', fontWeight: 'bold' }, title: `${j.driver_name} (Ke): ${j.delivery_location}` });
-                // Real road route from saved polyline (no extra API call); fallback straight line.
-                const path = j.route_polyline
-                    ? window.google.maps.geometry.encoding.decodePath(j.route_polyline)
-                    : [j.pickup, j.delivery];
-                new window.google.maps.Polyline({ path, map, geodesic: !j.route_polyline, strokeColor: color, strokeOpacity: 0.85, strokeWeight: 4 });
                 bounds.extend(j.pickup); bounds.extend(j.delivery);
+                if (j.route_polyline) {
+                    // saved route → draw (zero API call)
+                    const path = window.google.maps.geometry.encoding.decodePath(j.route_polyline);
+                    new window.google.maps.Polyline({ path, map, strokeColor: color, strokeOpacity: 0.85, strokeWeight: 4 });
+                } else {
+                    // backfill: compute real road route once, draw + save for next time
+                    dirService.route({ origin: j.pickup, destination: j.delivery, travelMode: 'DRIVING' }, (res, status) => {
+                        if (status === 'OK' && res.routes[0]) {
+                            const rpath = res.routes[0].overview_path;
+                            new window.google.maps.Polyline({ path: rpath, map, strokeColor: color, strokeOpacity: 0.85, strokeWeight: 4 });
+                            const enc = window.google.maps.geometry.encoding.encodePath(rpath);
+                            window.axios?.post(route('driver-jobs.polyline', j.id), { route_polyline: enc }).catch(() => {});
+                        } else {
+                            new window.google.maps.Polyline({ path: [j.pickup, j.delivery], map, geodesic: true, strokeColor: color, strokeOpacity: 0.55, strokeWeight: 3 });
+                        }
+                    });
+                }
             });
             if (jobs.length) map.fitBounds(bounds);
         }).catch(() => {});
