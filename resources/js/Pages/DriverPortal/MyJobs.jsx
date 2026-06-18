@@ -55,6 +55,9 @@ export default function MyJobs({ jobs }) {
                                             <div className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0" />
                                             <p className="text-sm text-slate-300 truncate">{job.delivery_location}</p>
                                         </div>
+                                        {job.distance_km && (
+                                            <p className="text-xs font-semibold text-blue-400 pl-4">🚗 {job.distance_km} km · ~{job.duration_min} min</p>
+                                        )}
                                         {job.customer_name && (
                                             <p className="text-xs text-gray-400 pl-4">👤 {job.customer_name}</p>
                                         )}

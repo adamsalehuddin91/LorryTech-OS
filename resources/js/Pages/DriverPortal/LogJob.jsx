@@ -1,6 +1,25 @@
 import DriverLayout from '@/Layouts/DriverLayout';
 import { useForm } from '@inertiajs/react';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+
+const MAPS_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+
+// Load Google Maps JS (Places) once.
+let mapsPromise = null;
+function loadGoogleMaps() {
+    if (!MAPS_KEY) return Promise.reject('no-key');
+    if (window.google?.maps?.places) return Promise.resolve();
+    if (mapsPromise) return mapsPromise;
+    mapsPromise = new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = `https://maps.googleapis.com/maps/api/js?key=${MAPS_KEY}&libraries=places`;
+        s.async = true;
+        s.onload = resolve;
+        s.onerror = reject;
+        document.head.appendChild(s);
+    });
+    return mapsPromise;
+}
 
 const compressImage = (file) =>
     new Promise((resolve) => {
@@ -26,7 +45,13 @@ export default function LogJob({ lalamoveRate, sideJobRate }) {
         job_type:          'lalamove',
         job_date:          new Date().toISOString().split('T')[0],
         pickup_location:   '',
+        pickup_lat:        null,
+        pickup_lng:        null,
         delivery_location: '',
+        delivery_lat:      null,
+        delivery_lng:      null,
+        distance_km:       null,
+        duration_min:      null,
         customer_name:     '',
         gross_amount:      '',
         notes:             '',
@@ -35,9 +60,87 @@ export default function LogJob({ lalamoveRate, sideJobRate }) {
 
     const [preview, setPreview] = useState(null);
     const [compressing, setCompressing] = useState(false);
+    const [mapsReady, setMapsReady] = useState(false);
+    const [locating, setLocating] = useState(false);
+    const [calcStatus, setCalcStatus] = useState(null); // null | 'calc' | 'done' | 'fail'
+
+    const pickupRef = useRef(null);
+    const deliveryRef = useRef(null);
+    const pickupCoords = useRef(null);
+    const deliveryCoords = useRef(null);
 
     const currentRate = data.job_type === 'lalamove' ? lalamoveRate : sideJobRate;
     const estimatedComm = data.gross_amount ? (parseFloat(data.gross_amount) * currentRate / 100).toFixed(2) : '0.00';
+
+    // ── Google Maps: load + attach autocomplete ──
+    useEffect(() => {
+        if (!MAPS_KEY) return;
+        let cancelled = false;
+        loadGoogleMaps().then(() => {
+            if (cancelled) return;
+            setMapsReady(true);
+            const opts = { fields: ['geometry', 'formatted_address'], componentRestrictions: { country: 'my' } };
+
+            if (pickupRef.current) {
+                const ac = new window.google.maps.places.Autocomplete(pickupRef.current, opts);
+                ac.addListener('place_changed', () => {
+                    const p = ac.getPlace();
+                    if (!p.geometry) return;
+                    pickupCoords.current = { lat: p.geometry.location.lat(), lng: p.geometry.location.lng() };
+                    setData((d) => ({ ...d, pickup_location: p.formatted_address || d.pickup_location, pickup_lat: pickupCoords.current.lat, pickup_lng: pickupCoords.current.lng }));
+                    tryComputeDistance();
+                });
+            }
+            if (deliveryRef.current) {
+                const ac = new window.google.maps.places.Autocomplete(deliveryRef.current, opts);
+                ac.addListener('place_changed', () => {
+                    const p = ac.getPlace();
+                    if (!p.geometry) return;
+                    deliveryCoords.current = { lat: p.geometry.location.lat(), lng: p.geometry.location.lng() };
+                    setData((d) => ({ ...d, delivery_location: p.formatted_address || d.delivery_location, delivery_lat: deliveryCoords.current.lat, delivery_lng: deliveryCoords.current.lng }));
+                    tryComputeDistance();
+                });
+            }
+        }).catch(() => {});
+        return () => { cancelled = true; };
+    }, []);
+
+    // ── Auto-calculate driving distance once both points set ──
+    const tryComputeDistance = () => {
+        const o = pickupCoords.current, dst = deliveryCoords.current;
+        if (!o || !dst || !window.google?.maps) return;
+        setCalcStatus('calc');
+        new window.google.maps.DistanceMatrixService().getDistanceMatrix({
+            origins: [o], destinations: [dst], travelMode: 'DRIVING',
+        }, (res, status) => {
+            const el = res?.rows?.[0]?.elements?.[0];
+            if (status === 'OK' && el?.status === 'OK') {
+                const km = +(el.distance.value / 1000).toFixed(2);
+                const min = Math.round(el.duration.value / 60);
+                setData((d) => ({ ...d, distance_km: km, duration_min: min }));
+                setCalcStatus('done');
+            } else {
+                setCalcStatus('fail');
+            }
+        });
+    };
+
+    // ── GPS: "Lokasi Saya Sekarang" for pickup ──
+    const useMyLocation = () => {
+        if (!navigator.geolocation || !window.google?.maps) return;
+        setLocating(true);
+        navigator.geolocation.getCurrentPosition((pos) => {
+            const lat = pos.coords.latitude, lng = pos.coords.longitude;
+            pickupCoords.current = { lat, lng };
+            new window.google.maps.Geocoder().geocode({ location: { lat, lng } }, (results, status) => {
+                const addr = status === 'OK' && results[0] ? results[0].formatted_address : `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+                if (pickupRef.current) pickupRef.current.value = addr;
+                setData((d) => ({ ...d, pickup_location: addr, pickup_lat: lat, pickup_lng: lng }));
+                setLocating(false);
+                tryComputeDistance();
+            });
+        }, () => { setLocating(false); alert('Tak dapat akses lokasi. Benarkan GPS atau taip manual.'); }, { enableHighAccuracy: true, timeout: 10000 });
+    };
 
     const handleFile = async (e) => {
         const file = e.target.files[0];
@@ -130,21 +233,32 @@ export default function LogJob({ lalamoveRate, sideJobRate }) {
 
                 {/* Route */}
                 <div className="space-y-3">
+                    {/* Pickup */}
                     <div>
-                        <label className="block text-sm font-semibold text-slate-200 mb-2">
-                            Dari (Pickup) <span className="text-red-500">*</span>
-                        </label>
+                        <div className="flex items-center justify-between mb-2">
+                            <label className="block text-sm font-semibold text-slate-200">
+                                Dari (Pickup) <span className="text-red-500">*</span>
+                            </label>
+                            {MAPS_KEY && (
+                                <button type="button" onClick={useMyLocation} disabled={locating}
+                                    className="text-xs font-semibold text-blue-400 flex items-center gap-1 disabled:opacity-50">
+                                    📍 {locating ? 'Mencari…' : 'Lokasi Saya'}
+                                </button>
+                            )}
+                        </div>
                         <div className="relative">
                             <div className="absolute left-4 top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-blue-500" />
                             <input
-                                type="text" value={data.pickup_location}
-                                onChange={(e) => setData('pickup_location', e.target.value)}
-                                placeholder="cth: Klang, Selangor"
+                                ref={pickupRef}
+                                type="text" defaultValue={data.pickup_location}
+                                onChange={(e) => { pickupCoords.current = null; setData((d) => ({ ...d, pickup_location: e.target.value, pickup_lat: null, pickup_lng: null, distance_km: null, duration_min: null })); setCalcStatus(null); }}
+                                placeholder={MAPS_KEY ? 'Cari tempat… cth: Klang' : 'cth: Klang, Selangor'}
                                 className="w-full rounded-xl border border-gray-200 pl-9 pr-4 py-3 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                         </div>
                         {errors.pickup_location && <p className="mt-1 text-sm text-red-500">{errors.pickup_location}</p>}
                     </div>
+                    {/* Delivery */}
                     <div>
                         <label className="block text-sm font-semibold text-slate-200 mb-2">
                             Ke (Hantar) <span className="text-red-500">*</span>
@@ -152,14 +266,27 @@ export default function LogJob({ lalamoveRate, sideJobRate }) {
                         <div className="relative">
                             <div className="absolute left-4 top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-green-500" />
                             <input
-                                type="text" value={data.delivery_location}
-                                onChange={(e) => setData('delivery_location', e.target.value)}
-                                placeholder="cth: Shah Alam, Selangor"
+                                ref={deliveryRef}
+                                type="text" defaultValue={data.delivery_location}
+                                onChange={(e) => { deliveryCoords.current = null; setData((d) => ({ ...d, delivery_location: e.target.value, delivery_lat: null, delivery_lng: null, distance_km: null, duration_min: null })); setCalcStatus(null); }}
+                                placeholder={MAPS_KEY ? 'Cari tempat… cth: Shah Alam' : 'cth: Shah Alam, Selangor'}
                                 className="w-full rounded-xl border border-gray-200 pl-9 pr-4 py-3 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                         </div>
                         {errors.delivery_location && <p className="mt-1 text-sm text-red-500">{errors.delivery_location}</p>}
                     </div>
+
+                    {/* Distance preview */}
+                    {MAPS_KEY && (calcStatus === 'calc' || data.distance_km != null) && (
+                        <div className="rounded-2xl bg-blue-50 border border-blue-200 px-4 py-3 flex items-center justify-between">
+                            <span className="text-xs font-medium text-blue-600">🚗 Anggaran jarak (jalan)</span>
+                            {calcStatus === 'calc'
+                                ? <span className="text-sm font-semibold text-blue-500">Mengira…</span>
+                                : <span className="text-lg font-bold text-blue-700">{data.distance_km} km<span className="text-xs font-medium text-blue-500"> · ~{data.duration_min} min</span></span>}
+                        </div>
+                    )}
+                    {calcStatus === 'fail' && <p className="text-xs text-amber-500">Tak dapat kira jarak — boleh hantar tanpa KM.</p>}
+                    {!MAPS_KEY && <p className="text-[11px] text-slate-400">ℹ️ Maps belum aktif — taip lokasi manual (KM tak auto-kira).</p>}
                 </div>
 
                 {/* Customer (side job only) */}

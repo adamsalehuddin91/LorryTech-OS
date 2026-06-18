@@ -144,6 +144,9 @@ export default function Index({ jobs, counts, filters }) {
                                         {job.delivery_location}
                                     </div>
                                 </div>
+                                {job.distance_km && (
+                                    <p className="mt-2 text-xs font-bold text-blue-600">🚗 {job.distance_km} km{job.duration_min ? ` · ~${job.duration_min} min` : ''} <span className="font-normal text-gray-400">(anggaran)</span></p>
+                                )}
 
                                 <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-400">
                                     <span>Jumlah: RM {Number(job.gross_amount).toFixed(2)}</span>
