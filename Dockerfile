@@ -19,6 +19,12 @@ COPY package.json package-lock.json ./
 RUN npm ci --production=false
 
 COPY . .
+
+# Frontend build-time var — Vite bakes it into the bundle (runtime env too late).
+# Pass via Coolify "Build Variable". Empty default = Maps disabled (graceful fallback).
+ARG VITE_GOOGLE_MAPS_API_KEY=""
+ENV VITE_GOOGLE_MAPS_API_KEY=$VITE_GOOGLE_MAPS_API_KEY
+
 # bust-cache: migration-rename-fix-v2
 RUN npm run build && rm -rf node_modules
 
