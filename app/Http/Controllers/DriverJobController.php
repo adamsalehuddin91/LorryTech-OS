@@ -81,10 +81,27 @@ class DriverJobController extends Controller
                 'status'            => $j->status,
             ]);
 
+        // Anggaran kos minyak (RM/km — minyak + susut nilai). Laras ikut fleet.
+        $costPerKm = 0.50;
+
+        $all = DriverJob::with('driver.user')->whereDate('job_date', $date)->get();
+        $summary = $all->groupBy(fn ($j) => $j->driver->user->name ?? '-')
+            ->map(fn ($g, $name) => [
+                'driver'     => $name,
+                'jobs'       => $g->count(),
+                'km'         => round($g->sum('distance_km'), 1),
+                'cost'       => round($g->sum('distance_km') * $costPerKm, 2),
+                'commission' => round($g->sum('commission_amount'), 2),
+            ])->sortByDesc('km')->values();
+        $totalKm = round($all->sum('distance_km'), 1);
+
         return Inertia::render('DriverJobs/Map', [
-            'date'     => $date,
-            'jobs'     => $jobs,
-            'total_km' => round($jobs->sum('distance_km'), 1),
+            'date'        => $date,
+            'jobs'        => $jobs,
+            'total_km'    => $totalKm,
+            'total_cost'  => round($totalKm * $costPerKm, 2),
+            'cost_per_km' => $costPerKm,
+            'summary'     => $summary,
         ]);
     }
 

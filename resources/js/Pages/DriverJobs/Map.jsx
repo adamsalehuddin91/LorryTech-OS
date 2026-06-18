@@ -20,7 +20,7 @@ function loadGoogleMaps() {
 
 const COLORS = ['#2563eb', '#16a34a', '#db2777', '#ea580c', '#7c3aed', '#0891b2', '#ca8a04'];
 
-export default function Map({ date, jobs, total_km }) {
+export default function Map({ date, jobs, total_km, total_cost, cost_per_km, summary = [] }) {
     const mapRef = useRef(null);
 
     useEffect(() => {
@@ -67,16 +67,51 @@ export default function Map({ date, jobs, total_km }) {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-3 gap-3">
                     <div className="rounded-xl bg-white border border-gray-200 shadow-sm p-3">
-                        <p className="text-xs text-gray-500 uppercase tracking-wide">Jumlah Job</p>
-                        <p className="text-2xl font-bold text-gray-900">{jobs.length}</p>
+                        <p className="text-[11px] text-gray-500 uppercase tracking-wide">Jumlah Job</p>
+                        <p className="text-xl font-bold text-gray-900">{summary.reduce((a, s) => a + s.jobs, 0)}</p>
                     </div>
                     <div className="rounded-xl bg-white border border-gray-200 shadow-sm p-3">
-                        <p className="text-xs text-gray-500 uppercase tracking-wide">Jumlah KM (anggaran)</p>
-                        <p className="text-2xl font-bold text-blue-600">{total_km} km</p>
+                        <p className="text-[11px] text-gray-500 uppercase tracking-wide">Jumlah KM</p>
+                        <p className="text-xl font-bold text-blue-600">{total_km} km</p>
+                    </div>
+                    <div className="rounded-xl bg-white border border-gray-200 shadow-sm p-3">
+                        <p className="text-[11px] text-gray-500 uppercase tracking-wide">Kos Minyak</p>
+                        <p className="text-xl font-bold text-orange-600">RM {total_cost}</p>
                     </div>
                 </div>
+
+                {summary.length > 0 && (
+                    <div className="rounded-xl bg-white border border-gray-200 shadow-sm overflow-hidden">
+                        <div className="px-3 py-2 border-b border-gray-100 flex items-center justify-between">
+                            <p className="text-sm font-bold text-gray-800">Ringkasan Per Driver</p>
+                            <p className="text-[11px] text-gray-400">kos minyak @ RM{cost_per_km}/km (anggaran)</p>
+                        </div>
+                        <table className="w-full text-sm">
+                            <thead>
+                                <tr className="text-[11px] text-gray-400 uppercase bg-gray-50">
+                                    <th className="text-left font-medium px-3 py-2">Driver</th>
+                                    <th className="text-right font-medium px-3 py-2">Job</th>
+                                    <th className="text-right font-medium px-3 py-2">KM</th>
+                                    <th className="text-right font-medium px-3 py-2">Kos Minyak</th>
+                                    <th className="text-right font-medium px-3 py-2">Komisyen</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {summary.map((s) => (
+                                    <tr key={s.driver} className="border-t border-gray-100">
+                                        <td className="px-3 py-2 font-semibold text-gray-800">{s.driver}</td>
+                                        <td className="px-3 py-2 text-right text-gray-600">{s.jobs}</td>
+                                        <td className="px-3 py-2 text-right font-medium text-blue-600">{s.km} km</td>
+                                        <td className="px-3 py-2 text-right font-medium text-orange-600">RM {s.cost}</td>
+                                        <td className="px-3 py-2 text-right font-semibold text-green-600">RM {s.commission}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
 
                 {MAPS_KEY
                     ? <div ref={mapRef} className="h-[440px] rounded-2xl border border-gray-200 bg-gray-100 shadow-sm" />
