@@ -63,11 +63,17 @@ export default function LogJob({ lalamoveRate, sideJobRate }) {
     const [mapsReady, setMapsReady] = useState(false);
     const [locating, setLocating] = useState(false);
     const [calcStatus, setCalcStatus] = useState(null); // null | 'calc' | 'done' | 'fail'
+    const [nearbyPlaces, setNearbyPlaces] = useState([]);
+    const [showNearby, setShowNearby] = useState(false);
 
     const pickupRef = useRef(null);
     const deliveryRef = useRef(null);
     const pickupCoords = useRef(null);
     const deliveryCoords = useRef(null);
+    const mapRef = useRef(null);
+    const mapObj = useRef(null);
+    const dirRenderer = useRef(null);
+    const dirService = useRef(null);
 
     const currentRate = data.job_type === 'lalamove' ? lalamoveRate : sideJobRate;
     const estimatedComm = data.gross_amount ? (parseFloat(data.gross_amount) * currentRate / 100).toFixed(2) : '0.00';
@@ -79,6 +85,16 @@ export default function LogJob({ lalamoveRate, sideJobRate }) {
         loadGoogleMaps().then(() => {
             if (cancelled) return;
             setMapsReady(true);
+
+            // Route map + directions (Directions API)
+            if (mapRef.current && !mapObj.current) {
+                mapObj.current = new window.google.maps.Map(mapRef.current, {
+                    center: { lat: 3.139, lng: 101.687 }, zoom: 10, disableDefaultUI: true, zoomControl: true,
+                });
+                dirRenderer.current = new window.google.maps.DirectionsRenderer({ map: mapObj.current });
+                dirService.current = new window.google.maps.DirectionsService();
+            }
+
             const opts = { fields: ['geometry', 'formatted_address'], componentRestrictions: { country: 'my' } };
 
             if (pickupRef.current) {
@@ -108,17 +124,18 @@ export default function LogJob({ lalamoveRate, sideJobRate }) {
     // ── Auto-calculate driving distance once both points set ──
     const tryComputeDistance = () => {
         const o = pickupCoords.current, dst = deliveryCoords.current;
-        if (!o || !dst || !window.google?.maps) return;
+        if (!o || !dst || !dirService.current) return;
         setCalcStatus('calc');
-        new window.google.maps.DistanceMatrixService().getDistanceMatrix({
-            origins: [o], destinations: [dst], travelMode: 'DRIVING',
+        dirService.current.route({
+            origin: o, destination: dst, travelMode: 'DRIVING',
         }, (res, status) => {
-            const el = res?.rows?.[0]?.elements?.[0];
-            if (status === 'OK' && el?.status === 'OK') {
-                const km = +(el.distance.value / 1000).toFixed(2);
-                const min = Math.round(el.duration.value / 60);
+            const leg = res?.routes?.[0]?.legs?.[0];
+            if (status === 'OK' && leg) {
+                const km = +(leg.distance.value / 1000).toFixed(2);
+                const min = Math.round(leg.duration.value / 60);
                 setData((d) => ({ ...d, distance_km: km, duration_min: min }));
                 setCalcStatus('done');
+                if (dirRenderer.current) dirRenderer.current.setDirections(res); // lukis laluan atas peta
             } else {
                 setCalcStatus('fail');
             }
@@ -126,20 +143,43 @@ export default function LogJob({ lalamoveRate, sideJobRate }) {
     };
 
     // ── GPS: "Lokasi Saya Sekarang" for pickup ──
+    const setPickup = (name, lat, lng) => {
+        pickupCoords.current = { lat, lng };
+        if (pickupRef.current) pickupRef.current.value = name;
+        setData((d) => ({ ...d, pickup_location: name, pickup_lat: lat, pickup_lng: lng }));
+        tryComputeDistance();
+    };
+
     const useMyLocation = () => {
         if (!navigator.geolocation || !window.google?.maps) return;
         setLocating(true);
         navigator.geolocation.getCurrentPosition((pos) => {
             const lat = pos.coords.latitude, lng = pos.coords.longitude;
-            pickupCoords.current = { lat, lng };
+            // default fill — reverse geocode
             new window.google.maps.Geocoder().geocode({ location: { lat, lng } }, (results, status) => {
                 const addr = status === 'OK' && results[0] ? results[0].formatted_address : `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
-                if (pickupRef.current) pickupRef.current.value = addr;
-                setData((d) => ({ ...d, pickup_location: addr, pickup_lat: lat, pickup_lng: lng }));
+                setPickup(addr, lat, lng);
                 setLocating(false);
-                tryComputeDistance();
             });
+            // nearby landmarks — driver boleh pilih yang lebih jelas
+            if (mapObj.current) {
+                new window.google.maps.places.PlacesService(mapObj.current).nearbySearch(
+                    { location: { lat, lng }, radius: 350 },
+                    (results, status) => {
+                        if (status === 'OK' && results?.length) {
+                            setNearbyPlaces(results.slice(0, 6));
+                            setShowNearby(true);
+                        }
+                    }
+                );
+            }
         }, () => { setLocating(false); alert('Tak dapat akses lokasi. Benarkan GPS atau taip manual.'); }, { enableHighAccuracy: true, timeout: 10000 });
+    };
+
+    const pickNearby = (pl) => {
+        const name = pl.vicinity ? `${pl.name}, ${pl.vicinity}` : pl.name;
+        setPickup(name, pl.geometry.location.lat(), pl.geometry.location.lng());
+        setShowNearby(false);
     };
 
     const handleFile = async (e) => {
@@ -256,6 +296,23 @@ export default function LogJob({ lalamoveRate, sideJobRate }) {
                                 className="w-full rounded-xl border border-gray-200 pl-9 pr-4 py-3 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                         </div>
+                        {showNearby && nearbyPlaces.length > 0 && (
+                            <div className="mt-2 rounded-xl border border-gray-200 bg-white p-2 shadow-sm">
+                                <div className="flex items-center justify-between px-1 mb-1">
+                                    <p className="text-[11px] text-gray-500">📍 Landmark berdekatan — pilih:</p>
+                                    <button type="button" onClick={() => setShowNearby(false)} className="text-[11px] text-gray-400">tutup ✕</button>
+                                </div>
+                                <div className="max-h-44 overflow-y-auto space-y-0.5">
+                                    {nearbyPlaces.map((pl) => (
+                                        <button type="button" key={pl.place_id} onClick={() => pickNearby(pl)}
+                                            className="w-full text-left px-2 py-2 rounded-lg hover:bg-blue-50 active:bg-blue-100">
+                                            <span className="text-sm font-semibold text-gray-700">{pl.name}</span>
+                                            {pl.vicinity && <span className="block text-xs text-gray-400">{pl.vicinity}</span>}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                         {errors.pickup_location && <p className="mt-1 text-sm text-red-500">{errors.pickup_location}</p>}
                     </div>
                     {/* Delivery */}
@@ -287,6 +344,7 @@ export default function LogJob({ lalamoveRate, sideJobRate }) {
                     )}
                     {calcStatus === 'fail' && <p className="text-xs text-amber-500">Tak dapat kira jarak — boleh hantar tanpa KM.</p>}
                     {!MAPS_KEY && <p className="text-[11px] text-slate-400">ℹ️ Maps belum aktif — taip lokasi manual (KM tak auto-kira).</p>}
+                    {MAPS_KEY && <div ref={mapRef} className="h-52 rounded-2xl overflow-hidden border border-gray-200 bg-gray-100" />}
                 </div>
 
                 {/* Customer (side job only) */}
