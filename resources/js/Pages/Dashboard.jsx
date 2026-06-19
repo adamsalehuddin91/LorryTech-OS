@@ -28,6 +28,14 @@ const categoryColors = {
     other:       'bg-gradient-to-r from-gray-400 to-gray-500',
 };
 
+// Premium KPI accent palette — solid icon chip + matching colored shadow + soft glow.
+const accentStyles = {
+    blue:    { chip: 'from-blue-500 to-indigo-600',  shadow: 'shadow-blue-500/30',    glow: 'from-blue-400 to-indigo-500' },
+    rose:    { chip: 'from-rose-500 to-red-600',      shadow: 'shadow-rose-500/30',    glow: 'from-rose-400 to-red-500' },
+    emerald: { chip: 'from-emerald-500 to-teal-600',  shadow: 'shadow-emerald-500/30', glow: 'from-emerald-400 to-teal-500' },
+    amber:   { chip: 'from-amber-500 to-orange-500',  shadow: 'shadow-amber-500/30',   glow: 'from-amber-400 to-orange-500' },
+};
+
 export default function Dashboard({
     kpis,
     monthlyTrend,
@@ -126,7 +134,7 @@ export default function Dashboard({
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                         }
-                        color="from-blue-500/10 to-indigo-500/5 text-blue-800 border-blue-100"
+                        accent="blue"
                         href={route('trips.index')}
                     />
                     <KpiCard
@@ -140,7 +148,7 @@ export default function Dashboard({
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                             </svg>
                         }
-                        color="from-rose-500/10 to-red-500/5 text-rose-800 border-rose-100"
+                        accent="rose"
                         href={route('expenses.index')}
                     />
                     <KpiCard
@@ -153,11 +161,7 @@ export default function Dashboard({
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                             </svg>
                         }
-                        color={
-                            kpis.net_profit_this_month >= 0
-                                ? 'from-emerald-500/10 to-teal-500/5 text-emerald-800 border-emerald-100'
-                                : 'from-rose-500/10 to-red-500/5 text-rose-800 border-rose-100'
-                        }
+                        accent={kpis.net_profit_this_month >= 0 ? 'emerald' : 'rose'}
                     />
                     <KpiCard
                         label="Invois Belum Bayar"
@@ -168,7 +172,7 @@ export default function Dashboard({
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                             </svg>
                         }
-                        color="from-amber-500/10 to-yellow-500/5 text-amber-800 border-amber-100"
+                        accent="amber"
                         href={route('invoices.index')}
                     />
                 </div>
@@ -630,34 +634,41 @@ function MomBadge({ mom, inverse = false }) {
     );
 }
 
-function KpiCard({ label, value, sub, color, mom, momInverse = false, href, icon }) {
+function KpiCard({ label, value, sub, accent = 'blue', mom, momInverse = false, href, icon }) {
+    const a = accentStyles[accent] || accentStyles.blue;
     const inner = (
-        <div className={`rounded-2xl border p-5 bg-gradient-to-br ${color} transition-all duration-300 relative overflow-hidden group shadow-sm hover:shadow-md border-opacity-70`}>
-            {/* Absolute accent icon overlay */}
-            <div className="absolute right-4 top-4 text-gray-400/20 group-hover:scale-110 group-hover:text-gray-400/35 transition-all duration-300">
-                {icon}
-            </div>
-            
-            <p className="text-[11px] font-bold uppercase tracking-wider text-gray-500 leading-tight">{label}</p>
-            <p className="mt-2.5 text-2xl font-extrabold tracking-tight text-gray-900">{value}</p>
-            <div className="mt-4 flex flex-wrap items-center gap-2">
-                <p className="text-[10px] font-bold text-gray-400">{sub}</p>
+        <div className="group relative h-full overflow-hidden rounded-2xl border border-gray-200/70 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-gray-200/60">
+            {/* Soft corner glow in the accent colour */}
+            <div className={`pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full bg-gradient-to-br ${a.glow} opacity-[0.08] blur-2xl transition-opacity duration-300 group-hover:opacity-20`} />
+
+            <div className="relative flex items-start justify-between">
+                <div className={`flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br ${a.chip} text-white shadow-lg ${a.shadow} transition-transform duration-300 group-hover:scale-105`}>
+                    {icon}
+                </div>
                 {mom !== undefined && <MomBadge mom={mom} inverse={momInverse} />}
             </div>
+
+            <p className="relative mt-4 text-[11px] font-bold uppercase tracking-wider text-gray-400 leading-tight">{label}</p>
+            <p className="relative mt-1 text-[1.6rem] font-extrabold leading-tight tracking-tight text-gray-900">{value}</p>
+            {sub && <p className="relative mt-2 text-[11px] font-semibold text-gray-400 leading-tight">{sub}</p>}
         </div>
     );
-    return href ? <Link href={href}>{inner}</Link> : inner;
+    return href ? <Link href={href} className="block h-full">{inner}</Link> : inner;
 }
 
 function MiniCard({ label, value, sub, mom, href, valueColor = 'text-gray-900', icon }) {
     const inner = (
-        <div className={`rounded-2xl border border-gray-200 bg-white p-4 text-center transition-all duration-300 hover:shadow-md hover:border-blue-300 cursor-pointer shadow-sm relative overflow-hidden`}>
-            {icon && <span className="absolute top-2.5 right-3 text-xs opacity-40">{icon}</span>}
+        <div className="group h-full rounded-2xl border border-gray-200/70 bg-white p-4 text-center shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-md">
+            {icon && (
+                <div className="mx-auto mb-2 flex h-9 w-9 items-center justify-center rounded-xl border border-gray-100 bg-gray-50 text-base transition-colors duration-300 group-hover:bg-gray-100">
+                    {icon}
+                </div>
+            )}
             <p className={`text-2xl font-extrabold tracking-tight ${valueColor}`}>{value}</p>
             {sub && <p className="text-[9px] text-gray-400 font-bold mt-1 leading-tight">{sub}</p>}
             <p className="text-[10px] text-gray-500 font-bold mt-1.5 uppercase tracking-wide leading-none">{label}</p>
             {mom !== undefined && (
-                <div className="mt-3 flex justify-center">
+                <div className="mt-2.5 flex justify-center">
                     <MomBadge mom={mom} />
                 </div>
             )}
@@ -686,7 +697,7 @@ function SummaryRow({ label, value, sub, badge }) {
 
 function CommissionStat({ label, value, sub, color, badgeColor }) {
     return (
-        <div className="rounded-2xl bg-slate-50 border border-gray-100 p-4 text-center flex flex-col justify-between hover:bg-slate-100/50 transition-colors">
+        <div className="group rounded-2xl bg-gradient-to-br from-gray-50 to-white border border-gray-200/70 p-4 text-center flex flex-col justify-between shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md">
             <div>
                 <p className={`text-xl font-extrabold tracking-tight ${color}`}>{value}</p>
                 {sub && <p className="text-[10px] text-gray-400 font-semibold mt-1 leading-normal">{sub}</p>}
