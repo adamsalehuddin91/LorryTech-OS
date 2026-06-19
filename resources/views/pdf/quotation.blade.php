@@ -75,7 +75,7 @@
         <tr>
             <td style="vertical-align: top; width: 60%;">
                 <span style="font-size: 14px; font-weight: bold; text-decoration: underline;">Sebut Harga</span><br>
-                <span style="margin-top: 4px; display: inline-block;">Date: {{ date('d/m/Y', strtotime($quotation->date)) }}</span>
+                <span style="margin-top: 4px; display: inline-block;">Date: {{ optional($quotation->created_at)->format('d/m/Y') }}</span>
             </td>
             <td style="vertical-align: top; width: 40%; text-align: right;">
                 No. Sebut Harga : {{ $quotation->quotation_number }}<br>
@@ -153,11 +153,11 @@
                             RM{{ number_format($quotation->subtotal, 2) }}
                         </td>
                     </tr>
-                    @if(($quotation->tax ?? 0) > 0)
+                    @if(($quotation->tax_amount ?? 0) > 0)
                         <tr>
                             <td style="padding: 4px 8px; text-align: right; border-bottom: 1px solid #dddddd;">Cukai :</td>
                             <td style="padding: 4px 0; text-align: right; border-bottom: 1px solid #dddddd; white-space: nowrap;">
-                                RM{{ number_format($quotation->tax, 2) }}
+                                RM{{ number_format($quotation->tax_amount, 2) }}
                             </td>
                         </tr>
                     @endif
@@ -166,7 +166,7 @@
                             Jumlah Keseluruhan :
                         </td>
                         <td style="padding: 6px 0; text-align: right; font-weight: bold; font-size: 13px; border-top: 2px solid #333333; white-space: nowrap;">
-                            RM{{ number_format($quotation->total, 2) }}
+                            RM{{ number_format($quotation->total_amount, 2) }}
                         </td>
                     </tr>
                 </table>

@@ -51,12 +51,12 @@ export default function Show({ quotation }) {
         }
     };
 
-    const subtotal = quotation.items?.reduce(
-        (sum, item) => sum + Number(item.quantity) * Number(item.unit_price),
-        0
-    ) || 0;
-    const taxAmount = subtotal * (Number(quotation.tax_rate) / 100);
-    const total = subtotal + taxAmount;
+    // Use the stored amounts (source of truth from QuotationService) — there is no
+    // `tax_rate` column, so recomputing from it produced NaN. Derive the rate for display.
+    const subtotal = Number(quotation.subtotal ?? 0);
+    const taxAmount = Number(quotation.tax_amount ?? 0);
+    const total = Number(quotation.total_amount ?? 0);
+    const taxRate = subtotal > 0 ? Math.round((taxAmount / subtotal) * 100) : 0;
 
     return (
         <AuthenticatedLayout
@@ -182,7 +182,7 @@ export default function Show({ quotation }) {
                                         <span>RM {subtotal.toFixed(2)}</span>
                                     </div>
                                     <div className="flex justify-between text-sm text-gray-600">
-                                        <span>Cukai ({Number(quotation.tax_rate)}%)</span>
+                                        <span>Cukai ({taxRate}%)</span>
                                         <span>RM {taxAmount.toFixed(2)}</span>
                                     </div>
                                     <div className="flex justify-between border-t pt-2 text-base font-bold text-gray-900">

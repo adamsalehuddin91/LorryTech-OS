@@ -78,7 +78,7 @@
         <tr>
             <td style="vertical-align: top; width: 60%;">
                 <span style="font-size: 14px; font-weight: bold; text-decoration: underline;">Invoice</span><br>
-                <span style="margin-top: 4px; display: inline-block;">Date: {{ date('d/m/Y', strtotime($invoice->date)) }}</span>
+                <span style="margin-top: 4px; display: inline-block;">Date: {{ optional($invoice->created_at)->format('d/m/Y') }}</span>
             </td>
             <td style="vertical-align: top; width: 40%; text-align: right;">
                 Invoice Number : {{ $invoice->invoice_number }}
