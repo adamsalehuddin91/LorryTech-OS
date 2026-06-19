@@ -96,6 +96,7 @@ const ownerNavItems = [
         label: 'Semak Kerja',
         routeName: 'driver-jobs.index',
         href: null,
+        badgeKey: 'pendingJobsCount',
         icon: (
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
@@ -191,7 +192,8 @@ function getHref(item) {
 }
 
 export default function AuthenticatedLayout({ header, children }) {
-    const user = usePage().props.auth.user;
+    const pageProps = usePage().props;
+    const user = pageProps.auth.user;
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const navItems = user.role === 'driver' ? driverNavItems : ownerNavItems;
 
@@ -215,6 +217,7 @@ export default function AuthenticatedLayout({ header, children }) {
                     const active = isActive(item);
                     const href = getHref(item);
                     const isPlaceholder = item.href === '#';
+                    const badgeCount = item.badgeKey ? Number(pageProps[item.badgeKey] || 0) : 0;
 
                     const className = `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 group ${
                         active
@@ -252,6 +255,15 @@ export default function AuthenticatedLayout({ header, children }) {
                                 {item.icon}
                             </span>
                             <span>{item.label}</span>
+                            {badgeCount > 0 && (
+                                <span className={`ml-auto inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-[10px] font-bold rounded-full shadow-sm ${
+                                    active
+                                        ? 'bg-white text-blue-700'
+                                        : 'bg-red-500 text-white shadow-red-500/30 animate-pulse'
+                                }`}>
+                                    {badgeCount > 99 ? '99+' : badgeCount}
+                                </span>
+                            )}
                         </Link>
                     );
                 })}
