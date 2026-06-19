@@ -49,6 +49,9 @@
 
     {{-- Company Header --}}
     <div class="header-banner">
+        @if(!empty($logo))
+            <img src="{{ $logo }}" style="max-height: 50px; margin-bottom: 6px;">
+        @endif
         <h1>{{ strtoupper($company->name) }}</h1>
     </div>
     <div class="header-address">

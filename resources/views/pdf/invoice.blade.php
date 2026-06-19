@@ -48,8 +48,8 @@
     <table class="header-table">
         <tr>
             <td style="width: 22%; vertical-align: middle;">
-                @if(!empty($company->logo_url))
-                    <img src="{{ $company->logo_url }}"
+                @if(!empty($logo))
+                    <img src="{{ $logo }}"
                          style="max-width: 110px; max-height: 80px;">
                 @endif
             </td>
