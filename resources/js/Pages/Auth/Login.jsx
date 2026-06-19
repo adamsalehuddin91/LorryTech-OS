@@ -1,7 +1,6 @@
 import InputError from '@/Components/InputError';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { useState } from 'react';
 
 export default function Login({ status, canResetPassword }) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -10,30 +9,11 @@ export default function Login({ status, canResetPassword }) {
         remember: false,
     });
 
-    const [activeDemo, setActiveDemo] = useState(null);
-
     const submit = (e) => {
         e.preventDefault();
         post(route('login'), {
             onFinish: () => reset('password'),
         });
-    };
-
-    const handleQuickLogin = (role) => {
-        setActiveDemo(role);
-        if (role === 'owner') {
-            setData({
-                ...data,
-                email: 'admin@lorrytech.my',
-                password: 'password',
-            });
-        } else if (role === 'driver') {
-            setData({
-                ...data,
-                email: 'ali@lorrytech.my',
-                password: 'password',
-            });
-        }
     };
 
     return (
@@ -43,40 +23,6 @@ export default function Login({ status, canResetPassword }) {
             <div className="mb-6 text-center">
                 <h2 className="text-xl font-extrabold text-white tracking-tight">Selamat Kembali</h2>
                 <p className="text-xs text-gray-400 mt-1">Sila log masuk untuk mengakses sistem operasi anda.</p>
-            </div>
-
-            {/* Quick Demo Login Tabs */}
-            <div className="mb-6 p-2 rounded-2xl bg-white/[0.02] border border-white/[0.04] space-y-2">
-                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest text-center py-1">
-                    Log Masuk Demo Pintar
-                </p>
-                <div className="grid grid-cols-2 gap-2">
-                    <button
-                        type="button"
-                        onClick={() => handleQuickLogin('owner')}
-                        className={`flex flex-col items-center justify-center py-2.5 px-3 rounded-xl border text-xs font-bold transition-all duration-200 ${
-                            activeDemo === 'owner'
-                                ? 'bg-blue-600/10 border-blue-500/50 text-blue-400 shadow-lg shadow-blue-500/5'
-                                : 'bg-white/[0.01] border-white/[0.06] text-gray-400 hover:bg-white/[0.03] hover:text-white'
-                        }`}
-                    >
-                        <span className="text-lg mb-0.5">💼</span>
-                        <span>Sebagai Pemilik</span>
-                    </button>
-                    
-                    <button
-                        type="button"
-                        onClick={() => handleQuickLogin('driver')}
-                        className={`flex flex-col items-center justify-center py-2.5 px-3 rounded-xl border text-xs font-bold transition-all duration-200 ${
-                            activeDemo === 'driver'
-                                ? 'bg-indigo-600/10 border-indigo-500/50 text-indigo-400 shadow-lg shadow-indigo-500/5'
-                                : 'bg-white/[0.01] border-white/[0.06] text-gray-400 hover:bg-white/[0.03] hover:text-white'
-                        }`}
-                    >
-                        <span className="text-lg mb-0.5">🚚</span>
-                        <span>Sebagai Pemandu</span>
-                    </button>
-                </div>
             </div>
 
             {status && (
@@ -100,10 +46,7 @@ export default function Login({ status, canResetPassword }) {
                         className="w-full px-4 py-3.5 bg-white/[0.02] border border-white/10 rounded-xl focus:border-blue-500 focus:bg-white/[0.04] text-white transition-all outline-none text-sm placeholder-gray-600 focus:ring-1 focus:ring-blue-500"
                         autoComplete="username"
                         required
-                        onChange={(e) => {
-                            setData('email', e.target.value);
-                            setActiveDemo(null);
-                        }}
+                        onChange={(e) => setData('email', e.target.value)}
                     />
                     <InputError message={errors.email} className="mt-2 text-xs text-red-400" />
                 </div>
@@ -132,10 +75,7 @@ export default function Login({ status, canResetPassword }) {
                         className="w-full px-4 py-3.5 bg-white/[0.02] border border-white/10 rounded-xl focus:border-blue-500 focus:bg-white/[0.04] text-white transition-all outline-none text-sm placeholder-gray-600 focus:ring-1 focus:ring-blue-500"
                         autoComplete="current-password"
                         required
-                        onChange={(e) => {
-                            setData('password', e.target.value);
-                            setActiveDemo(null);
-                        }}
+                        onChange={(e) => setData('password', e.target.value)}
                     />
                     <InputError message={errors.password} className="mt-2 text-xs text-red-400" />
                 </div>

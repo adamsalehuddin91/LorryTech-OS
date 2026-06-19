@@ -36,6 +36,9 @@ RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache \
 
 COPY docker/nginx.conf /etc/nginx/http.d/default.conf
 COPY docker/supervisord.conf /etc/supervisord.conf
+COPY docker/entrypoint.sh /app/docker/entrypoint.sh
+RUN sed -i 's/\r$//' /app/docker/entrypoint.sh \
+    && chmod +x /app/docker/entrypoint.sh
 
 EXPOSE 80
-CMD ["supervisord", "-c", "/etc/supervisord.conf"]
+ENTRYPOINT ["/app/docker/entrypoint.sh"]
