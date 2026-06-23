@@ -40,9 +40,10 @@ const compressImage = (file) =>
         reader.readAsDataURL(file);
     });
 
-export default function LogJob({ lalamoveRate, sideJobRate }) {
+export default function LogJob({ lalamoveRate, sideJobRate, vehicles = [] }) {
     const { data, setData, post, processing, errors } = useForm({
         job_type:          'lalamove',
+        vehicle_id:        '',
         job_date:          new Date().toISOString().split('T')[0],
         pickup_location:   '',
         pickup_lat:        null,
@@ -232,6 +233,29 @@ export default function LogJob({ lalamoveRate, sideJobRate }) {
                             <p className="text-xs mt-1 opacity-70">Komisyen {opt.rate}%</p>
                         </button>
                     ))}
+                </div>
+
+                {/* Vehicle / Lori */}
+                <div>
+                    <label className="block text-sm font-semibold text-slate-200 mb-2">
+                        Kenderaan (Lori) <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                        value={data.vehicle_id}
+                        onChange={(e) => setData('vehicle_id', e.target.value)}
+                        className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                        <option value="">-- Pilih Lori --</option>
+                        {vehicles.map((v) => (
+                            <option key={v.id} value={v.id}>
+                                {v.plate_number}{v.make_model ? ` — ${v.make_model}` : ''}
+                            </option>
+                        ))}
+                    </select>
+                    {vehicles.length === 0 && (
+                        <p className="mt-1 text-xs text-amber-500">Tiada lori aktif. Sila hubungi admin.</p>
+                    )}
+                    {errors.vehicle_id && <p className="mt-1 text-sm text-red-500">{errors.vehicle_id}</p>}
                 </div>
 
                 {/* Commission Preview */}

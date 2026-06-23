@@ -100,6 +100,11 @@ export default function MyWork({ trips, jobs, filters }) {
                                                 <span className="text-xs font-semibold bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full">
                                                     {job.job_type_label}
                                                 </span>
+                                                {job.vehicle_plate && (
+                                                    <span className="text-xs font-semibold bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
+                                                        🚛 {job.vehicle_plate}
+                                                    </span>
+                                                )}
                                                 <span className="text-xs text-gray-400">{job.job_date}</span>
                                             </div>
                                             <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${s.cls}`}>

@@ -85,9 +85,16 @@ export default function DriverLayout({ title, children }) {
 
                         <div className="flex items-center gap-3">
                             {auth?.user?.name && (
-                                <span className="text-xs text-gray-400 font-semibold bg-white/[0.03] border border-white/[0.06] px-2.5 py-1 rounded-xl max-w-[100px] truncate">
-                                    {auth.user.name.split(' ')[0]}
-                                </span>
+                                <Link
+                                    href={route('driver.profile')}
+                                    className="flex items-center gap-1.5 text-xs text-gray-300 font-semibold bg-white/[0.03] border border-white/[0.06] px-2.5 py-1 rounded-xl max-w-[120px] truncate hover:bg-white/[0.08] transition-colors"
+                                    title="Profil Saya"
+                                >
+                                    <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
+                                    <span className="truncate">{auth.user.name.split(' ')[0]}</span>
+                                </Link>
                             )}
                             <Link
                                 href={route('logout')}

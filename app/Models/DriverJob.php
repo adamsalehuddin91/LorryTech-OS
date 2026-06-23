@@ -8,6 +8,7 @@ class DriverJob extends Model
 {
     protected $fillable = [
         'driver_id',
+        'vehicle_id',
         'job_type',
         'job_date',
         'pickup_location',
@@ -47,6 +48,7 @@ class DriverJob extends Model
     ];
 
     public function driver()    { return $this->belongsTo(Driver::class); }
+    public function vehicle()   { return $this->belongsTo(Vehicle::class); }
     public function verifiedBy(){ return $this->belongsTo(User::class, 'verified_by'); }
     public function commission() { return $this->belongsTo(DriverCommission::class, 'driver_commission_id'); }
 

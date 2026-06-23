@@ -54,6 +54,21 @@ class CustomerController extends Controller
         return redirect()->route('customers.index')->with('success', 'Pelanggan berjaya ditambah.');
     }
 
+    // Inline create from another form (e.g. quotation) — returns JSON, no redirect.
+    public function quickStore(Request $request)
+    {
+        $validated = $request->validate([
+            'name'    => 'required|string|max:255',
+            'company' => 'nullable|string|max:255',
+            'phone'   => 'nullable|string|max:20',
+            'email'   => 'nullable|email|max:255',
+        ]);
+
+        $customer = Customer::create($validated);
+
+        return response()->json($customer);
+    }
+
     public function edit(Customer $customer)
     {
         return Inertia::render('Customers/Edit', ['customer' => $customer]);

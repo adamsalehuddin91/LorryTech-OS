@@ -36,6 +36,7 @@ Route::get('/dashboard', DashboardController::class)
 
 Route::middleware(['auth', 'role:owner'])->group(function () {
     Route::resource('customers', CustomerController::class);
+    Route::post('customers/quick', [CustomerController::class, 'quickStore'])->name('customers.quick');
     Route::resource('vehicles', VehicleController::class);
     Route::resource('drivers', DriverController::class);
     Route::resource('trips', TripController::class);
@@ -86,6 +87,11 @@ Route::middleware(['auth', 'role:driver'])->prefix('driver')->group(function () 
     Route::get('/receipts', [DriverPortalController::class, 'myReceipts'])->name('driver.receipts');
     Route::get('/log-job', [DriverPortalController::class, 'logJob'])->name('driver.log-job');
     Route::post('/log-job', [DriverPortalController::class, 'storeJob'])->name('driver.store-job');
+
+    // Driver self-service profile
+    Route::get('/profile', [DriverPortalController::class, 'profile'])->name('driver.profile');
+    Route::patch('/profile', [DriverPortalController::class, 'updateProfile'])->name('driver.profile.update');
+    Route::patch('/password', [DriverPortalController::class, 'updatePassword'])->name('driver.password.update');
 });
 
 Route::middleware('auth')->group(function () {

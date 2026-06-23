@@ -1,8 +1,15 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
+import { useState } from 'react';
 import CompanySelector from '@/Components/CompanySelector';
 
 export default function Create({ customers, companies }) {
+    const [customerList, setCustomerList] = useState(customers || []);
+    const [showNewCustomer, setShowNewCustomer] = useState(false);
+    const [newCustomer, setNewCustomer] = useState({ name: '', phone: '', company: '' });
+    const [savingCustomer, setSavingCustomer] = useState(false);
+    const [newCustomerError, setNewCustomerError] = useState('');
+
     const { data, setData, post, processing, errors } = useForm({
         company_setting_id: companies?.length === 1 ? String(companies[0].id) : '',
         customer_id: '',
@@ -39,6 +46,26 @@ export default function Create({ customers, companies }) {
     const taxAmount = subtotal * (Number(data.tax_rate) / 100);
     const total = subtotal + taxAmount;
 
+    const saveNewCustomer = async () => {
+        setNewCustomerError('');
+        if (!newCustomer.name.trim()) {
+            setNewCustomerError('Nama pelanggan wajib diisi.');
+            return;
+        }
+        setSavingCustomer(true);
+        try {
+            const { data: created } = await window.axios.post(route('customers.quick'), newCustomer);
+            setCustomerList((list) => [...list, created].sort((a, b) => a.name.localeCompare(b.name)));
+            setData('customer_id', String(created.id));
+            setNewCustomer({ name: '', phone: '', company: '' });
+            setShowNewCustomer(false);
+        } catch (err) {
+            setNewCustomerError(err?.response?.data?.message || 'Gagal simpan pelanggan.');
+        } finally {
+            setSavingCustomer(false);
+        }
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
         post(route('quotations.store'));
@@ -69,23 +96,67 @@ export default function Create({ customers, companies }) {
                             {/* Pelanggan & Tarikh */}
                             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">
-                                        Pelanggan
-                                    </label>
+                                    <div className="flex items-center justify-between">
+                                        <label className="block text-sm font-medium text-gray-700">
+                                            Pelanggan
+                                        </label>
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowNewCustomer((v) => !v)}
+                                            className="text-xs font-semibold text-blue-600 hover:text-blue-800"
+                                        >
+                                            {showNewCustomer ? '✕ Batal' : '+ Pelanggan Baru'}
+                                        </button>
+                                    </div>
                                     <select
                                         value={data.customer_id}
                                         onChange={(e) => setData('customer_id', e.target.value)}
                                         className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                                     >
                                         <option value="">-- Pilih Pelanggan --</option>
-                                        {customers?.map((customer) => (
+                                        {customerList.map((customer) => (
                                             <option key={customer.id} value={customer.id}>
-                                                {customer.name}
+                                                {customer.name}{customer.company ? ` (${customer.company})` : ''}
                                             </option>
                                         ))}
                                     </select>
                                     {errors.customer_id && (
                                         <p className="mt-1 text-sm text-red-600">{errors.customer_id}</p>
+                                    )}
+
+                                    {/* Inline tambah pelanggan baru */}
+                                    {showNewCustomer && (
+                                        <div className="mt-3 rounded-lg border border-blue-200 bg-blue-50 p-3 space-y-2">
+                                            <input
+                                                type="text" value={newCustomer.name}
+                                                onChange={(e) => setNewCustomer((c) => ({ ...c, name: e.target.value }))}
+                                                placeholder="Nama pelanggan *"
+                                                className="block w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                            />
+                                            <div className="grid grid-cols-2 gap-2">
+                                                <input
+                                                    type="text" value={newCustomer.phone}
+                                                    onChange={(e) => setNewCustomer((c) => ({ ...c, phone: e.target.value }))}
+                                                    placeholder="Telefon"
+                                                    className="block w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                                />
+                                                <input
+                                                    type="text" value={newCustomer.company}
+                                                    onChange={(e) => setNewCustomer((c) => ({ ...c, company: e.target.value }))}
+                                                    placeholder="Syarikat"
+                                                    className="block w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                                />
+                                            </div>
+                                            {newCustomerError && <p className="text-xs text-red-600">{newCustomerError}</p>}
+                                            <button
+                                                type="button"
+                                                onClick={saveNewCustomer}
+                                                disabled={savingCustomer}
+                                                className="w-full rounded-lg bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+                                            >
+                                                {savingCustomer ? 'Menyimpan...' : 'Simpan & Pilih Pelanggan'}
+                                            </button>
+                                        </div>
                                     )}
                                 </div>
                                 <div>

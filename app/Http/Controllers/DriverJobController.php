@@ -13,7 +13,7 @@ class DriverJobController extends Controller
     {
         $status = $request->get('status', 'pending');
 
-        $jobs = DriverJob::with(['driver.user'])
+        $jobs = DriverJob::with(['driver.user', 'vehicle:id,plate_number'])
             ->when($status !== 'all', fn($q) => $q->where('status', $status))
             ->when($request->job_type, fn($q, $t) => $q->where('job_type', $t))
             ->orderByDesc('job_date')
@@ -22,6 +22,7 @@ class DriverJobController extends Controller
             ->through(fn($j) => [
                 'id'               => $j->id,
                 'driver_name'      => $j->driver->user->name ?? '-',
+                'vehicle_plate'    => $j->vehicle?->plate_number,
                 'job_type'         => $j->job_type,
                 'job_type_label'   => $j->job_type_label,
                 'job_date'         => $j->job_date->format('d/m/Y'),

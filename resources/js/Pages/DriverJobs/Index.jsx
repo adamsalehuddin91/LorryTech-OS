@@ -134,6 +134,11 @@ export default function Index({ jobs, counts, filters }) {
                                             {job.status === 'pending' ? 'Pending' : job.status === 'verified' ? 'Disahkan' : 'Ditolak'}
                                         </span>
                                         <span className="text-sm font-semibold text-gray-900">{job.driver_name}</span>
+                                        {job.vehicle_plate && (
+                                            <span className="text-xs font-semibold bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
+                                                🚛 {job.vehicle_plate}
+                                            </span>
+                                        )}
                                         <span className="text-xs text-gray-400">{job.job_date}</span>
                                     </div>
                                     <p className="text-lg font-bold text-gray-900">RM {Number(job.commission_amount).toFixed(2)}</p>

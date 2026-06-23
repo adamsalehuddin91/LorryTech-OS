@@ -7,9 +7,11 @@ use App\Models\DriverCommission;
 use App\Models\DriverJob;
 use App\Models\Expense;
 use App\Models\Trip;
+use App\Models\Vehicle;
 use App\Services\ExpenseService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
@@ -211,6 +213,9 @@ class DriverPortalController extends Controller
         return Inertia::render('DriverPortal/LogJob', [
             'lalamoveRate' => (float) $driver->lalamove_commission_rate,
             'sideJobRate'  => (float) $driver->commission_rate,
+            'vehicles'     => Vehicle::where('status', 'active')
+                ->orderBy('plate_number')
+                ->get(['id', 'plate_number', 'make_model']),
         ]);
     }
 
@@ -221,6 +226,7 @@ class DriverPortalController extends Controller
 
         $validated = $request->validate([
             'job_type'          => 'required|in:lalamove,side_job',
+            'vehicle_id'        => 'required|exists:vehicles,id',
             'job_date'          => 'required|date',
             'pickup_location'   => 'required|string|max:255',
             'delivery_location' => 'required|string|max:255',
@@ -250,6 +256,7 @@ class DriverPortalController extends Controller
 
         DriverJob::create([
             'driver_id'         => $driver->id,
+            'vehicle_id'        => $validated['vehicle_id'],
             'job_type'          => $validated['job_type'],
             'job_date'          => $validated['job_date'],
             'pickup_location'   => $validated['pickup_location'],
@@ -273,6 +280,54 @@ class DriverPortalController extends Controller
         return redirect()->route('driver.work')->with('success', 'Kerja berjaya dilog. Menunggu pengesahan.');
     }
 
+    public function profile(Request $request)
+    {
+        $driver = $this->getDriver($request);
+        abort_unless($driver, 403, 'Tiada profil pemandu dikaitkan.');
+
+        return Inertia::render('DriverPortal/Profile', [
+            'driver' => [
+                'name'  => $request->user()->name,
+                'email' => $request->user()->email,
+                'phone' => $driver->phone,
+            ],
+        ]);
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $driver = $this->getDriver($request);
+        abort_unless($driver, 403, 'Tiada profil pemandu dikaitkan.');
+
+        $validated = $request->validate([
+            'name'  => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email,' . $request->user()->id,
+            'phone' => 'nullable|string|max:20',
+        ]);
+
+        $request->user()->update([
+            'name'  => $validated['name'],
+            'email' => $validated['email'],
+        ]);
+        $driver->update(['phone' => $validated['phone'] ?? null]);
+
+        return back()->with('success', 'Profil berjaya dikemaskini.');
+    }
+
+    public function updatePassword(Request $request)
+    {
+        abort_unless($this->getDriver($request), 403, 'Tiada profil pemandu dikaitkan.');
+
+        $validated = $request->validate([
+            'current_password' => 'required|current_password',
+            'password'         => 'required|string|min:8|confirmed',
+        ]);
+
+        $request->user()->update(['password' => Hash::make($validated['password'])]);
+
+        return back()->with('success', 'Kata laluan berjaya ditukar.');
+    }
+
     public function myWork(Request $request)
     {
         $driver = $this->getDriver($request);
@@ -289,7 +344,8 @@ class DriverPortalController extends Controller
             ->paginate(15)
             ->withQueryString();
 
-        $jobs = DriverJob::where('driver_id', $driver->id)
+        $jobs = DriverJob::with('vehicle:id,plate_number')
+            ->where('driver_id', $driver->id)
             ->orderByDesc('job_date')
             ->paginate(15)
             ->withQueryString()
@@ -297,6 +353,7 @@ class DriverPortalController extends Controller
                 'id'               => $j->id,
                 'job_type'         => $j->job_type,
                 'job_type_label'   => $j->job_type_label,
+                'vehicle_plate'    => $j->vehicle?->plate_number,
                 'job_date'         => $j->job_date->format('d/m/Y'),
                 'pickup_location'  => $j->pickup_location,
                 'delivery_location'=> $j->delivery_location,

@@ -1,5 +1,25 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
+import { useState, useEffect, useRef } from 'react';
+
+const MAPS_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+
+// Load Google Maps JS (Places) once.
+let mapsPromise = null;
+function loadGoogleMaps() {
+    if (!MAPS_KEY) return Promise.reject('no-key');
+    if (window.google?.maps?.places) return Promise.resolve();
+    if (mapsPromise) return mapsPromise;
+    mapsPromise = new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = `https://maps.googleapis.com/maps/api/js?key=${MAPS_KEY}&libraries=places,geometry`;
+        s.async = true;
+        s.onload = resolve;
+        s.onerror = reject;
+        document.head.appendChild(s);
+    });
+    return mapsPromise;
+}
 
 export default function Create({ vehicles, drivers, customers }) {
     const { data, setData, post, processing, errors } = useForm({
@@ -8,7 +28,13 @@ export default function Create({ vehicles, drivers, customers }) {
         customer_id: '',
         source: 'lalamove',
         pickup_location: '',
+        pickup_lat: null,
+        pickup_lng: null,
         delivery_location: '',
+        delivery_lat: null,
+        delivery_lng: null,
+        distance_km: null,
+        route_polyline: null,
         pickup_date: '',
         delivery_date: '',
         cargo_description: '',
@@ -25,6 +51,110 @@ export default function Create({ vehicles, drivers, customers }) {
         Number(data.additional_charges || 0) +
         Number(data.toll_amount || 0)
     ).toFixed(2);
+
+    // ── Google Maps (sama macam Log Kerja driver) ──
+    const [locating, setLocating] = useState(false);
+    const [calcStatus, setCalcStatus] = useState(null); // null | 'calc' | 'done' | 'fail'
+    const [nearbyPlaces, setNearbyPlaces] = useState([]);
+    const [showNearby, setShowNearby] = useState(false);
+
+    const pickupRef = useRef(null);
+    const deliveryRef = useRef(null);
+    const pickupCoords = useRef(null);
+    const deliveryCoords = useRef(null);
+    const mapRef = useRef(null);
+    const mapObj = useRef(null);
+    const dirRenderer = useRef(null);
+    const dirService = useRef(null);
+
+    useEffect(() => {
+        if (!MAPS_KEY) return;
+        let cancelled = false;
+        loadGoogleMaps().then(() => {
+            if (cancelled) return;
+            if (mapRef.current && !mapObj.current) {
+                mapObj.current = new window.google.maps.Map(mapRef.current, {
+                    center: { lat: 3.139, lng: 101.687 }, zoom: 10, disableDefaultUI: true, zoomControl: true,
+                });
+                dirRenderer.current = new window.google.maps.DirectionsRenderer({ map: mapObj.current });
+                dirService.current = new window.google.maps.DirectionsService();
+            }
+            const opts = { fields: ['geometry', 'formatted_address'], componentRestrictions: { country: 'my' } };
+            if (pickupRef.current) {
+                const ac = new window.google.maps.places.Autocomplete(pickupRef.current, opts);
+                ac.addListener('place_changed', () => {
+                    const p = ac.getPlace();
+                    if (!p.geometry) return;
+                    pickupCoords.current = { lat: p.geometry.location.lat(), lng: p.geometry.location.lng() };
+                    setData((d) => ({ ...d, pickup_location: p.formatted_address || d.pickup_location, pickup_lat: pickupCoords.current.lat, pickup_lng: pickupCoords.current.lng }));
+                    tryComputeDistance();
+                });
+            }
+            if (deliveryRef.current) {
+                const ac = new window.google.maps.places.Autocomplete(deliveryRef.current, opts);
+                ac.addListener('place_changed', () => {
+                    const p = ac.getPlace();
+                    if (!p.geometry) return;
+                    deliveryCoords.current = { lat: p.geometry.location.lat(), lng: p.geometry.location.lng() };
+                    setData((d) => ({ ...d, delivery_location: p.formatted_address || d.delivery_location, delivery_lat: deliveryCoords.current.lat, delivery_lng: deliveryCoords.current.lng }));
+                    tryComputeDistance();
+                });
+            }
+        }).catch(() => {});
+        return () => { cancelled = true; };
+    }, []);
+
+    const tryComputeDistance = () => {
+        const o = pickupCoords.current, dst = deliveryCoords.current;
+        if (!o || !dst || !dirService.current) return;
+        setCalcStatus('calc');
+        dirService.current.route({ origin: o, destination: dst, travelMode: 'DRIVING' }, (res, status) => {
+            const leg = res?.routes?.[0]?.legs?.[0];
+            if (status === 'OK' && leg) {
+                const km = +(leg.distance.value / 1000).toFixed(2);
+                const poly = window.google.maps.geometry?.encoding?.encodePath(res.routes[0].overview_path) || null;
+                setData((d) => ({ ...d, distance_km: km, route_polyline: poly }));
+                setCalcStatus('done');
+                if (dirRenderer.current) dirRenderer.current.setDirections(res);
+            } else {
+                setCalcStatus('fail');
+            }
+        });
+    };
+
+    const setPickup = (name, lat, lng) => {
+        pickupCoords.current = { lat, lng };
+        if (pickupRef.current) pickupRef.current.value = name;
+        setData((d) => ({ ...d, pickup_location: name, pickup_lat: lat, pickup_lng: lng }));
+        tryComputeDistance();
+    };
+
+    const useMyLocation = () => {
+        if (!navigator.geolocation || !window.google?.maps) return;
+        setLocating(true);
+        navigator.geolocation.getCurrentPosition((pos) => {
+            const lat = pos.coords.latitude, lng = pos.coords.longitude;
+            new window.google.maps.Geocoder().geocode({ location: { lat, lng } }, (results, status) => {
+                const addr = status === 'OK' && results[0] ? results[0].formatted_address : `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+                setPickup(addr, lat, lng);
+                setLocating(false);
+            });
+            if (mapObj.current) {
+                new window.google.maps.places.PlacesService(mapObj.current).nearbySearch(
+                    { location: { lat, lng }, radius: 350 },
+                    (results, status) => {
+                        if (status === 'OK' && results?.length) { setNearbyPlaces(results.slice(0, 6)); setShowNearby(true); }
+                    }
+                );
+            }
+        }, () => { setLocating(false); alert('Tak dapat akses lokasi. Benarkan GPS atau taip manual.'); }, { enableHighAccuracy: true, timeout: 10000 });
+    };
+
+    const pickNearby = (pl) => {
+        const name = pl.vicinity ? `${pl.name}, ${pl.vicinity}` : pl.name;
+        setPickup(name, pl.geometry.location.lat(), pl.geometry.location.lng());
+        setShowNearby(false);
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -145,38 +275,77 @@ export default function Create({ vehicles, drivers, customers }) {
                                 )}
                             </div>
 
-                            {/* Lokasi */}
-                            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                            {/* Lokasi (Google Maps) */}
+                            <div className="space-y-4">
+                                {/* Lokasi Ambil */}
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">
-                                        Lokasi Ambil
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={data.pickup_location}
-                                        onChange={(e) => setData('pickup_location', e.target.value)}
-                                        className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                                        placeholder="cth: Shah Alam, Selangor"
-                                    />
-                                    {errors.pickup_location && (
-                                        <p className="mt-1 text-sm text-red-600">{errors.pickup_location}</p>
+                                    <div className="flex items-center justify-between">
+                                        <label className="block text-sm font-medium text-gray-700">Lokasi Ambil</label>
+                                        {MAPS_KEY && (
+                                            <button type="button" onClick={useMyLocation} disabled={locating}
+                                                className="text-xs font-semibold text-blue-600 hover:text-blue-800 disabled:opacity-50">
+                                                📍 {locating ? 'Mencari…' : 'Lokasi Saya'}
+                                            </button>
+                                        )}
+                                    </div>
+                                    <div className="relative mt-1">
+                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-blue-500" />
+                                        <input
+                                            ref={pickupRef}
+                                            type="text" defaultValue={data.pickup_location}
+                                            onChange={(e) => { pickupCoords.current = null; setData((d) => ({ ...d, pickup_location: e.target.value, pickup_lat: null, pickup_lng: null, distance_km: null, route_polyline: null })); setCalcStatus(null); }}
+                                            placeholder={MAPS_KEY ? 'Cari tempat… cth: Shah Alam' : 'cth: Shah Alam, Selangor'}
+                                            className="block w-full rounded-lg border-gray-300 pl-8 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                                        />
+                                    </div>
+                                    {showNearby && nearbyPlaces.length > 0 && (
+                                        <div className="mt-2 rounded-lg border border-gray-200 bg-white p-2 shadow-sm">
+                                            <div className="flex items-center justify-between px-1 mb-1">
+                                                <p className="text-[11px] text-gray-500">📍 Landmark berdekatan — pilih:</p>
+                                                <button type="button" onClick={() => setShowNearby(false)} className="text-[11px] text-gray-400">tutup ✕</button>
+                                            </div>
+                                            <div className="max-h-44 overflow-y-auto space-y-0.5">
+                                                {nearbyPlaces.map((pl) => (
+                                                    <button type="button" key={pl.place_id} onClick={() => pickNearby(pl)}
+                                                        className="w-full text-left px-2 py-2 rounded-lg hover:bg-blue-50">
+                                                        <span className="text-sm font-semibold text-gray-700">{pl.name}</span>
+                                                        {pl.vicinity && <span className="block text-xs text-gray-400">{pl.vicinity}</span>}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
                                     )}
+                                    {errors.pickup_location && <p className="mt-1 text-sm text-red-600">{errors.pickup_location}</p>}
                                 </div>
+
+                                {/* Lokasi Hantar */}
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">
-                                        Lokasi Hantar
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={data.delivery_location}
-                                        onChange={(e) => setData('delivery_location', e.target.value)}
-                                        className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                                        placeholder="cth: Johor Bahru, Johor"
-                                    />
-                                    {errors.delivery_location && (
-                                        <p className="mt-1 text-sm text-red-600">{errors.delivery_location}</p>
-                                    )}
+                                    <label className="block text-sm font-medium text-gray-700">Lokasi Hantar</label>
+                                    <div className="relative mt-1">
+                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-green-500" />
+                                        <input
+                                            ref={deliveryRef}
+                                            type="text" defaultValue={data.delivery_location}
+                                            onChange={(e) => { deliveryCoords.current = null; setData((d) => ({ ...d, delivery_location: e.target.value, delivery_lat: null, delivery_lng: null, distance_km: null, route_polyline: null })); setCalcStatus(null); }}
+                                            placeholder={MAPS_KEY ? 'Cari tempat… cth: Johor Bahru' : 'cth: Johor Bahru, Johor'}
+                                            className="block w-full rounded-lg border-gray-300 pl-8 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                                        />
+                                    </div>
+                                    {errors.delivery_location && <p className="mt-1 text-sm text-red-600">{errors.delivery_location}</p>}
                                 </div>
+
+                                {/* Jarak + peta */}
+                                {MAPS_KEY && (calcStatus === 'calc' || data.distance_km != null) && (
+                                    <div className="rounded-lg bg-blue-50 border border-blue-200 px-4 py-3 flex items-center justify-between">
+                                        <span className="text-xs font-medium text-blue-600">🚗 Anggaran jarak (jalan)</span>
+                                        {calcStatus === 'calc'
+                                            ? <span className="text-sm font-semibold text-blue-500">Mengira…</span>
+                                            : <span className="text-lg font-bold text-blue-700">{data.distance_km} km</span>}
+                                    </div>
+                                )}
+                                {calcStatus === 'fail' && <p className="text-xs text-amber-600">Tak dapat kira jarak — boleh simpan tanpa KM.</p>}
+                                {!MAPS_KEY && <p className="text-[11px] text-gray-400">ℹ️ Maps belum aktif — taip lokasi manual (KM tak auto-kira).</p>}
+                                {MAPS_KEY && <div ref={mapRef} className="h-56 rounded-lg overflow-hidden border border-gray-200 bg-gray-100" />}
                             </div>
 
                             {/* Tarikh */}
