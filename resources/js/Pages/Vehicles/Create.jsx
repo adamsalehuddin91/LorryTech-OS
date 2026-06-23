@@ -5,13 +5,13 @@ import { useState } from 'react';
 export default function Create() {
     const { data, setData, post, processing, errors } = useForm({
         plate_number: '',
-        model: '',
+        make_model: '',
         year: '',
-        capacity: '',
-        status: 'aktif',
+        capacity_kg: '',
+        status: 'active',
         roadtax_expiry: '',
         insurance_expiry: '',
-        permit_expiry: '',
+        permit_apad_expiry: '',
         current_mileage: '',
         notes: '',
         photo: null,
@@ -95,13 +95,13 @@ export default function Create() {
                                     </label>
                                     <input
                                         type="text"
-                                        value={data.model}
-                                        onChange={(e) => setData('model', e.target.value)}
+                                        value={data.make_model}
+                                        onChange={(e) => setData('make_model', e.target.value)}
                                         className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                                         placeholder="cth: Isuzu NPR 71"
                                     />
-                                    {errors.model && (
-                                        <p className="mt-1 text-sm text-red-600">{errors.model}</p>
+                                    {errors.make_model && (
+                                        <p className="mt-1 text-sm text-red-600">{errors.make_model}</p>
                                     )}
                                 </div>
                                 <div>
@@ -129,13 +129,13 @@ export default function Create() {
                                     </label>
                                     <input
                                         type="number"
-                                        value={data.capacity}
-                                        onChange={(e) => setData('capacity', e.target.value)}
+                                        value={data.capacity_kg}
+                                        onChange={(e) => setData('capacity_kg', e.target.value)}
                                         className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                                         placeholder="cth: 5000"
                                     />
-                                    {errors.capacity && (
-                                        <p className="mt-1 text-sm text-red-600">{errors.capacity}</p>
+                                    {errors.capacity_kg && (
+                                        <p className="mt-1 text-sm text-red-600">{errors.capacity_kg}</p>
                                     )}
                                 </div>
                                 <div>
@@ -147,9 +147,9 @@ export default function Create() {
                                         onChange={(e) => setData('status', e.target.value)}
                                         className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                                     >
-                                        <option value="aktif">Aktif</option>
-                                        <option value="penyelenggaraan">Penyelenggaraan</option>
-                                        <option value="tidak_aktif">Tidak Aktif</option>
+                                        <option value="active">Aktif</option>
+                                        <option value="maintenance">Penyelenggaraan</option>
+                                        <option value="inactive">Tidak Aktif</option>
                                     </select>
                                     {errors.status && (
                                         <p className="mt-1 text-sm text-red-600">{errors.status}</p>
@@ -193,12 +193,12 @@ export default function Create() {
                                     </label>
                                     <input
                                         type="date"
-                                        value={data.permit_expiry}
-                                        onChange={(e) => setData('permit_expiry', e.target.value)}
+                                        value={data.permit_apad_expiry}
+                                        onChange={(e) => setData('permit_apad_expiry', e.target.value)}
                                         className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                                     />
-                                    {errors.permit_expiry && (
-                                        <p className="mt-1 text-sm text-red-600">{errors.permit_expiry}</p>
+                                    {errors.permit_apad_expiry && (
+                                        <p className="mt-1 text-sm text-red-600">{errors.permit_apad_expiry}</p>
                                     )}
                                 </div>
                             </div>

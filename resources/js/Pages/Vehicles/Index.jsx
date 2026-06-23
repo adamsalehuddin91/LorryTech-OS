@@ -39,14 +39,14 @@ export default function Index({ vehicles, filters }) {
 
     const statusBadge = (statusVal) => {
         const map = {
-            aktif: 'bg-green-100 text-green-800',
-            penyelenggaraan: 'bg-yellow-100 text-yellow-800',
-            tidak_aktif: 'bg-red-100 text-red-800',
+            active: 'bg-green-100 text-green-800',
+            maintenance: 'bg-yellow-100 text-yellow-800',
+            inactive: 'bg-red-100 text-red-800',
         };
         const labelMap = {
-            aktif: 'Aktif',
-            penyelenggaraan: 'Penyelenggaraan',
-            tidak_aktif: 'Tidak Aktif',
+            active: 'Aktif',
+            maintenance: 'Penyelenggaraan',
+            inactive: 'Tidak Aktif',
         };
         const classes = map[statusVal] || 'bg-gray-100 text-gray-800';
         const label = labelMap[statusVal] || statusVal;
@@ -94,9 +94,9 @@ export default function Index({ vehicles, filters }) {
                                         className="rounded-lg border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                     >
                                         <option value="">Semua</option>
-                                        <option value="aktif">Aktif</option>
-                                        <option value="penyelenggaraan">Penyelenggaraan</option>
-                                        <option value="tidak_aktif">Tidak Aktif</option>
+                                        <option value="active">Aktif</option>
+                                        <option value="maintenance">Penyelenggaraan</option>
+                                        <option value="inactive">Tidak Aktif</option>
                                     </select>
                                     <button
                                         type="submit"
@@ -147,10 +147,10 @@ export default function Index({ vehicles, filters }) {
                                                         {vehicle.plate_number}
                                                     </td>
                                                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-700">
-                                                        {vehicle.model}
+                                                        {vehicle.make_model}
                                                     </td>
                                                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-700">
-                                                        {vehicle.capacity ? Number(vehicle.capacity).toLocaleString() : '-'}
+                                                        {vehicle.capacity_kg ? Number(vehicle.capacity_kg).toLocaleString() : '-'}
                                                     </td>
                                                     <td className="whitespace-nowrap px-6 py-4 text-sm">
                                                         {statusBadge(vehicle.status)}

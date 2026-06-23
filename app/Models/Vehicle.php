@@ -21,9 +21,9 @@ class Vehicle extends Model
     ];
 
     protected $casts = [
-        'roadtax_expiry' => 'date',
-        'insurance_expiry' => 'date',
-        'permit_apad_expiry' => 'date',
+        'roadtax_expiry' => 'date:Y-m-d',
+        'insurance_expiry' => 'date:Y-m-d',
+        'permit_apad_expiry' => 'date:Y-m-d',
     ];
 
     public function trips()

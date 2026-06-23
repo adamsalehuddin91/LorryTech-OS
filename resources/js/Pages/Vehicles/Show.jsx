@@ -17,14 +17,14 @@ export default function Show({ vehicle }) {
 
     const statusBadge = (statusVal) => {
         const map = {
-            aktif: 'bg-green-100 text-green-800',
-            penyelenggaraan: 'bg-yellow-100 text-yellow-800',
-            tidak_aktif: 'bg-red-100 text-red-800',
+            active: 'bg-green-100 text-green-800',
+            maintenance: 'bg-yellow-100 text-yellow-800',
+            inactive: 'bg-red-100 text-red-800',
         };
         const labelMap = {
-            aktif: 'Aktif',
-            penyelenggaraan: 'Penyelenggaraan',
-            tidak_aktif: 'Tidak Aktif',
+            active: 'Aktif',
+            maintenance: 'Penyelenggaraan',
+            inactive: 'Tidak Aktif',
         };
         const classes = map[statusVal] || 'bg-gray-100 text-gray-800';
         const label = labelMap[statusVal] || statusVal;
@@ -91,7 +91,7 @@ export default function Show({ vehicle }) {
                                 </div>
                                 <div>
                                     <dt className="text-sm font-medium text-gray-500">Model</dt>
-                                    <dd className="mt-1 text-sm text-gray-900">{vehicle.model || '-'}</dd>
+                                    <dd className="mt-1 text-sm text-gray-900">{vehicle.make_model || '-'}</dd>
                                 </div>
                                 <div>
                                     <dt className="text-sm font-medium text-gray-500">Tahun</dt>
@@ -100,7 +100,7 @@ export default function Show({ vehicle }) {
                                 <div>
                                     <dt className="text-sm font-medium text-gray-500">Kapasiti (kg)</dt>
                                     <dd className="mt-1 text-sm text-gray-900">
-                                        {vehicle.capacity ? Number(vehicle.capacity).toLocaleString() + ' kg' : '-'}
+                                        {vehicle.capacity_kg ? Number(vehicle.capacity_kg).toLocaleString() + ' kg' : '-'}
                                     </dd>
                                 </div>
                                 <div>
