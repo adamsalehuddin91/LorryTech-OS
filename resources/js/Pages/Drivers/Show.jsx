@@ -10,6 +10,13 @@ export default function Show({ driver }) {
         return diffDays < 30;
     };
 
+    // yyyy-MM-dd (atau ISO) -> dd/MM/yyyy tanpa Date() (elak anjakan timezone)
+    const formatDate = (s) => {
+        if (!s) return '-';
+        const [y, m, d] = s.slice(0, 10).split('-');
+        return d && m && y ? `${d}/${m}/${y}` : s;
+    };
+
     const assignedVehicle = driver.assignments?.[0]?.vehicle || null;
 
     return (
@@ -29,11 +36,19 @@ export default function Show({ driver }) {
                         <div className="p-6 border-b border-gray-200">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-4">
-                                    <div className="w-14 h-14 rounded-full bg-blue-100 flex items-center justify-center">
-                                        <span className="text-xl font-bold text-blue-600">
-                                            {driver.user?.name?.charAt(0)?.toUpperCase() || 'P'}
-                                        </span>
-                                    </div>
+                                    {driver.photo ? (
+                                        <img
+                                            src={driver.photo}
+                                            alt={driver.user?.name || 'Pemandu'}
+                                            className="w-14 h-14 rounded-full object-cover border border-gray-200"
+                                        />
+                                    ) : (
+                                        <div className="w-14 h-14 rounded-full bg-blue-100 flex items-center justify-center">
+                                            <span className="text-xl font-bold text-blue-600">
+                                                {driver.user?.name?.charAt(0)?.toUpperCase() || 'P'}
+                                            </span>
+                                        </div>
+                                    )}
                                     <div>
                                         <h3 className="text-lg font-semibold text-gray-900">
                                             {driver.user?.name || '-'}
@@ -60,7 +75,7 @@ export default function Show({ driver }) {
                                             <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                                         </svg>
                                         <p className="text-sm font-medium text-red-800">
-                                            Lesen memandu hampir tamat tempoh! Sila perbaharui sebelum {driver.license_expiry}.
+                                            Lesen memandu hampir tamat tempoh! Sila perbaharui sebelum {formatDate(driver.license_expiry)}.
                                         </p>
                                     </div>
                                 </div>
@@ -75,7 +90,7 @@ export default function Show({ driver }) {
                                 <div>
                                     <dt className="text-sm font-medium text-gray-500">Tamat Lesen</dt>
                                     <dd className={`mt-1 text-sm ${isLicenseExpiringSoon() ? 'text-red-600 font-semibold' : 'text-gray-900'}`}>
-                                        {driver.license_expiry || '-'}
+                                        {formatDate(driver.license_expiry)}
                                     </dd>
                                 </div>
                                 <div>
@@ -114,7 +129,7 @@ export default function Show({ driver }) {
                                             {assignedVehicle.plate_number || assignedVehicle.registration_number || '-'}
                                         </p>
                                         <p className="text-sm text-gray-500">
-                                            {[assignedVehicle.brand, assignedVehicle.model].filter(Boolean).join(' ') || 'Tiada maklumat'}
+                                            {assignedVehicle.make_model || 'Tiada maklumat'}
                                         </p>
                                     </div>
                                 </div>

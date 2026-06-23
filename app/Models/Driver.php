@@ -25,7 +25,7 @@ class Driver extends Model
     ];
 
     protected $casts = [
-        'license_expiry'           => 'date',
+        'license_expiry'           => 'date:Y-m-d',
         'commission_rate'          => 'decimal:2',
         'lalamove_commission_rate' => 'decimal:2',
         'base_salary'              => 'decimal:2',

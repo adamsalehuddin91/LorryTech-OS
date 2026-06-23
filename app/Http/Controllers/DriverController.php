@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Driver;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -63,30 +64,34 @@ class DriverController extends Controller
             $photo = '/storage/' . $request->file('photo')->store('drivers', 'public');
         }
 
-        $user = User::create([
-            'name'     => $validated['name'],
-            'email'    => $validated['email'],
-            'password' => Hash::make($validated['password']),
-            'role'     => 'driver',
-        ]);
+        // Bungkus dalam transaction — kalau Driver::create gagal (cth schema drift),
+        // User::create di-rollback sekali supaya tiada user orphan tanpa driver row.
+        DB::transaction(function () use ($validated, $photo) {
+            $user = User::create([
+                'name'     => $validated['name'],
+                'email'    => $validated['email'],
+                'password' => Hash::make($validated['password']),
+                'role'     => 'driver',
+            ]);
 
-        Driver::create([
-            'user_id'                  => $user->id,
-            'license_number'           => $validated['license_number'],
-            'license_expiry'           => $validated['license_expiry'],
-            'commission_rate'          => $validated['commission_rate'],
-            'lalamove_commission_rate' => $validated['lalamove_commission_rate'] ?? 0,
-            'phone'                    => $validated['phone'],
-            'emergency_contact'        => $validated['emergency_contact'],
-            'status'                   => $validated['status'],
-            'ic_number'                => $validated['ic_number'],
-            'kwsp_no'                  => $validated['kwsp_no'],
-            'socso_no'                 => $validated['socso_no'],
-            'bank_name'                => $validated['bank_name'],
-            'bank_account_no'          => $validated['bank_account_no'],
-            'base_salary'              => $validated['base_salary'] ?? 0,
-            'photo'                    => $photo,
-        ]);
+            Driver::create([
+                'user_id'                  => $user->id,
+                'license_number'           => $validated['license_number'],
+                'license_expiry'           => $validated['license_expiry'],
+                'commission_rate'          => $validated['commission_rate'],
+                'lalamove_commission_rate' => $validated['lalamove_commission_rate'] ?? 0,
+                'phone'                    => $validated['phone'],
+                'emergency_contact'        => $validated['emergency_contact'],
+                'status'                   => $validated['status'],
+                'ic_number'                => $validated['ic_number'],
+                'kwsp_no'                  => $validated['kwsp_no'],
+                'socso_no'                 => $validated['socso_no'],
+                'bank_name'                => $validated['bank_name'],
+                'bank_account_no'          => $validated['bank_account_no'],
+                'base_salary'              => $validated['base_salary'] ?? 0,
+                'photo'                    => $photo,
+            ]);
+        });
 
         return redirect()->route('drivers.index')->with('success', 'Pemandu berjaya ditambah.');
     }

@@ -31,6 +31,13 @@ export default function Index({ drivers, filters }) {
         return diffDays < 30;
     };
 
+    // yyyy-MM-dd (atau ISO) -> dd/MM/yyyy tanpa Date() (elak anjakan timezone)
+    const formatDate = (s) => {
+        if (!s) return '-';
+        const [y, m, d] = s.slice(0, 10).split('-');
+        return d && m && y ? `${d}/${m}/${y}` : s;
+    };
+
     return (
         <AuthenticatedLayout
             header={
@@ -125,7 +132,7 @@ export default function Index({ drivers, filters }) {
                                                     {driver.license_number || '-'}
                                                 </td>
                                                 <td className={`px-6 py-4 ${isLicenseExpiringSoon(driver.license_expiry) ? 'text-red-600 font-semibold' : 'text-gray-600'}`}>
-                                                    {driver.license_expiry || '-'}
+                                                    {formatDate(driver.license_expiry)}
                                                     {isLicenseExpiringSoon(driver.license_expiry) && (
                                                         <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-xs bg-red-100 text-red-700">
                                                             Hampir Tamat
