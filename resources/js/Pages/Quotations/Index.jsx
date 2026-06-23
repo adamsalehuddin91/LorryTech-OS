@@ -1,4 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { formatDate } from '@/utils/format';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
@@ -159,7 +160,7 @@ export default function Index({ quotations, filters }) {
                                                         {statusBadge(quotation.status)}
                                                     </td>
                                                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-700">
-                                                        {quotation.valid_until || '-'}
+                                                        {formatDate(quotation.valid_until)}
                                                     </td>
                                                     <td className="whitespace-nowrap px-6 py-4 text-right text-sm">
                                                         <Link

@@ -36,8 +36,8 @@ class Trip extends Model
     ];
 
     protected $casts = [
-        'pickup_date' => 'date',
-        'delivery_date' => 'date',
+        'pickup_date' => 'date:Y-m-d',
+        'delivery_date' => 'date:Y-m-d',
         'pickup_lat' => 'decimal:7',
         'pickup_lng' => 'decimal:7',
         'delivery_lat' => 'decimal:7',

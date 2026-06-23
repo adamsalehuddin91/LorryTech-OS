@@ -1,4 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { formatDate } from '@/utils/format';
 import { Head, Link, router } from '@inertiajs/react';
 
 export default function Show({ trip }) {
@@ -143,13 +144,13 @@ export default function Show({ trip }) {
                                 <div>
                                     <dt className="text-sm font-medium text-gray-500">Tarikh Ambil</dt>
                                     <dd className="mt-1 text-sm text-gray-900">
-                                        {trip.pickup_date || '-'}
+                                        {formatDate(trip.pickup_date)}
                                     </dd>
                                 </div>
                                 <div>
                                     <dt className="text-sm font-medium text-gray-500">Tarikh Hantar</dt>
                                     <dd className="mt-1 text-sm text-gray-900">
-                                        {trip.delivery_date || '-'}
+                                        {formatDate(trip.delivery_date)}
                                     </dd>
                                 </div>
                                 <div>

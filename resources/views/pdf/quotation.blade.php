@@ -188,21 +188,23 @@
     {{-- Signature Block --}}
     <table class="signature-table">
         <tr>
+            {{-- Syarikat — auto-isi nama + tarikh jana, tinggal ruang tandatangan & cop --}}
             <td style="width: 48%; vertical-align: top; padding-right: 10px;">
                 <div class="signature-box">
-                    <strong>Disediakan oleh:</strong><br><br><br>
+                    <strong>Tandatangan &amp; Cop Syarikat:</strong><br><br><br>
                     <hr style="border: none; border-top: 1px solid #aaaaaa; margin: 6px 0;">
-                    Nama&nbsp;&nbsp;: ................................<br>
-                    Tarikh : ................................<br>
+                    Nama&nbsp;&nbsp;: {{ $company->name }}<br>
+                    Tarikh : {{ optional($quotation->created_at)->format('d/m/Y') }}<br>
                     Cop&nbsp;&nbsp;&nbsp;&nbsp;:
                 </div>
             </td>
             <td style="width: 4%;"></td>
+            {{-- Pelanggan — sign-back tanda terima/setuju --}}
             <td style="width: 48%; vertical-align: top; padding-left: 10px;">
                 <div class="signature-box">
-                    <strong>Disahkan / Dipersetujui oleh:</strong><br><br><br>
+                    <strong>Diterima oleh (Pelanggan):</strong><br><br><br>
                     <hr style="border: none; border-top: 1px solid #aaaaaa; margin: 6px 0;">
-                    Nama&nbsp;&nbsp;: ................................<br>
+                    Nama&nbsp;&nbsp;: {{ $quotation->customer->name }}<br>
                     Tarikh : ................................<br>
                     Cop&nbsp;&nbsp;&nbsp;&nbsp;:
                 </div>

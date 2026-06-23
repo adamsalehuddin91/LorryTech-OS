@@ -1,4 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { formatDate } from '@/utils/format';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
@@ -153,7 +154,7 @@ export default function Index({ invoices, filters }) {
                                                         {paymentBadge(invoice.payment_status)}
                                                     </td>
                                                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-700">
-                                                        {invoice.due_date || '-'}
+                                                        {formatDate(invoice.due_date)}
                                                     </td>
                                                     <td className="whitespace-nowrap px-6 py-4 text-right text-sm">
                                                         <Link

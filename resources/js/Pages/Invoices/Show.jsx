@@ -1,4 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { formatDate } from '@/utils/format';
 import { Head, Link, useForm, router } from '@inertiajs/react';
 import { useState } from 'react';
 
@@ -70,7 +71,7 @@ export default function Show({ invoice }) {
         const text = [
             `INVOIS: ${invoice.invoice_number}`,
             `Pelanggan: ${invoice.customer?.name || '-'}`,
-            `Tarikh Akhir: ${invoice.due_date || '-'}`,
+            `Tarikh Akhir: ${formatDate(invoice.due_date)}`,
             '',
             'Item:',
             items,
@@ -162,7 +163,7 @@ export default function Show({ invoice }) {
                                 </div>
                                 <div>
                                     <dt className="text-sm font-medium text-gray-500">Tarikh Akhir</dt>
-                                    <dd className="mt-1 text-sm text-gray-900">{invoice.due_date || '-'}</dd>
+                                    <dd className="mt-1 text-sm text-gray-900">{formatDate(invoice.due_date)}</dd>
                                 </div>
                             </div>
 
@@ -310,7 +311,7 @@ export default function Show({ invoice }) {
                                             invoice.payments.map((payment) => (
                                                 <tr key={payment.id}>
                                                     <td className="px-4 py-3 text-sm text-gray-900">
-                                                        {payment.payment_date || '-'}
+                                                        {formatDate(payment.payment_date)}
                                                     </td>
                                                     <td className="px-4 py-3 text-sm text-right font-medium text-gray-900">
                                                         RM {Number(payment.amount).toFixed(2)}

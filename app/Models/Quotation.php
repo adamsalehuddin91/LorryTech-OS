@@ -20,7 +20,7 @@ class Quotation extends Model
     ];
 
     protected $casts = [
-        'valid_until' => 'date',
+        'valid_until' => 'date:Y-m-d',
         'subtotal' => 'decimal:2',
         'tax_amount' => 'decimal:2',
         'total_amount' => 'decimal:2',

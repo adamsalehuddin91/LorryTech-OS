@@ -1,4 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { formatDate } from '@/utils/format';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
@@ -206,7 +207,7 @@ export default function Index({ trips, filters }) {
                                                         <span>{trip.delivery_location || '-'}</span>
                                                     </td>
                                                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-700">
-                                                        {trip.pickup_date || '-'}
+                                                        {formatDate(trip.pickup_date)}
                                                     </td>
                                                     <td className="whitespace-nowrap px-6 py-4 text-sm text-right text-gray-900">
                                                         RM {Number(trip.total_revenue || 0).toFixed(2)}

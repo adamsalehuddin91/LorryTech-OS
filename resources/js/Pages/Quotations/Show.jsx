@@ -1,4 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { formatDate } from '@/utils/format';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 
 export default function Show({ quotation }) {
@@ -106,7 +107,7 @@ export default function Show({ quotation }) {
                                 </div>
                                 <div>
                                     <dt className="text-sm font-medium text-gray-500">Sah Sehingga</dt>
-                                    <dd className="mt-1 text-sm text-gray-900">{quotation.valid_until || '-'}</dd>
+                                    <dd className="mt-1 text-sm text-gray-900">{formatDate(quotation.valid_until)}</dd>
                                 </div>
                             </div>
                         </div>

@@ -24,7 +24,7 @@ class Invoice extends Model
     ];
 
     protected $casts = [
-        'due_date' => 'date',
+        'due_date' => 'date:Y-m-d',
         'subtotal' => 'decimal:2',
         'tax_amount' => 'decimal:2',
         'total_amount' => 'decimal:2',
