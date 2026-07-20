@@ -1,4 +1,5 @@
 import DriverLayout from '@/Layouts/DriverLayout';
+import { compressImage } from '@/utils/compressImage';
 import { useForm } from '@inertiajs/react';
 import { useState, useEffect, useRef } from 'react';
 
@@ -20,25 +21,6 @@ function loadGoogleMaps() {
     });
     return mapsPromise;
 }
-
-const compressImage = (file) =>
-    new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const img = new Image();
-            img.onload = () => {
-                const maxW = 1200;
-                let w = img.width, h = img.height;
-                if (w > maxW) { h = (h * maxW) / w; w = maxW; }
-                const canvas = document.createElement('canvas');
-                canvas.width = w; canvas.height = h;
-                canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                canvas.toBlob((blob) => resolve(new File([blob], file.name, { type: 'image/jpeg' })), 'image/jpeg', 0.75);
-            };
-            img.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
-    });
 
 export default function LogJob({ lalamoveRate, sideJobRate, vehicles = [] }) {
     const { data, setData, post, processing, errors } = useForm({
@@ -203,17 +185,20 @@ export default function LogJob({ lalamoveRate, sideJobRate, vehicles = [] }) {
         post(route('driver.store-job'), { forceFormData: true });
     };
 
+    const field = 'w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/30 transition-colors';
+    const label = 'block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2';
+
     return (
         <DriverLayout title="Log Kerja">
-            <div className="bg-gradient-to-br from-blue-700 to-blue-900 px-5 pt-12 pb-6">
-                <h1 className="text-white text-xl font-bold">Log Kerja</h1>
-                <p className="text-blue-200 text-sm mt-1">Rekod trip anda untuk komisyen</p>
+            <div className="bg-gradient-to-b from-blue-900/35 via-indigo-950/15 to-transparent px-5 pt-8 pb-6">
+                <h1 className="text-white text-2xl font-extrabold tracking-tight">Log Kerja</h1>
+                <p className="text-blue-300/70 text-xs font-medium mt-1">Rekod trip anda untuk komisyen</p>
             </div>
 
-            <form onSubmit={handleSubmit} className="px-5 mt-5 space-y-5 pb-6">
+            <form onSubmit={handleSubmit} className="px-5 -mt-1.5 space-y-4 pb-6 relative z-10">
 
                 {/* Job Type Toggle */}
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-2.5">
                     {[
                         { value: 'lalamove', label: '🚚 Lalamove', rate: lalamoveRate },
                         { value: 'side_job', label: '💼 Job Tepi',  rate: sideJobRate },
@@ -222,10 +207,10 @@ export default function LogJob({ lalamoveRate, sideJobRate, vehicles = [] }) {
                             key={opt.value}
                             type="button"
                             onClick={() => setData('job_type', opt.value)}
-                            className={`rounded-2xl py-4 px-3 text-center border-2 transition-all ${
+                            className={`rounded-2xl py-4 px-3 text-center border transition-all ${
                                 data.job_type === opt.value
-                                    ? 'border-blue-600 bg-blue-50 text-blue-700'
-                                    : 'border-gray-200 bg-white text-gray-600'
+                                    ? 'border-blue-500/40 bg-gradient-to-br from-blue-600/20 to-indigo-600/20 text-white shadow-lg shadow-blue-500/10'
+                                    : 'border-white/[0.06] bg-white/[0.02] text-gray-400'
                             }`}
                         >
                             <p className="text-xl mb-1">{opt.label.split(' ')[0]}</p>
@@ -237,13 +222,13 @@ export default function LogJob({ lalamoveRate, sideJobRate, vehicles = [] }) {
 
                 {/* Vehicle / Lori */}
                 <div>
-                    <label className="block text-sm font-semibold text-slate-200 mb-2">
-                        Kenderaan (Lori) <span className="text-red-500">*</span>
+                    <label className={label}>
+                        Kenderaan (Lori) <span className="text-red-400">*</span>
                     </label>
                     <select
                         value={data.vehicle_id}
                         onChange={(e) => setData('vehicle_id', e.target.value)}
-                        className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className={field}
                     >
                         <option value="">-- Pilih Lori --</option>
                         {vehicles.map((v) => (
@@ -255,56 +240,56 @@ export default function LogJob({ lalamoveRate, sideJobRate, vehicles = [] }) {
                     {vehicles.length === 0 && (
                         <p className="mt-1 text-xs text-amber-500">Tiada lori aktif. Sila hubungi admin.</p>
                     )}
-                    {errors.vehicle_id && <p className="mt-1 text-sm text-red-500">{errors.vehicle_id}</p>}
+                    {errors.vehicle_id && <p className="mt-1 text-sm text-red-400">{errors.vehicle_id}</p>}
                 </div>
 
                 {/* Commission Preview */}
                 {data.gross_amount > 0 && (
-                    <div className="bg-green-50 border border-green-200 rounded-2xl px-4 py-3 flex justify-between items-center">
+                    <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl px-4 py-3 flex justify-between items-center">
                         <div>
-                            <p className="text-xs text-green-600">Anggaran Komisyen</p>
-                            <p className="text-xs text-green-500">{currentRate}% × RM {data.gross_amount}</p>
+                            <p className="text-xs text-emerald-400/80">Anggaran Komisyen</p>
+                            <p className="text-xs text-emerald-400/60">{currentRate}% × RM {data.gross_amount}</p>
                         </div>
-                        <p className="text-2xl font-bold text-green-700">RM {estimatedComm}</p>
+                        <p className="text-2xl font-bold text-emerald-400">RM {estimatedComm}</p>
                     </div>
                 )}
 
                 {/* Amount */}
                 <div>
-                    <label className="block text-sm font-semibold text-slate-200 mb-2">
-                        Jumlah Diterima (RM) <span className="text-red-500">*</span>
+                    <label className={label}>
+                        Jumlah Diterima (RM) <span className="text-red-400">*</span>
                     </label>
                     <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-semibold">RM</span>
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-semibold">RM</span>
                         <input
                             type="number" min="0.01" step="0.01"
                             value={data.gross_amount}
                             onChange={(e) => setData('gross_amount', e.target.value)}
                             placeholder="0.00"
-                            className="w-full rounded-xl border border-gray-200 pl-12 pr-4 py-3.5 text-lg font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className={`${field} pl-12 text-lg font-bold`}
                         />
                     </div>
-                    {errors.gross_amount && <p className="mt-1 text-sm text-red-500">{errors.gross_amount}</p>}
+                    {errors.gross_amount && <p className="mt-1 text-sm text-red-400">{errors.gross_amount}</p>}
                 </div>
 
                 {/* Date */}
                 <div>
-                    <label className="block text-sm font-semibold text-slate-200 mb-2">Tarikh <span className="text-red-500">*</span></label>
+                    <label className={label}>Tarikh <span className="text-red-400">*</span></label>
                     <input
                         type="date" value={data.job_date}
                         onChange={(e) => setData('job_date', e.target.value)}
-                        className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className={field}
                     />
-                    {errors.job_date && <p className="mt-1 text-sm text-red-500">{errors.job_date}</p>}
+                    {errors.job_date && <p className="mt-1 text-sm text-red-400">{errors.job_date}</p>}
                 </div>
 
                 {/* Route */}
-                <div className="space-y-3">
+                <div className="bg-white/[0.02] border border-white/[0.06] backdrop-blur-md rounded-3xl p-4 shadow-xl space-y-3">
                     {/* Pickup */}
                     <div>
-                        <div className="flex items-center justify-between mb-2">
-                            <label className="block text-sm font-semibold text-slate-200">
-                                Dari (Pickup) <span className="text-red-500">*</span>
+                        <div className="flex items-center justify-between mb-2.5">
+                            <label className={`${label} mb-0`}>
+                                Dari (Pickup) <span className="text-red-400">*</span>
                             </label>
                             {MAPS_KEY && (
                                 <button type="button" onClick={useMyLocation} disabled={locating}
@@ -320,95 +305,95 @@ export default function LogJob({ lalamoveRate, sideJobRate, vehicles = [] }) {
                                 type="text" defaultValue={data.pickup_location}
                                 onChange={(e) => { pickupCoords.current = null; setData((d) => ({ ...d, pickup_location: e.target.value, pickup_lat: null, pickup_lng: null, distance_km: null, duration_min: null })); setCalcStatus(null); }}
                                 placeholder={MAPS_KEY ? 'Cari tempat… cth: Klang' : 'cth: Klang, Selangor'}
-                                className="w-full rounded-xl border border-gray-200 pl-9 pr-4 py-3 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className={`${field} pl-9`}
                             />
                         </div>
                         {showNearby && nearbyPlaces.length > 0 && (
-                            <div className="mt-2 rounded-xl border border-gray-200 bg-white p-2 shadow-sm">
+                            <div className="mt-2 rounded-xl border border-white/[0.08] bg-[#12172a] p-2 shadow-lg">
                                 <div className="flex items-center justify-between px-1 mb-1">
-                                    <p className="text-[11px] text-gray-500">📍 Landmark berdekatan — pilih:</p>
-                                    <button type="button" onClick={() => setShowNearby(false)} className="text-[11px] text-gray-400">tutup ✕</button>
+                                    <p className="text-[11px] text-gray-400">📍 Landmark berdekatan — pilih:</p>
+                                    <button type="button" onClick={() => setShowNearby(false)} className="text-[11px] text-gray-500">tutup ✕</button>
                                 </div>
                                 <div className="max-h-44 overflow-y-auto space-y-0.5">
                                     {nearbyPlaces.map((pl) => (
                                         <button type="button" key={pl.place_id} onClick={() => pickNearby(pl)}
-                                            className="w-full text-left px-2 py-2 rounded-lg hover:bg-blue-50 active:bg-blue-100">
-                                            <span className="text-sm font-semibold text-gray-700">{pl.name}</span>
-                                            {pl.vicinity && <span className="block text-xs text-gray-400">{pl.vicinity}</span>}
+                                            className="w-full text-left px-2 py-2 rounded-lg hover:bg-white/[0.05] active:bg-white/[0.08]">
+                                            <span className="text-sm font-semibold text-gray-200">{pl.name}</span>
+                                            {pl.vicinity && <span className="block text-xs text-gray-500">{pl.vicinity}</span>}
                                         </button>
                                     ))}
                                 </div>
                             </div>
                         )}
-                        {errors.pickup_location && <p className="mt-1 text-sm text-red-500">{errors.pickup_location}</p>}
+                        {errors.pickup_location && <p className="mt-1 text-sm text-red-400">{errors.pickup_location}</p>}
                     </div>
                     {/* Delivery */}
                     <div>
-                        <label className="block text-sm font-semibold text-slate-200 mb-2">
-                            Ke (Hantar) <span className="text-red-500">*</span>
+                        <label className={label}>
+                            Ke (Hantar) <span className="text-red-400">*</span>
                         </label>
                         <div className="relative">
-                            <div className="absolute left-4 top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-green-500" />
+                            <div className="absolute left-4 top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-emerald-500" />
                             <input
                                 ref={deliveryRef}
                                 type="text" defaultValue={data.delivery_location}
                                 onChange={(e) => { deliveryCoords.current = null; setData((d) => ({ ...d, delivery_location: e.target.value, delivery_lat: null, delivery_lng: null, distance_km: null, duration_min: null })); setCalcStatus(null); }}
                                 placeholder={MAPS_KEY ? 'Cari tempat… cth: Shah Alam' : 'cth: Shah Alam, Selangor'}
-                                className="w-full rounded-xl border border-gray-200 pl-9 pr-4 py-3 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className={`${field} pl-9`}
                             />
                         </div>
-                        {errors.delivery_location && <p className="mt-1 text-sm text-red-500">{errors.delivery_location}</p>}
+                        {errors.delivery_location && <p className="mt-1 text-sm text-red-400">{errors.delivery_location}</p>}
                     </div>
 
                     {/* Distance preview */}
                     {MAPS_KEY && (calcStatus === 'calc' || data.distance_km != null) && (
-                        <div className="rounded-2xl bg-blue-50 border border-blue-200 px-4 py-3 flex items-center justify-between">
-                            <span className="text-xs font-medium text-blue-600">🚗 Anggaran jarak (jalan)</span>
+                        <div className="rounded-2xl bg-blue-500/10 border border-blue-500/20 px-4 py-3 flex items-center justify-between">
+                            <span className="text-xs font-medium text-blue-400">🚗 Anggaran jarak (jalan)</span>
                             {calcStatus === 'calc'
-                                ? <span className="text-sm font-semibold text-blue-500">Mengira…</span>
-                                : <span className="text-lg font-bold text-blue-700">{data.distance_km} km<span className="text-xs font-medium text-blue-500"> · ~{data.duration_min} min</span></span>}
+                                ? <span className="text-sm font-semibold text-blue-400">Mengira…</span>
+                                : <span className="text-lg font-bold text-blue-300">{data.distance_km} km<span className="text-xs font-medium text-blue-400"> · ~{data.duration_min} min</span></span>}
                         </div>
                     )}
                     {calcStatus === 'fail' && <p className="text-xs text-amber-500">Tak dapat kira jarak — boleh hantar tanpa KM.</p>}
-                    {!MAPS_KEY && <p className="text-[11px] text-slate-400">ℹ️ Maps belum aktif — taip lokasi manual (KM tak auto-kira).</p>}
-                    {MAPS_KEY && <div ref={mapRef} className="h-52 rounded-2xl overflow-hidden border border-gray-200 bg-gray-100" />}
+                    {!MAPS_KEY && <p className="text-[11px] text-slate-500">ℹ️ Maps belum aktif — taip lokasi manual (KM tak auto-kira).</p>}
+                    {MAPS_KEY && <div ref={mapRef} className="h-52 rounded-2xl overflow-hidden border border-white/[0.08]" />}
                 </div>
 
                 {/* Customer (side job only) */}
                 {data.job_type === 'side_job' && (
                     <div>
-                        <label className="block text-sm font-semibold text-slate-200 mb-2">Nama Pelanggan</label>
+                        <label className={label}>Nama Pelanggan</label>
                         <input
                             type="text" value={data.customer_name}
                             onChange={(e) => setData('customer_name', e.target.value)}
                             placeholder="cth: Syarikat ABC Sdn Bhd"
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className={field}
                         />
                     </div>
                 )}
 
                 {/* Proof Image */}
                 <div>
-                    <label className="block text-sm font-semibold text-slate-200 mb-2">
+                    <label className={label}>
                         {data.job_type === 'lalamove' ? 'Screenshot Lalamove (Optional)' : 'Bukti Job (Optional)'}
                     </label>
-                    <div className={`rounded-2xl border-2 border-dashed overflow-hidden transition-all ${preview ? 'border-blue-400' : 'border-gray-200'}`}>
+                    <div className={`rounded-2xl border-2 border-dashed overflow-hidden transition-all ${preview ? 'border-blue-500/40' : 'border-white/[0.08]'}`}>
                         {preview ? (
                             <div className="relative">
                                 <img src={preview} alt="Proof" className="w-full max-h-40 object-cover" />
                                 <button
                                     type="button"
                                     onClick={() => { setData('proof_image', null); setPreview(null); }}
-                                    className="absolute top-2 right-2 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center text-lg shadow"
+                                    className="absolute top-2 right-2 w-8 h-8 bg-rose-500 text-white rounded-full flex items-center justify-center text-lg shadow"
                                 >×</button>
                             </div>
                         ) : (
-                            <div className="flex gap-2 px-4 py-4 bg-gray-50">
-                                <label className="flex-1 cursor-pointer flex items-center justify-center gap-2 py-3 rounded-xl bg-white border border-gray-200 text-sm text-gray-600 font-medium hover:bg-gray-50">
+                            <div className="flex gap-2 px-3 py-3 bg-white/[0.02]">
+                                <label className="flex-1 cursor-pointer flex items-center justify-center gap-2 py-3 rounded-xl bg-white/[0.03] border border-white/[0.06] text-sm text-gray-300 font-medium hover:bg-white/[0.06] transition-colors">
                                     📷 Kamera
                                     <input type="file" accept="image/*" capture="environment" onChange={handleFile} className="hidden" />
                                 </label>
-                                <label className="flex-1 cursor-pointer flex items-center justify-center gap-2 py-3 rounded-xl bg-white border border-gray-200 text-sm text-gray-600 font-medium hover:bg-gray-50">
+                                <label className="flex-1 cursor-pointer flex items-center justify-center gap-2 py-3 rounded-xl bg-white/[0.03] border border-white/[0.06] text-sm text-gray-300 font-medium hover:bg-white/[0.06] transition-colors">
                                     🖼️ Galeri
                                     <input type="file" accept="image/*" onChange={handleFile} className="hidden" />
                                 </label>
@@ -419,20 +404,20 @@ export default function LogJob({ lalamoveRate, sideJobRate, vehicles = [] }) {
 
                 {/* Notes */}
                 <div>
-                    <label className="block text-sm font-semibold text-slate-200 mb-2">Nota (Optional)</label>
+                    <label className={label}>Nota (Optional)</label>
                     <textarea
                         value={data.notes}
                         onChange={(e) => setData('notes', e.target.value)}
                         placeholder="Maklumat tambahan..."
                         rows={2}
-                        className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                        className={`${field} resize-none`}
                     />
                 </div>
 
                 <button
                     type="submit"
                     disabled={processing || compressing}
-                    className="w-full rounded-2xl bg-blue-600 py-4 text-base font-bold text-white shadow-lg hover:bg-blue-700 active:scale-95 transition-all disabled:opacity-50"
+                    className="w-full rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 py-4 text-base font-bold text-white shadow-lg shadow-blue-500/20 hover:from-blue-500 hover:to-indigo-500 active:scale-[0.98] transition-all disabled:opacity-50"
                 >
                     {compressing ? 'Memproses gambar...' : processing ? 'Menghantar...' : 'Log Kerja Ini'}
                 </button>

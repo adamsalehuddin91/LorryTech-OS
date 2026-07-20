@@ -83,28 +83,6 @@ class DriverPortalController extends Controller
         ]);
     }
 
-    public function myTrips(Request $request)
-    {
-        $driver = $this->getDriver($request);
-        abort_unless($driver, 403, 'Tiada profil pemandu dikaitkan.');
-
-        $trips = Trip::with(['vehicle', 'customer'])
-            ->where('driver_id', $driver?->id)
-            ->when($request->input('month'), function ($q, $month) {
-                $start = Carbon::parse($month . '-01')->startOfMonth();
-                $end = (clone $start)->endOfMonth();
-                $q->whereBetween('pickup_date', [$start, $end]);
-            })
-            ->orderByDesc('pickup_date')
-            ->paginate(15)
-            ->withQueryString();
-
-        return Inertia::render('DriverPortal/MyTrips', [
-            'trips' => $trips,
-            'filters' => $request->only(['month']),
-        ]);
-    }
-
     public function myCommissions(Request $request)
     {
         $driver = $this->getDriver($request);
