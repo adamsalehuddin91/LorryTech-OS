@@ -24,7 +24,7 @@ export default function MyCommissions({ commissions, monthlySummary, filters }) 
         <DriverLayout title="Komisyen Saya">
             {/* Header */}
             <div className="bg-gradient-to-b from-blue-900/35 via-indigo-950/15 to-transparent px-5 pt-8 pb-6">
-                <h1 className="text-white text-2xl font-extrabold tracking-tight">Komisyen Saya</h1>
+                <h1 className="text-white text-xl font-extrabold tracking-tight">Komisyen Saya</h1>
 
                 {/* Monthly Summary Horizontal Scroll */}
                 {monthlySummary?.length > 0 && (
@@ -106,7 +106,7 @@ export default function MyCommissions({ commissions, monthlySummary, filters }) 
                                             <p>Kadar: {Number(comm.commission_rate).toFixed(1)}%</p>
                                             {comm.paid_date && <p>Dibayar: {comm.paid_date?.split('T')[0] || comm.paid_date}</p>}
                                         </div>
-                                        <p className="text-xl font-bold text-emerald-400">RM {Number(comm.commission_amount).toFixed(2)}</p>
+                                        <p className="text-lg font-bold text-emerald-400">RM {Number(comm.commission_amount).toFixed(2)}</p>
                                     </div>
                                 </div>
                             );

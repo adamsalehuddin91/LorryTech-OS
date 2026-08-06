@@ -50,7 +50,7 @@ export default function UploadReceipt({ categories, vehicles }) {
         <DriverLayout title="Muat Naik Resit">
             {/* Header */}
             <div className="bg-gradient-to-b from-blue-900/35 via-indigo-950/15 to-transparent px-5 pt-8 pb-6">
-                <h1 className="text-white text-2xl font-extrabold tracking-tight">Muat Naik Resit</h1>
+                <h1 className="text-white text-xl font-extrabold tracking-tight">Muat Naik Resit</h1>
                 <p className="text-blue-300/70 text-xs font-medium mt-1">Snap gambar resit anda</p>
             </div>
 
@@ -107,7 +107,7 @@ export default function UploadReceipt({ categories, vehicles }) {
                                         : 'bg-white/[0.02] border-white/[0.06] text-gray-400'
                                 }`}
                             >
-                                <span className="text-xl">{icon}</span>
+                                <span className="text-lg">{icon}</span>
                                 <span className="text-[11px] font-medium leading-tight text-center">{catLabel}</span>
                             </button>
                         ))}

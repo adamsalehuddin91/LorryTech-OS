@@ -191,7 +191,7 @@ export default function LogJob({ lalamoveRate, sideJobRate, vehicles = [] }) {
     return (
         <DriverLayout title="Log Kerja">
             <div className="bg-gradient-to-b from-blue-900/35 via-indigo-950/15 to-transparent px-5 pt-8 pb-6">
-                <h1 className="text-white text-2xl font-extrabold tracking-tight">Log Kerja</h1>
+                <h1 className="text-white text-xl font-extrabold tracking-tight">Log Kerja</h1>
                 <p className="text-blue-300/70 text-xs font-medium mt-1">Rekod trip anda untuk komisyen</p>
             </div>
 
@@ -213,7 +213,7 @@ export default function LogJob({ lalamoveRate, sideJobRate, vehicles = [] }) {
                                     : 'border-white/[0.06] bg-white/[0.02] text-gray-400'
                             }`}
                         >
-                            <p className="text-xl mb-1">{opt.label.split(' ')[0]}</p>
+                            <p className="text-lg mb-1">{opt.label.split(' ')[0]}</p>
                             <p className="text-sm font-semibold">{opt.label.split(' ').slice(1).join(' ')}</p>
                             <p className="text-xs mt-1 opacity-70">Komisyen {opt.rate}%</p>
                         </button>
@@ -250,7 +250,7 @@ export default function LogJob({ lalamoveRate, sideJobRate, vehicles = [] }) {
                             <p className="text-xs text-emerald-400/80">Anggaran Komisyen</p>
                             <p className="text-xs text-emerald-400/60">{currentRate}% × RM {data.gross_amount}</p>
                         </div>
-                        <p className="text-2xl font-bold text-emerald-400">RM {estimatedComm}</p>
+                        <p className="text-xl font-bold text-emerald-400">RM {estimatedComm}</p>
                     </div>
                 )}
 

@@ -47,7 +47,7 @@ export default function Dashboard({ stats, recentTrips, driverName }) {
                 <div className="flex items-center justify-between">
                     <div>
                         <p className="text-blue-400 text-xs font-bold uppercase tracking-wider">{greeting} 👋</p>
-                        <h1 className="text-white text-2xl font-extrabold mt-1 tracking-tight">{firstName}</h1>
+                        <h1 className="text-white text-xl font-extrabold mt-1 tracking-tight">{firstName}</h1>
                     </div>
                     {/* Small user avatar */}
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-sm font-extrabold text-white shadow-md shadow-blue-500/20">
@@ -75,13 +75,13 @@ export default function Dashboard({ stats, recentTrips, driverName }) {
                 <div className="mt-6 grid grid-cols-2 gap-3.5">
                     <div className="bg-white/[0.02] border border-white/[0.06] backdrop-blur-md rounded-3xl p-4 hover:bg-white/[0.04] transition-colors shadow-xl">
                         <p className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">Trip Bulan Ini</p>
-                        <p className="text-white text-3xl font-extrabold mt-2.5 tracking-tight">{stats.trips_this_month}</p>
+                        <p className="text-white text-2xl font-extrabold mt-2.5 tracking-tight">{stats.trips_this_month}</p>
                         <p className="text-slate-500 text-[10px] font-medium mt-1.5">{stats.total_trips} trip keseluruhan</p>
                     </div>
                     
                     <div className="bg-white/[0.02] border border-white/[0.06] backdrop-blur-md rounded-3xl p-4 hover:bg-white/[0.04] transition-colors shadow-xl">
                         <p className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">Komisyen Bulanan</p>
-                        <p className="text-emerald-400 text-xl font-extrabold mt-3 tracking-tight">
+                        <p className="text-emerald-400 text-lg font-extrabold mt-3 tracking-tight">
                             RM {Number(stats.commission_this_month).toLocaleString('en-MY', { minimumFractionDigits: 2 })}
                         </p>
                         <p className="text-slate-500 text-[10px] font-medium mt-1.5">Kadar semasa: {stats.commission_rate}%</p>
@@ -90,7 +90,7 @@ export default function Dashboard({ stats, recentTrips, driverName }) {
                     <div className="bg-white/[0.02] border border-white/[0.06] backdrop-blur-md rounded-3xl p-4 hover:bg-white/[0.04] transition-colors shadow-xl col-span-2 flex justify-between items-center">
                         <div>
                             <p className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">Komisyen Belum Bayar</p>
-                            <p className="text-white text-xl font-extrabold mt-1.5 tracking-tight">
+                            <p className="text-white text-lg font-extrabold mt-1.5 tracking-tight">
                                 RM {Number(stats.pending_commission).toLocaleString('en-MY', { minimumFractionDigits: 2 })}
                             </p>
                             <p className="text-slate-500 text-[10px] font-medium mt-1">Diterima: RM {Number(stats.total_earned).toLocaleString('en-MY', { minimumFractionDigits: 2 })}</p>
@@ -103,10 +103,10 @@ export default function Dashboard({ stats, recentTrips, driverName }) {
                     <div className="bg-white/[0.02] border border-white/[0.06] backdrop-blur-md rounded-3xl p-4 hover:bg-white/[0.04] transition-colors shadow-xl col-span-2 flex justify-between items-center">
                         <div>
                             <p className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">Laporan Resit</p>
-                            <p className="text-white text-xl font-extrabold mt-1.5 tracking-tight">{stats.receipts_this_month} Resit</p>
+                            <p className="text-white text-lg font-extrabold mt-1.5 tracking-tight">{stats.receipts_this_month} Resit</p>
                             <p className="text-slate-500 text-[10px] font-medium mt-1">Telah dihantar untuk kelulusan bulan ini</p>
                         </div>
-                        <span className="text-xl">🧾</span>
+                        <span className="text-lg">🧾</span>
                     </div>
                 </div>
             </div>
@@ -172,7 +172,7 @@ export default function Dashboard({ stats, recentTrips, driverName }) {
                     </div>
                 ) : (
                     <div className="bg-white/[0.01] rounded-3xl py-12 text-center border border-dashed border-white/[0.06]">
-                        <span className="text-2xl opacity-40">🚚</span>
+                        <span className="text-xl opacity-40">🚚</span>
                         <p className="text-gray-500 text-xs mt-2.5">Tiada perjalanan dijadualkan setakat ini.</p>
                     </div>
                 )}

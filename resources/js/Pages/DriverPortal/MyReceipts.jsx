@@ -19,11 +19,11 @@ export default function MyReceipts({ expenses }) {
         <DriverLayout title="Resit Saya">
             {/* Header */}
             <div className="bg-gradient-to-b from-blue-900/35 via-indigo-950/15 to-transparent px-5 pt-8 pb-6">
-                <h1 className="text-white text-2xl font-extrabold tracking-tight">Resit Saya</h1>
+                <h1 className="text-white text-xl font-extrabold tracking-tight">Resit Saya</h1>
                 <div className="flex items-end justify-between mt-4">
                     <div>
                         <p className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">Jumlah perbelanjaan (halaman ini)</p>
-                        <p className="text-white text-2xl font-extrabold mt-1 tracking-tight">RM {total.toFixed(2)}</p>
+                        <p className="text-white text-xl font-extrabold mt-1 tracking-tight">RM {total.toFixed(2)}</p>
                     </div>
                     <Link
                         href={route('driver.upload-receipt')}
@@ -86,7 +86,7 @@ export default function MyReceipts({ expenses }) {
                     </>
                 ) : (
                     <div className="bg-white/[0.01] rounded-3xl py-12 text-center border border-dashed border-white/[0.06]">
-                        <p className="text-4xl mb-3 opacity-60">🧾</p>
+                        <p className="text-3xl mb-3 opacity-60">🧾</p>
                         <p className="text-gray-400 text-sm font-medium">Tiada resit lagi</p>
                         <Link href={route('driver.upload-receipt')} className="mt-3 inline-block text-sm text-blue-400 font-semibold">
                             Muat naik resit pertama →
