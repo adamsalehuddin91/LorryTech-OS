@@ -141,7 +141,14 @@ export default function Index({ jobs, counts, filters }) {
                                         )}
                                         <span className="text-xs text-gray-400">{job.job_date}</span>
                                     </div>
-                                    <p className="text-lg font-bold text-gray-900">RM {Number(job.commission_amount).toFixed(2)}</p>
+                                    <div className="flex items-center gap-2">
+                                        {job.qualifies_bonus && (
+                                            <span className="rounded-full bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
+                                                + BONUS
+                                            </span>
+                                        )}
+                                        <p className="text-lg font-bold text-gray-900">RM {Number(job.gross_amount).toFixed(2)}</p>
+                                    </div>
                                 </div>
 
                                 <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
@@ -159,8 +166,7 @@ export default function Index({ jobs, counts, filters }) {
                                 )}
 
                                 <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-400">
-                                    <span>Jumlah: RM {Number(job.gross_amount).toFixed(2)}</span>
-                                    <span>Kadar: {Number(job.commission_rate).toFixed(1)}%</span>
+                                    <span>Nilai job: RM {Number(job.gross_amount).toFixed(2)}</span>
                                     {job.customer_name && <span>👤 {job.customer_name}</span>}
                                     {job.notes && <span>📝 {job.notes}</span>}
                                 </div>

@@ -85,16 +85,46 @@
                     <tr><td style="font-weight:bold; padding:5px 8px; border:1px solid #ccc; width:8%;">Bil</td>
                         <td style="font-weight:bold; padding:5px 8px; border:1px solid #ccc;">Butiran</td>
                         <td style="font-weight:bold; padding:5px 8px; border:1px solid #ccc; text-align:right; width:30%;">RM</td></tr>
-                    <tr>
-                        <td style="padding:5px 8px; border:1px solid #ccc;">1-</td>
-                        <td style="padding:5px 8px; border:1px solid #ccc;">Gaji</td>
-                        <td style="padding:5px 8px; border:1px solid #ccc; text-align:right;">{{ number_format($payroll->base_salary, 2) }}</td>
-                    </tr>
-                    <tr class="row-alt">
-                        <td style="padding:5px 8px; border:1px solid #ccc;">2-</td>
-                        <td style="padding:5px 8px; border:1px solid #ccc;">Komisyen</td>
-                        <td style="padding:5px 8px; border:1px solid #ccc; text-align:right;">{{ number_format($payroll->commission_amount, 2) }}</td>
-                    </tr>
+                    {{-- Slip dijana sebelum 2026-08-07 guna gaji pokok + komisyen.
+                         Slip baharu guna kadar harian + elaun + bonus. Papar ikut apa
+                         yang sebenarnya disimpan supaya slip lama kekal tepat. --}}
+                    @if ($payroll->days_worked > 0 || $payroll->daily_wage_total > 0)
+                        <tr>
+                            <td style="padding:5px 8px; border:1px solid #ccc;">1-</td>
+                            <td style="padding:5px 8px; border:1px solid #ccc;">
+                                Gaji harian
+                                <span style="color:#777;">({{ $payroll->days_worked }} hari &times; RM {{ number_format($payroll->daily_rate, 2) }})</span>
+                            </td>
+                            <td style="padding:5px 8px; border:1px solid #ccc; text-align:right;">{{ number_format($payroll->daily_wage_total, 2) }}</td>
+                        </tr>
+                        <tr class="row-alt">
+                            <td style="padding:5px 8px; border:1px solid #ccc;">2-</td>
+                            <td style="padding:5px 8px; border:1px solid #ccc;">
+                                Elaun jarak jauh
+                                <span style="color:#777;">({{ $payroll->long_distance_days }} hari)</span>
+                            </td>
+                            <td style="padding:5px 8px; border:1px solid #ccc; text-align:right;">{{ number_format($payroll->long_distance_allowance, 2) }}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding:5px 8px; border:1px solid #ccc;">3-</td>
+                            <td style="padding:5px 8px; border:1px solid #ccc;">
+                                Bonus job besar
+                                <span style="color:#777;">({{ $payroll->big_job_count }} job)</span>
+                            </td>
+                            <td style="padding:5px 8px; border:1px solid #ccc; text-align:right;">{{ number_format($payroll->big_job_bonus, 2) }}</td>
+                        </tr>
+                    @else
+                        <tr>
+                            <td style="padding:5px 8px; border:1px solid #ccc;">1-</td>
+                            <td style="padding:5px 8px; border:1px solid #ccc;">Gaji</td>
+                            <td style="padding:5px 8px; border:1px solid #ccc; text-align:right;">{{ number_format($payroll->base_salary, 2) }}</td>
+                        </tr>
+                        <tr class="row-alt">
+                            <td style="padding:5px 8px; border:1px solid #ccc;">2-</td>
+                            <td style="padding:5px 8px; border:1px solid #ccc;">Komisyen</td>
+                            <td style="padding:5px 8px; border:1px solid #ccc; text-align:right;">{{ number_format($payroll->commission_amount, 2) }}</td>
+                        </tr>
+                    @endif
                     <tr class="total-row">
                         <td colspan="2" style="padding:5px 8px; border:1px solid #ccc; text-align:right;">Jumlah (RM)</td>
                         <td style="padding:5px 8px; border:1px solid #ccc; text-align:right;">{{ number_format($payroll->gross_salary, 2) }}</td>

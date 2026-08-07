@@ -1,7 +1,10 @@
 <?php
 
 return [
-    'name' => 'LorryTech OS',
+    // Nama produk — fallback bila client belum isi Tetapan Syarikat.
+    // Setiap client boleh papar jenama sendiri melalui CompanySetting;
+    // nama ini hanya muncul bila tiada tetapan syarikat disimpan.
+    'name' => 'SwiftFleet',
     'reg_no' => '',
     'tin' => '',
     'address' => '',

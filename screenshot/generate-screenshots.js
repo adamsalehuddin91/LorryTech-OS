@@ -1,5 +1,5 @@
 /**
- * LorryTech OS — Screenshot Generator
+ * SwiftFleet — Screenshot Generator
  * Usage: node generate-screenshots.js
  * Env overrides: LORRY_URL, LORRY_EMAIL, LORRY_PASS, DRIVER_EMAIL, DRIVER_PASS
  *
@@ -157,7 +157,7 @@ async function compositeCard(mockupPath, formatKey, label, tagline) {
   const brandSvg = Buffer.from(`
     <svg width="${fmt.w}" height="${fmt.h}" xmlns="http://www.w3.org/2000/svg">
       <text x="${fmt.w / 2}" y="${brandY}" font-family="Arial, sans-serif" font-size="${Math.round(fmt.w * 0.042)}"
-        font-weight="bold" fill="#60a5fa" text-anchor="middle">LorryTech OS</text>
+        font-weight="bold" fill="#60a5fa" text-anchor="middle">SwiftFleet</text>
       <text x="${fmt.w / 2}" y="${brandY + Math.round(fmt.w * 0.052)}" font-family="Arial, sans-serif"
         font-size="${Math.round(fmt.w * 0.028)}" fill="#94a3b8" text-anchor="middle">${tagline}</text>
       <text x="${fmt.w / 2}" y="${fmt.h - Math.round(fmt.h * 0.022)}" font-family="Arial, sans-serif"
@@ -252,7 +252,7 @@ const WEB_SCREENS = [
 const SCREENS = [...WEB_SCREENS, ...MOBILE_SCREENS];
 
 (async () => {
-  console.log('LorryTech OS — Screenshot Generator');
+  console.log('SwiftFleet — Screenshot Generator');
   console.log('=====================================');
   console.log(`Target: ${BASE_URL}\n`);
 

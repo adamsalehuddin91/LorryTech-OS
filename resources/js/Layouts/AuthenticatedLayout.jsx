@@ -138,8 +138,8 @@ const driverNavItems = [
         ),
     },
     {
-        label: 'Komisyen',
-        routeName: 'driver.commissions',
+        label: 'Pendapatan',
+        routeName: 'driver.earnings',
         href: null,
         icon: (
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -194,6 +194,8 @@ function getHref(item) {
 export default function AuthenticatedLayout({ header, children }) {
     const pageProps = usePage().props;
     const user = pageProps.auth.user;
+    // Jenama client kalau Tetapan Syarikat diisi; kalau tidak, nama produk.
+    const brand = pageProps.company?.name || 'SwiftFleet';
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const navItems = user.role === 'driver' ? driverNavItems : ownerNavItems;
 
@@ -207,7 +209,7 @@ export default function AuthenticatedLayout({ header, children }) {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M8 17h.01M16 17h.01M3 11l1.5-5A2 2 0 016.4 4h11.2a2 2 0 011.9 1.4L21 11M3 11v6a1 1 0 001 1h1m16-7v6a1 1 0 01-1 1h-1M3 11h18" />
                         </svg>
                     </div>
-                    <span className="text-xl font-bold tracking-tight text-white bg-gradient-to-r from-white to-gray-300 bg-clip-text">LorryTech</span>
+                    <span className="text-xl font-bold tracking-tight text-white bg-gradient-to-r from-white to-gray-300 bg-clip-text">{brand}</span>
                 </Link>
             </div>
 
@@ -336,7 +338,7 @@ export default function AuthenticatedLayout({ header, children }) {
                             {header}
                         </div>
                     ) : (
-                        <span className="text-base font-bold text-gray-900 tracking-tight">LorryTech</span>
+                        <span className="text-base font-bold text-gray-900 tracking-tight">{brand}</span>
                     )}
                     <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-700">
                         {user.name?.charAt(0)?.toUpperCase()}

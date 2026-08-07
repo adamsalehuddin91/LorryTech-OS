@@ -22,7 +22,7 @@ function loadGoogleMaps() {
     return mapsPromise;
 }
 
-export default function LogJob({ lalamoveRate, sideJobRate, vehicles = [] }) {
+export default function LogJob({ rules, vehicles = [] }) {
     const { data, setData, post, processing, errors } = useForm({
         job_type:          'lalamove',
         vehicle_id:        '',
@@ -59,8 +59,8 @@ export default function LogJob({ lalamoveRate, sideJobRate, vehicles = [] }) {
     const dirRenderer = useRef(null);
     const dirService = useRef(null);
 
-    const currentRate = data.job_type === 'lalamove' ? lalamoveRate : sideJobRate;
-    const estimatedComm = data.gross_amount ? (parseFloat(data.gross_amount) * currentRate / 100).toFixed(2) : '0.00';
+    // Model gaji harian: nilai job hanya penting bila cecah ambang bonus.
+    const qualifiesBonus = parseFloat(data.gross_amount || 0) >= rules.big_job_threshold;
 
     // ── Google Maps: load + attach autocomplete ──
     useEffect(() => {
@@ -192,7 +192,7 @@ export default function LogJob({ lalamoveRate, sideJobRate, vehicles = [] }) {
         <DriverLayout title="Log Kerja">
             <div className="bg-gradient-to-b from-blue-900/35 via-indigo-950/15 to-transparent px-5 pt-8 pb-6">
                 <h1 className="text-white text-xl font-extrabold tracking-tight">Log Kerja</h1>
-                <p className="text-blue-300/70 text-xs font-medium mt-1">Rekod trip anda untuk komisyen</p>
+                <p className="text-blue-300/70 text-xs font-medium mt-1">Rekod trip anda untuk pengiraan gaji</p>
             </div>
 
             <form onSubmit={handleSubmit} className="px-5 -mt-1.5 space-y-4 pb-6 relative z-10">
@@ -200,8 +200,8 @@ export default function LogJob({ lalamoveRate, sideJobRate, vehicles = [] }) {
                 {/* Job Type Toggle */}
                 <div className="grid grid-cols-2 gap-2.5">
                     {[
-                        { value: 'lalamove', label: '🚚 Lalamove', rate: lalamoveRate },
-                        { value: 'side_job', label: '💼 Job Tepi',  rate: sideJobRate },
+                        { value: 'lalamove', label: '🚚 Lalamove' },
+                        { value: 'side_job', label: '💼 Job Tepi'  },
                     ].map((opt) => (
                         <button
                             key={opt.value}
@@ -215,7 +215,6 @@ export default function LogJob({ lalamoveRate, sideJobRate, vehicles = [] }) {
                         >
                             <p className="text-lg mb-1">{opt.label.split(' ')[0]}</p>
                             <p className="text-sm font-semibold">{opt.label.split(' ').slice(1).join(' ')}</p>
-                            <p className="text-xs mt-1 opacity-70">Komisyen {opt.rate}%</p>
                         </button>
                     ))}
                 </div>
@@ -243,14 +242,16 @@ export default function LogJob({ lalamoveRate, sideJobRate, vehicles = [] }) {
                     {errors.vehicle_id && <p className="mt-1 text-sm text-red-400">{errors.vehicle_id}</p>}
                 </div>
 
-                {/* Commission Preview */}
-                {data.gross_amount > 0 && (
+                {/* Bonus job besar — satu-satunya cara nilai job mempengaruhi gaji */}
+                {qualifiesBonus && (
                     <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl px-4 py-3 flex justify-between items-center">
                         <div>
-                            <p className="text-xs text-emerald-400/80">Anggaran Komisyen</p>
-                            <p className="text-xs text-emerald-400/60">{currentRate}% × RM {data.gross_amount}</p>
+                            <p className="text-xs text-emerald-400/80">Layak Bonus Job Besar</p>
+                            <p className="text-xs text-emerald-400/60">
+                                Job RM {rules.big_job_threshold.toFixed(0)} ke atas
+                            </p>
                         </div>
-                        <p className="text-xl font-bold text-emerald-400">RM {estimatedComm}</p>
+                        <p className="text-xl font-bold text-emerald-400">+RM {rules.big_job_bonus.toFixed(2)}</p>
                     </div>
                 )}
 

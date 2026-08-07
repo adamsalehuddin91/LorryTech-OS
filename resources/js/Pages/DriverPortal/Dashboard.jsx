@@ -59,8 +59,8 @@ export default function Dashboard({ stats, recentTrips, driverName }) {
                 {showInstall && (
                     <div className="mt-5 bg-gradient-to-r from-blue-600/20 to-indigo-600/20 border border-blue-500/30 backdrop-blur-md rounded-2xl p-4 flex items-center justify-between shadow-lg">
                         <div className="space-y-0.5">
-                            <p className="text-white text-xs font-bold">Pasang Aplikasi LorryTech</p>
-                            <p className="text-blue-300 text-[10px]">Akses pantas tugasan & komisyen anda</p>
+                            <p className="text-white text-xs font-bold">Pasang Aplikasi</p>
+                            <p className="text-blue-300 text-[10px]">Akses pantas tugasan & pendapatan anda</p>
                         </div>
                         <div className="flex items-center gap-2">
                             <button onClick={handleInstall} className="bg-white text-slate-900 text-[10px] font-extrabold px-3.5 py-2 rounded-xl shadow hover:bg-gray-100 transition-colors">
@@ -80,23 +80,31 @@ export default function Dashboard({ stats, recentTrips, driverName }) {
                     </div>
                     
                     <div className="bg-white/[0.02] border border-white/[0.06] backdrop-blur-md rounded-3xl p-4 hover:bg-white/[0.04] transition-colors shadow-xl">
-                        <p className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">Komisyen Bulanan</p>
-                        <p className="text-emerald-400 text-lg font-extrabold mt-3 tracking-tight">
-                            RM {Number(stats.commission_this_month).toLocaleString('en-MY', { minimumFractionDigits: 2 })}
+                        <p className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">Hari Bekerja</p>
+                        <p className="text-white text-2xl font-extrabold mt-2.5 tracking-tight">{stats.days_worked}</p>
+                        <p className="text-slate-500 text-[10px] font-medium mt-1.5">
+                            × RM {Number(stats.daily_rate).toLocaleString('en-MY', { minimumFractionDigits: 2 })} sehari
                         </p>
-                        <p className="text-slate-500 text-[10px] font-medium mt-1.5">Kadar semasa: {stats.commission_rate}%</p>
                     </div>
 
                     <div className="bg-white/[0.02] border border-white/[0.06] backdrop-blur-md rounded-3xl p-4 hover:bg-white/[0.04] transition-colors shadow-xl col-span-2 flex justify-between items-center">
                         <div>
-                            <p className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">Komisyen Belum Bayar</p>
-                            <p className="text-white text-lg font-extrabold mt-1.5 tracking-tight">
-                                RM {Number(stats.pending_commission).toLocaleString('en-MY', { minimumFractionDigits: 2 })}
+                            <p className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">
+                                {stats.is_final ? 'Gaji Bersih Bulan Ini' : 'Anggaran Bulan Ini'}
                             </p>
-                            <p className="text-slate-500 text-[10px] font-medium mt-1">Diterima: RM {Number(stats.total_earned).toLocaleString('en-MY', { minimumFractionDigits: 2 })}</p>
+                            <p className="text-emerald-400 text-lg font-extrabold mt-1.5 tracking-tight">
+                                RM {Number(stats.is_final ? stats.net_this_month : stats.gross_this_month).toLocaleString('en-MY', { minimumFractionDigits: 2 })}
+                            </p>
+                            <p className="text-slate-500 text-[10px] font-medium mt-1">
+                                Elaun RM {Number(stats.allowance).toFixed(2)} · Bonus RM {Number(stats.bonus).toFixed(2)}
+                            </p>
                         </div>
-                        <div className="bg-amber-500/10 text-amber-500 border border-amber-500/20 text-[10px] font-bold px-2.5 py-1 rounded-full shrink-0">
-                            Menunggu Gaji
+                        <div className={`text-[10px] font-bold px-2.5 py-1 rounded-full shrink-0 border ${
+                            stats.is_final
+                                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                                : 'bg-amber-500/10 text-amber-500 border-amber-500/20'
+                        }`}>
+                            {stats.is_final ? 'Slip Dijana' : 'Belum Muktamad'}
                         </div>
                     </div>
                     

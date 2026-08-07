@@ -29,9 +29,8 @@ export default function MyWork({ trips, jobs, filters }) {
         router.get(route('driver.work'), { tab, month: value }, { preserveState: true, preserveScroll: true });
     };
 
-    const totalVerifiedComm = jobs.data
-        ?.filter(j => j.status === 'verified')
-        .reduce((s, j) => s + Number(j.commission_amount), 0) || 0;
+    const verifiedJobs = jobs.data?.filter(j => j.status === 'verified') ?? [];
+    const verifiedKm = verifiedJobs.reduce((s, j) => s + Number(j.distance_km || 0), 0);
 
     return (
         <DriverLayout title="Kerja Saya">
@@ -42,7 +41,7 @@ export default function MyWork({ trips, jobs, filters }) {
                         <h1 className="text-white text-xl font-extrabold tracking-tight">Kerja Saya</h1>
                         <p className="text-blue-300/70 text-xs font-medium mt-1">
                             {tab === 'log'
-                                ? `Komisyen disahkan: RM ${totalVerifiedComm.toFixed(2)}`
+                                ? `${verifiedJobs.length} kerja disahkan · ${verifiedKm.toFixed(0)} km`
                                 : `${trips.total ?? 0} tugasan dijumpai`}
                         </p>
                     </div>
@@ -127,11 +126,19 @@ export default function MyWork({ trips, jobs, filters }) {
 
                                         <div className="flex items-center justify-between pt-3 border-t border-white/[0.06]">
                                             <p className="text-xs text-gray-500">
-                                                RM {Number(job.gross_amount).toFixed(2)} × {Number(job.commission_rate).toFixed(1)}%
+                                                Nilai job
+                                                {job.distance_km > 0 && ` · ${Number(job.distance_km).toFixed(0)} km`}
                                             </p>
-                                            <p className={`text-base font-bold ${job.status === 'verified' ? 'text-emerald-400' : 'text-white'}`}>
-                                                RM {Number(job.commission_amount).toFixed(2)}
-                                            </p>
+                                            <div className="flex items-center gap-2">
+                                                {job.qualifies_bonus && (
+                                                    <span className="rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-400">
+                                                        + BONUS
+                                                    </span>
+                                                )}
+                                                <p className={`text-base font-bold ${job.status === 'verified' ? 'text-emerald-400' : 'text-white'}`}>
+                                                    RM {Number(job.gross_amount).toFixed(2)}
+                                                </p>
+                                            </div>
                                         </div>
 
                                         {job.status === 'rejected' && job.rejection_reason && (

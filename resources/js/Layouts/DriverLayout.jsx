@@ -1,7 +1,7 @@
 import { Link, usePage } from '@inertiajs/react';
 import { Head } from '@inertiajs/react';
 
-// Utama | Resit | [Snap center] | Kerja | Komisyen — 2+center+2 balanced
+// Utama | Resit | [Snap center] | Kerja | Gaji — 2+center+2 balanced
 const NAV = [
     {
         href: 'driver.dashboard',
@@ -42,7 +42,7 @@ const NAV = [
         ),
     },
     {
-        href: 'driver.commissions',
+        href: 'driver.earnings',
         label: 'Gaji',
         icon: (
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -54,7 +54,9 @@ const NAV = [
 
 export default function DriverLayout({ title, children }) {
     const { url } = usePage();
-    const { flash, auth } = usePage().props;
+    const { flash, auth, company } = usePage().props;
+    // Jenama client kalau Tetapan Syarikat diisi; kalau tidak, nama produk.
+    const brand = company?.name || 'SwiftFleet';
 
     const isActive = (routeName) => {
         try {
@@ -66,7 +68,7 @@ export default function DriverLayout({ title, children }) {
 
     return (
         <>
-            <Head title={title ? `${title} — LorryTech Pemandu` : 'LorryTech Pemandu'} />
+            <Head title={title ? `${title} — ${brand} Pemandu` : `${brand} Pemandu`} />
 
             {/* Wrapper styled as centered smartphone frame boundary */}
             <div className="min-h-screen bg-[#060814] flex justify-center">
@@ -80,7 +82,7 @@ export default function DriverLayout({ title, children }) {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M8 17h.01M16 17h.01M3 11l1.5-5A2 2 0 016.4 4h11.2a2 2 0 011.9 1.4L21 11M3 11v6a1 1 0 001 1h1m16-7v6a1 1 0 01-1 1h-1M3 11h18" />
                                 </svg>
                             </div>
-                            <span className="text-sm font-extrabold text-white tracking-wide">LorryTech</span>
+                            <span className="text-sm font-extrabold text-white tracking-wide">{brand}</span>
                         </div>
 
                         <div className="flex items-center gap-3">

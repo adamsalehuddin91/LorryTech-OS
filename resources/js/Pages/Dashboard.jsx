@@ -440,7 +440,7 @@ export default function Dashboard({
                                                 <div>
                                                     <p className="text-xs font-bold text-gray-900 leading-tight">{driver.name}</p>
                                                     <p className="text-[10px] text-gray-500 mt-0.5">
-                                                        {driver.trip_count} trip diselesaikan · {driver.commission_rate}% komisyen
+                                                        {driver.trip_count} trip diselesaikan · RM {driver.daily_rate}/hari
                                                     </p>
                                                 </div>
                                             </div>

@@ -217,7 +217,7 @@ export default function Show({ trip }) {
                     {/* Komisen */}
                     <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
                         <div className="border-b border-gray-200 bg-gray-50 px-6 py-4">
-                            <h3 className="text-lg font-semibold text-gray-800">Komisen Pemandu</h3>
+                            <h3 className="text-lg font-semibold text-gray-800">Komisen Pemandu <span className="text-xs font-normal text-gray-500">(rekod lama — model gaji harian tidak lagi guna komisyen)</span></h3>
                         </div>
                         <div className="p-6">
                             {trip.commission ? (

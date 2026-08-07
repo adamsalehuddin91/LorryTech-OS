@@ -44,10 +44,12 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $user,
             ],
-            'company' => $company ? [
-                'name'      => $company->name,
-                'logo_url'  => $company->logo_url,
-            ] : null,
+            // Jenama yang dipapar = nama client kalau ada, kalau tidak nama produk.
+            // Sentiasa ada nilai, jadi komponen tak perlu fallback hardcode sendiri.
+            'company' => [
+                'name'     => $company?->name ?: config('company.name'),
+                'logo_url' => $company?->logo_url,
+            ],
             'pendingJobsCount' => $pendingJobsCount,
             'flash' => [
                 'success' => $request->session()->get('success'),

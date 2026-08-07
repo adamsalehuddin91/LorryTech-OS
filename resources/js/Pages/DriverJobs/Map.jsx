@@ -108,7 +108,6 @@ export default function Map({ date, jobs, total_km, total_cost, cost_per_km, sum
                                     <th className="text-right font-medium px-3 py-2">Job</th>
                                     <th className="text-right font-medium px-3 py-2">KM</th>
                                     <th className="text-right font-medium px-3 py-2">Kos Minyak</th>
-                                    <th className="text-right font-medium px-3 py-2">Komisyen</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -118,7 +117,6 @@ export default function Map({ date, jobs, total_km, total_cost, cost_per_km, sum
                                         <td className="px-3 py-2 text-right text-gray-600">{s.jobs}</td>
                                         <td className="px-3 py-2 text-right font-medium text-blue-600">{s.km} km</td>
                                         <td className="px-3 py-2 text-right font-medium text-orange-600">RM {s.cost}</td>
-                                        <td className="px-3 py-2 text-right font-semibold text-green-600">RM {s.commission}</td>
                                     </tr>
                                 ))}
                             </tbody>

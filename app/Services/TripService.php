@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\Trip;
-use App\Models\DriverCommission;
 use App\Models\Driver;
 use Illuminate\Support\Facades\DB;
 
@@ -106,29 +105,27 @@ class TripService
                 'notes' => $data['notes'] ?? null,
             ]);
 
-            // Recalculate commission
-            $trip->commission?->delete();
+            // JANGAN padam $trip->commission di sini. Sebelum ini ia dipadam lalu
+            // dijana semula; kini tiada penjanaan semula, jadi memadam bermakna
+            // rekod komisyen sejarah HILANG hanya kerana trip lama disunting.
             $this->calculateCommission($trip);
 
             return $trip->fresh(['vehicle', 'driver.user', 'customer']);
         });
     }
 
+    /**
+     * Model gaji harian (2026-08-07): trip tidak lagi menjana komisyen peratus.
+     *
+     * Trip menyumbang kepada gaji melalui hari bekerja, jumlah km harian
+     * (elaun jarak jauh) dan nilai trip (bonus job besar) — semuanya dikira
+     * dalam PayrollService terus daripada jadual `trips`.
+     *
+     * Kekal sebagai method kosong supaya pemanggil sedia ada tidak pecah, dan
+     * supaya niatnya jelas kepada sesiapa yang mencari kod komisyen di sini.
+     */
     protected function calculateCommission(Trip $trip): void
     {
-        $driver = Driver::find($trip->driver_id);
-        if (!$driver || $driver->commission_rate <= 0) return;
-
-        DriverCommission::create([
-            'driver_id' => $trip->driver_id,
-            'trip_id' => $trip->id,
-            'commission_rate' => $driver->commission_rate,
-            'trip_revenue' => $trip->total_revenue,
-            'commission_amount' => $trip->total_revenue * ($driver->commission_rate / 100),
-            'month' => $trip->pickup_date instanceof \Carbon\Carbon
-                ? $trip->pickup_date->format('Y-m')
-                : date('Y-m', strtotime($trip->pickup_date)),
-            'status' => 'pending',
-        ]);
+        // Sengaja tiada operasi.
     }
 }

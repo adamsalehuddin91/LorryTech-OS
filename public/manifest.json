@@ -1,7 +1,7 @@
 {
-  "name": "LorryTech Driver",
-  "short_name": "LorryTech",
-  "description": "Portal pemandu LorryTech OS",
+  "name": "SwiftFleet Driver",
+  "short_name": "SwiftFleet",
+  "description": "Portal pemandu SwiftFleet",
   "theme_color": "#111827",
   "background_color": "#111827",
   "display": "standalone",

@@ -22,6 +22,8 @@ class Driver extends Model
         'base_salary',
         'lalamove_commission_rate',
         'photo',
+        'daily_rate',
+        'socso_enabled',
     ];
 
     protected $casts = [
@@ -29,6 +31,8 @@ class Driver extends Model
         'commission_rate'          => 'decimal:2',
         'lalamove_commission_rate' => 'decimal:2',
         'base_salary'              => 'decimal:2',
+        'daily_rate'               => 'decimal:2',
+        'socso_enabled'            => 'boolean',
     ];
 
     public function payrolls()

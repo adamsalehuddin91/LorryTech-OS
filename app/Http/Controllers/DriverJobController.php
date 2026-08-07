@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\DriverCommission;
 use App\Models\DriverJob;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -36,8 +35,7 @@ class DriverJobController extends Controller
                 'duration_min'     => $j->duration_min,
                 'customer_name'    => $j->customer_name,
                 'gross_amount'     => $j->gross_amount,
-                'commission_rate'  => $j->commission_rate,
-                'commission_amount'=> $j->commission_amount,
+                'qualifies_bonus'  => (float) $j->gross_amount >= (float) config('payroll.big_job.threshold'),
                 'proof_image'      => $j->proof_image,
                 'notes'            => $j->notes,
                 'status'           => $j->status,
@@ -92,7 +90,6 @@ class DriverJobController extends Controller
                 'jobs'       => $g->count(),
                 'km'         => round($g->sum('distance_km'), 1),
                 'cost'       => round($g->sum('distance_km') * $costPerKm, 2),
-                'commission' => round($g->sum('commission_amount'), 2),
             ])->sortByDesc('km')->values();
         $totalKm = round($all->sum('distance_km'), 1);
 
@@ -118,27 +115,17 @@ class DriverJobController extends Controller
     {
         abort_unless($driverJob->status === 'pending', 422, 'Hanya job pending boleh disahkan.');
 
-        // Auto-create DriverCommission record
-        $month = $driverJob->job_date->format('Y-m');
-        $commission = DriverCommission::create([
-            'driver_id'         => $driverJob->driver_id,
-            'trip_id'           => null,
-            'commission_rate'   => $driverJob->commission_rate,
-            'trip_revenue'      => $driverJob->gross_amount,
-            'commission_amount' => $driverJob->commission_amount,
-            'month'             => $month,
-            'status'            => 'approved',
-            'paid_date'         => null,
-        ]);
-
+        // Model gaji harian (2026-08-07): pengesahan tidak lagi menjana komisyen.
+        // Job yang disahkan menyumbang kepada gaji melalui hari bekerja, elaun
+        // jarak jauh (km) dan bonus job besar — dikira dalam PayrollService.
+        // Rekod DriverCommission lama dikekalkan sebagai sejarah, tiada yang baharu.
         $driverJob->update([
-            'status'               => 'verified',
-            'verified_by'          => auth()->id(),
-            'verified_at'          => now(),
-            'driver_commission_id' => $commission->id,
+            'status'      => 'verified',
+            'verified_by' => auth()->id(),
+            'verified_at' => now(),
         ]);
 
-        return back()->with('success', 'Job disahkan dan komisyen telah direkod.');
+        return back()->with('success', 'Job disahkan dan dikira dalam gaji pemandu.');
     }
 
     public function reject(Request $request, DriverJob $driverJob)

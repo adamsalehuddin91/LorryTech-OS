@@ -94,9 +94,9 @@ export default function Show({ driver }) {
                                     </dd>
                                 </div>
                                 <div>
-                                    <dt className="text-sm font-medium text-gray-500">Kadar Komisen</dt>
+                                    <dt className="text-sm font-medium text-gray-500">Kadar Harian</dt>
                                     <dd className="mt-1 text-sm text-gray-900">
-                                        {driver.commission_rate != null ? `${driver.commission_rate}%` : '-'}
+                                        {driver.daily_rate != null ? `RM ${Number(driver.daily_rate).toFixed(2)}` : '-'}
                                     </dd>
                                 </div>
                                 <div>

@@ -2,6 +2,8 @@ import { Link, usePage } from '@inertiajs/react';
 
 export default function GuestLayout({ children }) {
     const { company } = usePage().props;
+    // Jenama client kalau Tetapan Syarikat diisi; kalau tidak, nama produk.
+    const brand = company?.name || 'SwiftFleet';
 
     return (
         <div className="min-h-screen w-screen flex flex-col lg:flex-row overflow-hidden bg-[#060913] text-gray-100 font-sans">
@@ -21,7 +23,7 @@ export default function GuestLayout({ children }) {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M8 17h.01M16 17h.01M3 11l1.5-5A2 2 0 016.4 4h11.2a2 2 0 011.9 1.4L21 11M3 11v6a1 1 0 001 1h1m16-7v6a1 1 0 01-1 1h-1M3 11h18" />
                         </svg>
                     </div>
-                    <span className="text-xl font-bold tracking-tight text-white">LorryTech OS</span>
+                    <span className="text-xl font-bold tracking-tight text-white">{brand}</span>
                 </div>
 
                 {/* Interactive CSS Logistics Graphic */}
@@ -73,7 +75,7 @@ export default function GuestLayout({ children }) {
                     {/* User review block */}
                     <div className="border-l-2 border-blue-500 pl-4 py-1 text-left">
                         <p className="text-xs italic text-gray-400 leading-relaxed">
-                            "LorryTech OS mengubah cara kami menyelaraskan perjalanan dan gaji pemandu. Data sentiasa telus dan tepat!"
+                            "Sistem ini mengubah cara kami menyelaraskan perjalanan dan gaji pemandu. Data sentiasa telus dan tepat!"
                         </p>
                         <p className="text-[10px] font-bold text-white mt-2 leading-none">
                             — Megah Logistik Sdn Bhd
@@ -114,7 +116,7 @@ export default function GuestLayout({ children }) {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M8 17h.01M16 17h.01M3 11l1.5-5A2 2 0 016.4 4h11.2a2 2 0 011.9 1.4L21 11M3 11v6a1 1 0 001 1h1m16-7v6a1 1 0 01-1 1h-1M3 11h18" />
                             </svg>
                         </div>
-                        <span className="text-2xl font-black text-white tracking-tight">{company?.name || 'LorryTech'}</span>
+                        <span className="text-2xl font-black text-white tracking-tight">{brand}</span>
                     </div>
 
                     {/* Main Children Form */}
@@ -124,7 +126,7 @@ export default function GuestLayout({ children }) {
 
                     {/* Small footer notice */}
                     <div className="mt-8 text-center text-[10px] text-gray-600 select-none">
-                        &copy; {new Date().getFullYear()} LorryTech OS. Hak Cipta Terpelihara.
+                        &copy; {new Date().getFullYear()} {brand}. Hak Cipta Terpelihara.
                     </div>
                 </div>
 

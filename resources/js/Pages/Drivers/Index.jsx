@@ -115,7 +115,7 @@ export default function Index({ drivers, filters }) {
                                         <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Nama</th>
                                         <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">No. Lesen</th>
                                         <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Tamat Lesen</th>
-                                        <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Kadar Komisen (%)</th>
+                                        <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Kadar Harian (RM)</th>
                                         <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Telefon</th>
                                         <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
                                         <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Tindakan</th>
@@ -140,7 +140,7 @@ export default function Index({ drivers, filters }) {
                                                     )}
                                                 </td>
                                                 <td className="px-6 py-4 text-gray-600">
-                                                    {driver.commission_rate != null ? `${driver.commission_rate}%` : '-'}
+                                                    {driver.daily_rate != null ? `RM ${Number(driver.daily_rate).toFixed(2)}` : '-'}
                                                 </td>
                                                 <td className="px-6 py-4 text-gray-600">
                                                     {driver.phone || '-'}

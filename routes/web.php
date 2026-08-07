@@ -81,7 +81,7 @@ Route::middleware(['auth', 'role:owner'])->group(function () {
 Route::middleware(['auth', 'role:driver'])->prefix('driver')->group(function () {
     Route::get('/dashboard', [DriverPortalController::class, 'dashboard'])->name('driver.dashboard');
     Route::get('/work', [DriverPortalController::class, 'myWork'])->name('driver.work');
-    Route::get('/commissions', [DriverPortalController::class, 'myCommissions'])->name('driver.commissions');
+    Route::get('/earnings', [DriverPortalController::class, 'myEarnings'])->name('driver.earnings');
     Route::get('/upload-receipt', [DriverPortalController::class, 'uploadReceipt'])->name('driver.upload-receipt');
     Route::post('/upload-receipt', [DriverPortalController::class, 'storeReceipt'])->name('driver.store-receipt');
     Route::get('/receipts', [DriverPortalController::class, 'myReceipts'])->name('driver.receipts');

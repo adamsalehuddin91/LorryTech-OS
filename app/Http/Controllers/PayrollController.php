@@ -29,8 +29,11 @@ class PayrollController extends Controller
                 'id'               => $p->id,
                 'driver_name'      => $p->driver->user->name ?? '-',
                 'month'            => $p->month,
-                'base_salary'      => $p->base_salary,
-                'commission_amount'=> $p->commission_amount,
+                'days_worked'      => $p->days_worked,
+                'daily_rate'       => $p->daily_rate,
+                'daily_wage_total' => $p->daily_wage_total,
+                'long_distance_allowance' => $p->long_distance_allowance,
+                'big_job_bonus'    => $p->big_job_bonus,
                 'gross_salary'     => $p->gross_salary,
                 'total_deductions' => $p->total_deductions,
                 'net_salary'       => $p->net_salary,
@@ -38,35 +41,52 @@ class PayrollController extends Controller
                 'paid_date'        => $p->paid_date?->format('d/m/Y'),
             ]);
 
-        $drivers = DB::table('drivers')
-            ->join('users', 'drivers.user_id', '=', 'users.id')
-            ->select('drivers.id', 'drivers.base_salary', 'users.name')
-            ->get()
-            ->map(fn($d) => [
+        // Pratonton kiraan untuk pemandu yang belum ada slip bulan ini —
+        // admin nampak angka auto SEBELUM jana, dan boleh betulkan bilangan hari.
+        $drivers = Driver::with('user')->get()->map(function (Driver $d) use ($month) {
+            $hasPayroll = Payroll::where('driver_id', $d->id)->where('month', $month)->exists();
+
+            return [
                 'id'          => $d->id,
-                'name'        => $d->name,
-                'base_salary' => $d->base_salary,
-                'has_payroll' => Payroll::where('driver_id', $d->id)->where('month', $month)->exists(),
-            ]);
+                'name'        => $d->user->name ?? '-',
+                'daily_rate'  => (float) $d->daily_rate,
+                'socso_enabled' => (bool) $d->socso_enabled,
+                'has_payroll' => $hasPayroll,
+                'preview'     => $hasPayroll ? null : $this->payrollService->calculate($d, $month),
+            ];
+        })->values();
 
         return Inertia::render('Payroll/Index', [
             'payrolls'     => $payrolls,
             'drivers'      => $drivers,
             'currentMonth' => $month,
+            'rules'        => [
+                'long_distance_km'        => (float) config('payroll.long_distance.threshold_km'),
+                'long_distance_allowance' => (float) config('payroll.long_distance.allowance'),
+                'big_job_threshold'       => (float) config('payroll.big_job.threshold'),
+                'big_job_bonus'           => (float) config('payroll.big_job.bonus'),
+            ],
         ]);
     }
 
     public function generate(Request $request)
     {
-        $request->validate([
-            'driver_id' => 'required|exists:drivers,id',
-            'month'     => 'required|date_format:Y-m',
+        $validated = $request->validate([
+            'driver_id'   => 'required|exists:drivers,id',
+            'month'       => 'required|date_format:Y-m',
+            'days_worked' => 'nullable|integer|min:0|max:31',
         ]);
 
-        $driver = Driver::findOrFail($request->driver_id);
+        $driver = Driver::findOrFail($validated['driver_id']);
 
         try {
-            $payroll = $this->payrollService->generate($driver, $request->month, auth()->id());
+            $payroll = $this->payrollService->generate(
+                $driver,
+                $validated['month'],
+                auth()->id(),
+                $validated['days_worked'] ?? null,
+            );
+
             return redirect()->route('payroll.show', $payroll->id)
                 ->with('success', 'Slip gaji berjaya dijana.');
         } catch (\RuntimeException $e) {
@@ -87,6 +107,14 @@ class PayrollController extends Controller
                 'notes'             => $payroll->notes,
                 'base_salary'       => $payroll->base_salary,
                 'commission_amount' => $payroll->commission_amount,
+                'days_worked'             => $payroll->days_worked,
+                'daily_rate'              => $payroll->daily_rate,
+                'daily_wage_total'        => $payroll->daily_wage_total,
+                'long_distance_days'      => $payroll->long_distance_days,
+                'long_distance_allowance' => $payroll->long_distance_allowance,
+                'big_job_count'           => $payroll->big_job_count,
+                'big_job_bonus'           => $payroll->big_job_bonus,
+                'days_overridden'         => $payroll->days_overridden,
                 'gross_salary'      => $payroll->gross_salary,
                 'kwsp_employee'     => $payroll->kwsp_employee,
                 'kwsp_employer'     => $payroll->kwsp_employer,

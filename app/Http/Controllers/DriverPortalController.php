@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Driver;
-use App\Models\DriverCommission;
 use App\Models\DriverJob;
 use App\Models\Expense;
 use App\Models\Trip;
@@ -18,8 +17,51 @@ use Inertia\Inertia;
 class DriverPortalController extends Controller
 {
     public function __construct(
-        protected ExpenseService $expenseService
+        protected ExpenseService $expenseService,
+        protected \App\Services\PayrollService $payrollService,
     ) {}
+
+    /**
+     * Pendapatan pemandu untuk sebulan.
+     *
+     * Slip gaji yang SUDAH dijana adalah muktamad — papar angka tersimpan itu.
+     * Bulan semasa (belum dijana) dipapar sebagai anggaran langsung, dikira guna
+     * PayrollService yang SAMA dengan penggajian, supaya apa yang pemandu nampak
+     * tidak pernah lari daripada apa yang dia dibayar.
+     */
+    protected function earningsFor(Driver $driver, string $month): array
+    {
+        $payroll = \App\Models\Payroll::where('driver_id', $driver->id)
+            ->where('month', $month)
+            ->first();
+
+        if ($payroll) {
+            return [
+                'month'                   => $month,
+                'days_worked'             => $payroll->days_worked,
+                'daily_rate'              => (float) $payroll->daily_rate,
+                'daily_wage_total'        => (float) $payroll->daily_wage_total,
+                'long_distance_days'      => $payroll->long_distance_days,
+                'long_distance_allowance' => (float) $payroll->long_distance_allowance,
+                'big_job_count'           => $payroll->big_job_count,
+                'big_job_bonus'           => (float) $payroll->big_job_bonus,
+                'gross_salary'            => (float) $payroll->gross_salary,
+                'total_deductions'        => (float) $payroll->total_deductions,
+                'net_salary'              => (float) $payroll->net_salary,
+                'is_final'                => true,
+                'status'                  => $payroll->status,
+            ];
+        }
+
+        $calc = $this->payrollService->calculate($driver, $month);
+
+        return array_merge($calc, [
+            'month'      => $month,
+            'daily_rate' => (float) $calc['daily_rate'],
+            'is_final'   => false,
+            'status'     => null,
+        ]);
+    }
 
     protected function getDriver(Request $request): ?Driver
     {
@@ -45,17 +87,7 @@ class DriverPortalController extends Controller
             ->whereYear('pickup_date', now()->year)
             ->count();
 
-        $commissionThisMonth = DriverCommission::where('driver_id', $driver->id)
-            ->where('month', $currentMonth)
-            ->sum('commission_amount');
-
-        $pendingCommission = DriverCommission::where('driver_id', $driver->id)
-            ->where('status', 'pending')
-            ->sum('commission_amount');
-
-        $totalEarned = DriverCommission::where('driver_id', $driver->id)
-            ->where('status', 'paid')
-            ->sum('commission_amount');
+        $earnings = $this->earningsFor($driver, $currentMonth);
 
         $receiptsThisMonth = Expense::where('driver_id', $driver->id)
             ->whereMonth('receipt_date', now()->month)
@@ -70,44 +102,45 @@ class DriverPortalController extends Controller
 
         return Inertia::render('DriverPortal/Dashboard', [
             'stats' => [
-                'total_trips' => $totalTrips,
-                'trips_this_month' => $tripsThisMonth,
-                'commission_this_month' => $commissionThisMonth,
-                'pending_commission' => $pendingCommission,
-                'total_earned' => $totalEarned,
-                'receipts_this_month' => $receiptsThisMonth,
-                'commission_rate' => $driver->commission_rate,
+                'total_trips'        => $totalTrips,
+                'trips_this_month'   => $tripsThisMonth,
+                'receipts_this_month'=> $receiptsThisMonth,
+                'days_worked'        => $earnings['days_worked'],
+                'daily_rate'         => $earnings['daily_rate'],
+                'gross_this_month'   => $earnings['gross_salary'],
+                'net_this_month'     => $earnings['net_salary'],
+                'allowance'          => $earnings['long_distance_allowance'],
+                'bonus'              => $earnings['big_job_bonus'],
+                'is_final'           => $earnings['is_final'],
             ],
             'recentTrips' => $recentTrips,
             'driverName' => $request->user()->name,
         ]);
     }
 
-    public function myCommissions(Request $request)
+    public function myEarnings(Request $request)
     {
         $driver = $this->getDriver($request);
         abort_unless($driver, 403, 'Tiada profil pemandu dikaitkan.');
 
-        $commissions = DriverCommission::with('trip')
-            ->where('driver_id', $driver?->id)
-            ->when($request->input('month'), fn($q, $month) => $q->where('month', $month))
-            ->when($request->input('status'), fn($q, $status) => $q->where('status', $status))
-            ->orderByDesc('created_at')
-            ->paginate(15)
-            ->withQueryString();
+        $month = $request->input('month', now()->format('Y-m'));
 
-        // Monthly summary
-        $monthlySummary = DriverCommission::selectRaw('month, SUM(commission_amount) as total, COUNT(*) as trip_count')
-            ->where('driver_id', $driver?->id)
-            ->groupBy('month')
-            ->orderByDesc('month')
-            ->limit(6)
-            ->get();
+        // 6 bulan kebelakang untuk pemandu bandingkan sendiri.
+        $history = collect(range(0, 5))
+            ->map(fn($i) => now()->copy()->subMonths($i)->format('Y-m'))
+            ->map(fn($m) => $this->earningsFor($driver, $m))
+            ->values();
 
-        return Inertia::render('DriverPortal/MyCommissions', [
-            'commissions' => $commissions,
-            'monthlySummary' => $monthlySummary,
-            'filters' => $request->only(['month', 'status']),
+        return Inertia::render('DriverPortal/MyEarnings', [
+            'current' => $this->earningsFor($driver, $month),
+            'history' => $history,
+            'rules'   => [
+                'long_distance_km'        => (float) config('payroll.long_distance.threshold_km'),
+                'long_distance_allowance' => (float) config('payroll.long_distance.allowance'),
+                'big_job_threshold'       => (float) config('payroll.big_job.threshold'),
+                'big_job_bonus'           => (float) config('payroll.big_job.bonus'),
+            ],
+            'filters' => ['month' => $month],
         ]);
     }
 
@@ -189,8 +222,14 @@ class DriverPortalController extends Controller
         abort_unless($driver, 403, 'Tiada profil pemandu dikaitkan.');
 
         return Inertia::render('DriverPortal/LogJob', [
-            'lalamoveRate' => (float) $driver->lalamove_commission_rate,
-            'sideJobRate'  => (float) $driver->commission_rate,
+            // Model gaji harian — tiada komisyen peratus untuk dipratonton.
+            // Jarak masih dilog kerana ia menentukan elaun jarak jauh.
+            'rules'    => [
+                'long_distance_km'        => (float) config('payroll.long_distance.threshold_km'),
+                'long_distance_allowance' => (float) config('payroll.long_distance.allowance'),
+                'big_job_threshold'       => (float) config('payroll.big_job.threshold'),
+                'big_job_bonus'           => (float) config('payroll.big_job.bonus'),
+            ],
             'vehicles'     => Vehicle::where('status', 'active')
                 ->orderBy('plate_number')
                 ->get(['id', 'plate_number', 'make_model']),
@@ -221,12 +260,6 @@ class DriverPortalController extends Controller
             'proof_image'       => 'nullable|image|max:5120',
         ]);
 
-        $rate = $validated['job_type'] === 'lalamove'
-            ? (float) $driver->lalamove_commission_rate
-            : (float) $driver->commission_rate;
-
-        $commissionAmount = round($validated['gross_amount'] * $rate / 100, 2);
-
         $proofPath = null;
         if ($request->hasFile('proof_image')) {
             $proofPath = '/storage/' . $request->file('proof_image')->store('driver-jobs', 'public');
@@ -248,8 +281,10 @@ class DriverPortalController extends Controller
             'route_polyline'    => $validated['route_polyline'] ?? null,
             'customer_name'     => $validated['customer_name'] ?? null,
             'gross_amount'      => $validated['gross_amount'],
-            'commission_rate'   => $rate,
-            'commission_amount' => $commissionAmount,
+            // Model gaji harian — job tidak lagi menjana komisyen peratus.
+            // Column dikekalkan pada 0 supaya rekod lama kekal boleh dibaca.
+            'commission_rate'   => 0,
+            'commission_amount' => 0,
             'proof_image'       => $proofPath,
             'notes'             => $validated['notes'] ?? null,
             'status'            => 'pending',
@@ -339,8 +374,8 @@ class DriverPortalController extends Controller
                 'duration_min'     => $j->duration_min,
                 'customer_name'    => $j->customer_name,
                 'gross_amount'     => $j->gross_amount,
-                'commission_rate'  => $j->commission_rate,
-                'commission_amount'=> $j->commission_amount,
+                // Layak bonus job besar? Ini satu-satunya kesan nilai job pada gaji.
+                'qualifies_bonus'  => (float) $j->gross_amount >= (float) config('payroll.big_job.threshold'),
                 'proof_image'      => $j->proof_image,
                 'status'           => $j->status,
                 'rejection_reason' => $j->rejection_reason,

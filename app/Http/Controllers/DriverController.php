@@ -45,8 +45,8 @@ class DriverController extends Controller
             'password'          => 'required|string|min:8',
             'license_number'    => 'nullable|string',
             'license_expiry'    => 'nullable|date',
-            'commission_rate'          => 'required|numeric|min:0|max:100',
-            'lalamove_commission_rate' => 'nullable|numeric|min:0|max:100',
+            'daily_rate'        => 'required|numeric|min:0',
+            'socso_enabled'     => 'boolean',
             'phone'             => 'nullable|string|max:20',
             'emergency_contact' => 'nullable|string',
             'status'            => 'required|in:active,inactive',
@@ -55,7 +55,6 @@ class DriverController extends Controller
             'socso_no'          => 'nullable|string|max:20',
             'bank_name'         => 'nullable|string|max:50',
             'bank_account_no'   => 'nullable|string|max:30',
-            'base_salary'       => 'nullable|numeric|min:0',
             'photo'             => 'nullable|image|max:5120',
         ]);
 
@@ -78,8 +77,8 @@ class DriverController extends Controller
                 'user_id'                  => $user->id,
                 'license_number'           => $validated['license_number'],
                 'license_expiry'           => $validated['license_expiry'],
-                'commission_rate'          => $validated['commission_rate'],
-                'lalamove_commission_rate' => $validated['lalamove_commission_rate'] ?? 0,
+                'daily_rate'               => $validated['daily_rate'],
+                'socso_enabled'            => $validated['socso_enabled'] ?? true,
                 'phone'                    => $validated['phone'],
                 'emergency_contact'        => $validated['emergency_contact'],
                 'status'                   => $validated['status'],
@@ -88,7 +87,6 @@ class DriverController extends Controller
                 'socso_no'                 => $validated['socso_no'],
                 'bank_name'                => $validated['bank_name'],
                 'bank_account_no'          => $validated['bank_account_no'],
-                'base_salary'              => $validated['base_salary'] ?? 0,
                 'photo'                    => $photo,
             ]);
         });
@@ -115,8 +113,8 @@ class DriverController extends Controller
             'email'             => 'required|email|unique:users,email,' . $driver->user_id,
             'license_number'    => 'nullable|string',
             'license_expiry'    => 'nullable|date',
-            'commission_rate'          => 'required|numeric|min:0|max:100',
-            'lalamove_commission_rate' => 'nullable|numeric|min:0|max:100',
+            'daily_rate'        => 'required|numeric|min:0',
+            'socso_enabled'     => 'boolean',
             'phone'             => 'nullable|string|max:20',
             'emergency_contact' => 'nullable|string',
             'status'            => 'required|in:active,inactive',
@@ -125,7 +123,6 @@ class DriverController extends Controller
             'socso_no'          => 'nullable|string|max:20',
             'bank_name'         => 'nullable|string|max:50',
             'bank_account_no'   => 'nullable|string|max:30',
-            'base_salary'       => 'nullable|numeric|min:0',
             'photo'             => 'nullable|image|max:5120',
         ]);
 
@@ -137,8 +134,8 @@ class DriverController extends Controller
         $driverData = [
             'license_number'           => $validated['license_number'],
             'license_expiry'           => $validated['license_expiry'],
-            'commission_rate'          => $validated['commission_rate'],
-            'lalamove_commission_rate' => $validated['lalamove_commission_rate'] ?? 0,
+            'daily_rate'               => $validated['daily_rate'],
+            'socso_enabled'            => $validated['socso_enabled'] ?? true,
             'phone'                    => $validated['phone'],
             'emergency_contact'        => $validated['emergency_contact'],
             'status'                   => $validated['status'],
@@ -147,7 +144,6 @@ class DriverController extends Controller
             'socso_no'                 => $validated['socso_no'],
             'bank_name'                => $validated['bank_name'],
             'bank_account_no'          => $validated['bank_account_no'],
-            'base_salary'              => $validated['base_salary'] ?? 0,
         ];
 
         if ($request->hasFile('photo')) {

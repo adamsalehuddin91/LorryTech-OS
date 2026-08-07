@@ -1,6 +1,10 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 
 export default function Welcome({ auth }) {
+    const { company } = usePage().props;
+    // Jenama client kalau Tetapan Syarikat diisi; kalau tidak, nama produk.
+    const brand = company?.name || 'SwiftFleet';
+
     return (
         <>
             <Head title="Sistem Pengurusan Armada Lorry Terbaik" />
@@ -23,7 +27,7 @@ export default function Welcome({ auth }) {
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M8 17h.01M16 17h.01M3 11l1.5-5A2 2 0 016.4 4h11.2a2 2 0 011.9 1.4L21 11M3 11v6a1 1 0 001 1h1m16-7v6a1 1 0 01-1 1h-1M3 11h18" />
                                     </svg>
                                 </div>
-                                <span className="text-xl font-extrabold text-white tracking-tight bg-gradient-to-r from-white to-gray-300 bg-clip-text">LorryTech</span>
+                                <span className="text-xl font-extrabold text-white tracking-tight bg-gradient-to-r from-white to-gray-300 bg-clip-text">{brand}</span>
                             </div>
 
                             <nav className="hidden md:flex gap-8 text-sm font-medium text-gray-400">
@@ -460,7 +464,7 @@ export default function Welcome({ auth }) {
                 {/* Footer */}
                 <footer className="relative z-10 py-10 bg-black text-center text-xs text-gray-600 border-t border-gray-950">
                     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                        <p>© {new Date().getFullYear()} LorryTech OS. Hak Cipta Terpelihara. Sistem Operasi Armada Logistik Darat.</p>
+                        <p>© {new Date().getFullYear()} {brand}. Hak Cipta Terpelihara. Sistem Operasi Armada Logistik Darat.</p>
                     </div>
                 </footer>
 

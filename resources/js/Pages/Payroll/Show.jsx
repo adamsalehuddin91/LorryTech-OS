@@ -94,16 +94,57 @@ export default function Show({ payroll }) {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100">
-                                <tr>
-                                    <td className="px-4 py-2 text-gray-500">1-</td>
-                                    <td className="px-4 py-2">Gaji</td>
-                                    <td className="px-4 py-2 text-right font-medium">{parseFloat(payroll.base_salary).toFixed(2)}</td>
-                                </tr>
-                                <tr className="bg-gray-50">
-                                    <td className="px-4 py-2 text-gray-500">2-</td>
-                                    <td className="px-4 py-2">Komisyen</td>
-                                    <td className="px-4 py-2 text-right font-medium">{parseFloat(payroll.commission_amount).toFixed(2)}</td>
-                                </tr>
+                                {/* Slip lama (sebelum 2026-08-07) guna gaji pokok + komisyen.
+                                    Slip baharu guna kadar harian + elaun + bonus. Papar mengikut
+                                    apa yang sebenarnya disimpan, supaya slip lama kekal tepat. */}
+                                {payroll.days_worked > 0 || parseFloat(payroll.daily_wage_total) > 0 ? (
+                                    <>
+                                        <tr>
+                                            <td className="px-4 py-2 text-gray-500">1-</td>
+                                            <td className="px-4 py-2">
+                                                Gaji harian
+                                                <span className="text-gray-500">
+                                                    {' '}— {payroll.days_worked} hari × RM {parseFloat(payroll.daily_rate).toFixed(2)}
+                                                </span>
+                                                {payroll.days_overridden && (
+                                                    <span className="ml-2 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-800">
+                                                        hari diselaras admin
+                                                    </span>
+                                                )}
+                                            </td>
+                                            <td className="px-4 py-2 text-right font-medium">{parseFloat(payroll.daily_wage_total).toFixed(2)}</td>
+                                        </tr>
+                                        <tr className="bg-gray-50">
+                                            <td className="px-4 py-2 text-gray-500">2-</td>
+                                            <td className="px-4 py-2">
+                                                Elaun jarak jauh
+                                                <span className="text-gray-500"> — {payroll.long_distance_days} hari</span>
+                                            </td>
+                                            <td className="px-4 py-2 text-right font-medium">{parseFloat(payroll.long_distance_allowance).toFixed(2)}</td>
+                                        </tr>
+                                        <tr>
+                                            <td className="px-4 py-2 text-gray-500">3-</td>
+                                            <td className="px-4 py-2">
+                                                Bonus job besar
+                                                <span className="text-gray-500"> — {payroll.big_job_count} job</span>
+                                            </td>
+                                            <td className="px-4 py-2 text-right font-medium">{parseFloat(payroll.big_job_bonus).toFixed(2)}</td>
+                                        </tr>
+                                    </>
+                                ) : (
+                                    <>
+                                        <tr>
+                                            <td className="px-4 py-2 text-gray-500">1-</td>
+                                            <td className="px-4 py-2">Gaji</td>
+                                            <td className="px-4 py-2 text-right font-medium">{parseFloat(payroll.base_salary).toFixed(2)}</td>
+                                        </tr>
+                                        <tr className="bg-gray-50">
+                                            <td className="px-4 py-2 text-gray-500">2-</td>
+                                            <td className="px-4 py-2">Komisyen</td>
+                                            <td className="px-4 py-2 text-right font-medium">{parseFloat(payroll.commission_amount).toFixed(2)}</td>
+                                        </tr>
+                                    </>
+                                )}
                             </tbody>
                             <tfoot>
                                 <tr className="bg-gray-100 font-semibold">

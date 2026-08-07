@@ -251,7 +251,7 @@ class DatabaseSeeder extends Seeder
         DB::table('company_settings')->updateOrInsert(
             ['email' => 'info@lorrytech.my'],
             [
-                'name'       => 'LorryTech Demo',
+                'name'       => 'SwiftFleet Demo',
                 'reg_no'     => 'SA0123456-X',
                 'phone'      => '0321234567',
                 'address'    => 'No 1, Jalan Teknologi, Cyberjaya, Selangor',

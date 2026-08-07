@@ -272,7 +272,7 @@ class DashboardService
             ->orderByDesc('total_revenue')
             ->limit(5)
             ->with([
-                'driver:id,user_id,commission_rate',
+                'driver:id,user_id,daily_rate',
                 'driver.user:id,name',
             ])
             ->get()
@@ -280,7 +280,7 @@ class DashboardService
                 'name'            => $r->driver?->user?->name ?? 'Unknown',
                 'trip_count'      => (int) $r->trip_count,
                 'total_revenue'   => (float) $r->total_revenue,
-                'commission_rate' => (float) ($r->driver?->commission_rate ?? 0),
+                'daily_rate'      => (float) ($r->driver?->daily_rate ?? 0),
             ])
             ->toArray();
     }
