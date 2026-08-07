@@ -35,6 +35,9 @@ class PayrollService
 
         $calc = $this->calculate($driver, $month, $daysOverride);
 
+        // Medan diagnostik, bukan medan slip — buang sebelum simpan.
+        unset($calc['days_without_km']);
+
         return Payroll::create(array_merge($calc, [
             'driver_id'        => $driver->id,
             'generated_by'     => $generatedBy,
@@ -95,6 +98,8 @@ class PayrollService
             'long_distance_allowance' => $longDistanceAllowance,
             'big_job_count'           => $summary['big_job_count'],
             'big_job_bonus'           => $bigJobBonus,
+            // Bukan medan slip — untuk amaran admin sahaja (km terlupa diisi).
+            'days_without_km'         => $summary['days_without_km'],
             'days_overridden'         => $daysOverride !== null && $daysOverride !== $summary['days_worked'],
 
             'gross_salary'     => $gross,
@@ -120,6 +125,11 @@ class PayrollService
      *   trips        owner cipta untuk pemandu
      *
      * Satu hari dikira SEKALI walaupun ada kerja dalam kedua-dua sumber.
+     *
+     * HARI BEKERJA DITENTUKAN OLEH KILOMETER, bukan sekadar wujudnya rekod:
+     * hari dengan jumlah km 0 (atau tiada km direkod) bermakna pemandu tidak
+     * memandu hari itu, jadi tiada gaji harian untuk hari tersebut. Admin masih
+     * boleh override bilangan hari kalau ada sebab sah (standby, kerja garaj).
      */
     public function workSummary(Driver $driver, string $month): array
     {
@@ -147,14 +157,17 @@ class PayrollService
 
         $threshold = (float) config('payroll.long_distance.threshold_km');
 
-        $daysWorked       = $rows->count();
-        $longDistanceDays = $rows->filter(fn($r) => (float) $r->total_km > $threshold)->count();
+        // Hanya hari yang ada km sebenar dikira sebagai hari bekerja.
+        $daysWithKm = $rows->filter(fn($r) => (float) $r->total_km > 0);
 
         return [
-            'days_worked'        => $daysWorked,
-            'long_distance_days' => $longDistanceDays,
+            'days_worked'        => $daysWithKm->count(),
+            'long_distance_days' => $daysWithKm->filter(fn($r) => (float) $r->total_km > $threshold)->count(),
             'big_job_count'      => $this->bigJobCount($driver, $start, $end),
             'total_km'           => round((float) $rows->sum('total_km'), 2),
+            // Hari yang ada rekod kerja tetapi 0 km — dibendera supaya admin
+            // boleh semak sama ada km terlupa diisi, bukan hilang senyap.
+            'days_without_km'    => $rows->count() - $daysWithKm->count(),
         ];
     }
 

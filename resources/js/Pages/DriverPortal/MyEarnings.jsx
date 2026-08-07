@@ -115,7 +115,10 @@ export default function MyEarnings({ current, history, rules, filters }) {
                 <div className="bg-white/[0.01] border border-dashed border-white/[0.06] rounded-3xl p-5">
                     <p className="text-gray-400 text-[10px] font-bold uppercase tracking-wider mb-3">Cara gaji dikira</p>
                     <ul className="space-y-2 text-[11px] text-slate-400 leading-relaxed">
-                        <li>• Setiap hari anda ada kerja disahkan dibayar kadar harian anda.</li>
+                        <li>• Hari bekerja dikira daripada <span className="text-slate-200">kilometer</span> yang
+                            direkod. Hari tanpa km bermakna tiada pemanduan, jadi tiada gaji harian untuk hari itu —
+                            pastikan jarak diisi setiap kali log kerja.</li>
+                        <li>• Setiap hari yang ada km dibayar kadar harian anda.</li>
                         <li>• Jumlah jarak melebihi <span className="text-slate-200">{rules.long_distance_km}km</span> dalam satu hari
                             menambah <span className="text-slate-200">{rm(rules.long_distance_allowance)}</span> — sekali sehari,
                             bukan setiap trip.</li>

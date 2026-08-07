@@ -79,6 +79,7 @@ export default function Index({ payrolls, drivers, currentMonth, rules }) {
             {/* Ringkasan peraturan aktif — supaya admin tahu angka datang dari mana */}
             <div className="mb-6 rounded-lg border border-gray-200 bg-white px-5 py-3 text-xs text-gray-600 flex flex-wrap gap-x-6 gap-y-1">
                 <span className="font-semibold text-gray-800">Peraturan gaji:</span>
+                <span>Hari bekerja = hari yang <b className="text-gray-800">ada km direkod</b></span>
                 <span>Kadar harian ikut pemandu</span>
                 <span>Jumlah &gt; {rules.long_distance_km}km sehari → <b className="text-gray-800">+{fmt(rules.long_distance_allowance)}</b></span>
                 <span>Job ≥ {fmt(rules.big_job_threshold)} → <b className="text-gray-800">+{fmt(rules.big_job_bonus)}</b> setiap satu</span>
@@ -183,7 +184,14 @@ export default function Index({ payrolls, drivers, currentMonth, rules }) {
                             </p>
                         </div>
                     </div>
-                    {preview.days_worked === 0 && (
+                    {preview.days_without_km > 0 && (
+                        <p className="mt-3 text-xs text-amber-700">
+                            ⚠️ {preview.days_without_km} hari ada kerja disahkan tetapi <b>tiada km direkod</b> — hari
+                            tersebut TIDAK dibayar. Semak sama ada jarak terlupa diisi; kalau pemandu memang memandu,
+                            betulkan bilangan hari di atas sebelum jana.
+                        </p>
+                    )}
+                    {preview.days_worked === 0 && preview.days_without_km === 0 && (
                         <p className="mt-3 text-xs text-amber-700">
                             ⚠️ Tiada kerja disahkan untuk bulan ini. Sahkan kerja pemandu dahulu, atau isi bilangan hari secara manual.
                         </p>
