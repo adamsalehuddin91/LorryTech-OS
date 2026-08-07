@@ -45,6 +45,15 @@ export default function MyEarnings({ current, history, rules, filters }) {
                     <p className="text-gray-400 text-[10px] font-bold uppercase tracking-wider mb-4">Pecahan</p>
 
                     <div className="space-y-3.5">
+                        {Number(current.base_salary) > 0 && (
+                            <div className="flex items-start justify-between gap-3">
+                                <div>
+                                    <p className="text-white text-sm font-semibold">Gaji pokok</p>
+                                    <p className="text-slate-500 text-[11px] mt-0.5">Tetap setiap bulan</p>
+                                </div>
+                                <p className="text-white text-sm font-bold whitespace-nowrap">{rm(current.base_salary)}</p>
+                            </div>
+                        )}
                         <div className="flex items-start justify-between gap-3">
                             <div>
                                 <p className="text-white text-sm font-semibold">Gaji harian</p>

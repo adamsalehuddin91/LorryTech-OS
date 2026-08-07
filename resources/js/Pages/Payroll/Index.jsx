@@ -55,9 +55,10 @@ export default function Index({ payrolls, drivers, currentMonth, rules }) {
     // Kira semula di klien supaya admin nampak kesan override serta-merta.
     const daysNum   = days === '' ? 0 : Number(days);
     const wage      = preview ? daysNum * parseFloat(preview.daily_rate) : 0;
+    const base      = preview ? parseFloat(preview.base_salary || 0) : 0;
     const allowance = preview ? parseFloat(preview.long_distance_allowance) : 0;
     const bonus     = preview ? parseFloat(preview.big_job_bonus) : 0;
-    const gross     = wage + allowance + bonus;
+    const gross     = base + wage + allowance + bonus;
     const overridden = preview && daysNum !== preview.days_worked;
 
     return (
@@ -145,6 +146,12 @@ export default function Index({ payrolls, drivers, currentMonth, rules }) {
                         Pratonton — {driver.name}, {month}
                     </p>
                     <div className="grid gap-x-8 gap-y-2 sm:grid-cols-2 lg:grid-cols-4 text-sm">
+                        {base > 0 && (
+                            <div>
+                                <p className="text-xs text-gray-500">Gaji pokok</p>
+                                <p className="font-medium text-gray-900">{fmt(base)}</p>
+                            </div>
+                        )}
                         <div>
                             <p className="text-xs text-gray-500">Gaji harian</p>
                             <p className="font-medium text-gray-900">
@@ -195,6 +202,7 @@ export default function Index({ payrolls, drivers, currentMonth, rules }) {
                             <div className="flex-1 min-w-0">
                                 <p className="font-semibold text-gray-900">{p.driver_name}</p>
                                 <p className="text-xs text-gray-500 mt-0.5">
+                                    {parseFloat(p.base_salary) > 0 && <>pokok {fmt(p.base_salary)} &nbsp;+&nbsp; </>}
                                     {p.days_worked} hari × {fmt(p.daily_rate)} = {fmt(p.daily_wage_total)}
                                     {parseFloat(p.long_distance_allowance) > 0 && <> &nbsp;+&nbsp; elaun {fmt(p.long_distance_allowance)}</>}
                                     {parseFloat(p.big_job_bonus) > 0 && <> &nbsp;+&nbsp; bonus {fmt(p.big_job_bonus)}</>}

@@ -88,7 +88,14 @@
                     {{-- Slip dijana sebelum 2026-08-07 guna gaji pokok + komisyen.
                          Slip baharu guna kadar harian + elaun + bonus. Papar ikut apa
                          yang sebenarnya disimpan supaya slip lama kekal tepat. --}}
-                    @if ($payroll->days_worked > 0 || $payroll->daily_wage_total > 0)
+                    @if ($payroll->uses_daily_model)
+                        @if ($payroll->base_salary > 0)
+                            <tr>
+                                <td style="padding:5px 8px; border:1px solid #ccc;">0-</td>
+                                <td style="padding:5px 8px; border:1px solid #ccc;">Gaji pokok</td>
+                                <td style="padding:5px 8px; border:1px solid #ccc; text-align:right;">{{ number_format($payroll->base_salary, 2) }}</td>
+                            </tr>
+                        @endif
                         <tr>
                             <td style="padding:5px 8px; border:1px solid #ccc;">1-</td>
                             <td style="padding:5px 8px; border:1px solid #ccc;">

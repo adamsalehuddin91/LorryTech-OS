@@ -36,13 +36,13 @@ class PayrollService
         $calc = $this->calculate($driver, $month, $daysOverride);
 
         return Payroll::create(array_merge($calc, [
-            'driver_id'    => $driver->id,
-            'generated_by' => $generatedBy,
-            'month'        => $month,
-            'status'       => 'draft',
+            'driver_id'        => $driver->id,
+            'generated_by'     => $generatedBy,
+            'month'            => $month,
+            'status'           => 'draft',
+            'uses_daily_model' => true,
 
-            // Model lama — kekal 0 pada slip baharu.
-            'base_salary'       => 0,
+            // Komisyen peratus dibuang daripada model gaji.
             'commission_amount' => 0,
         ]));
     }
@@ -59,14 +59,20 @@ class PayrollService
         $daysWorked = $daysOverride ?? $summary['days_worked'];
         $dailyRate  = (float) ($driver->daily_rate ?: config('payroll.daily_rate'));
 
+        // Gaji pokok adalah PILIHAN. Kebanyakan pemandu bergaji harian sepenuhnya
+        // (base 0); yang ada gaji pokok mendapat ia DI ATAS gaji harian. Bila 0,
+        // barisnya tidak dipapar langsung pada slip.
+        $baseSalary = (float) $driver->base_salary;
+
         $dailyWageTotal        = round($daysWorked * $dailyRate, 2);
         $longDistanceAllowance = round($summary['long_distance_days'] * config('payroll.long_distance.allowance'), 2);
         $bigJobBonus           = round($summary['big_job_count'] * config('payroll.big_job.bonus'), 2);
 
-        $gross = round($dailyWageTotal + $longDistanceAllowance + $bigJobBonus, 2);
+        $gross = round($baseSalary + $dailyWageTotal + $longDistanceAllowance + $bigJobBonus, 2);
 
         // Upah berkanun — bukan semestinya sama dengan gross. Lihat config/payroll.php.
-        $statutoryWage = $dailyWageTotal
+        // Gaji pokok sentiasa upah, jadi sentiasa dicarum.
+        $statutoryWage = $baseSalary + $dailyWageTotal
             + (config('payroll.statutory_includes_long_distance_allowance') ? $longDistanceAllowance : 0)
             + (config('payroll.statutory_includes_big_job_bonus') ? $bigJobBonus : 0);
 
@@ -81,6 +87,7 @@ class PayrollService
         $totalDeductions = round($kwsp['employee'] + $socso['employee'] + $eis['employee'], 2);
 
         return [
+            'base_salary'             => $baseSalary,
             'days_worked'             => $daysWorked,
             'daily_rate'              => $dailyRate,
             'daily_wage_total'        => $dailyWageTotal,

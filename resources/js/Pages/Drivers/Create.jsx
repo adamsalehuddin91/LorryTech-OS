@@ -18,6 +18,7 @@ export default function Create() {
         bank_name: '',
         bank_account_no: '',
         daily_rate: '150.00',
+        base_salary: '',
         socso_enabled: true,
         photo: null,
     });
@@ -249,6 +250,28 @@ export default function Create() {
                                             Gaji = kadar ini × hari bekerja. Elaun jarak jauh &amp; bonus job besar ditambah automatik.
                                         </p>
                                         {errors.daily_rate && <p className="mt-1 text-sm text-red-600">{errors.daily_rate}</p>}
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Gaji Pokok (RM/bulan) <span className="text-gray-400 font-normal">— pilihan</span>
+                                        </label>
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            min="0"
+                                            value={data.base_salary}
+                                            onChange={(e) => setData('base_salary', e.target.value)}
+                                            className={`w-full border rounded-lg px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500 ${errors.base_salary ? 'border-red-500' : 'border-gray-300'}`}
+                                            placeholder="0.00"
+                                        />
+                                        <p className="mt-1 text-xs text-gray-500">
+                                            Biar kosong kalau pemandu makan gaji harian sepenuhnya. Kalau diisi, ia
+                                            ditambah DI ATAS gaji harian dan muncul sebagai baris berasingan pada slip.
+                                        </p>
+                                        {errors.base_salary && <p className="mt-1 text-sm text-red-600">{errors.base_salary}</p>}
                                     </div>
                                 </div>
 

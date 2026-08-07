@@ -95,10 +95,18 @@ export default function Show({ payroll }) {
                             </thead>
                             <tbody className="divide-y divide-gray-100">
                                 {/* Slip lama (sebelum 2026-08-07) guna gaji pokok + komisyen.
-                                    Slip baharu guna kadar harian + elaun + bonus. Papar mengikut
-                                    apa yang sebenarnya disimpan, supaya slip lama kekal tepat. */}
-                                {payroll.days_worked > 0 || parseFloat(payroll.daily_wage_total) > 0 ? (
+                                    Slip baharu guna kadar harian + elaun + bonus, dengan gaji
+                                    pokok sebagai baris pilihan. Penanda uses_daily_model adalah
+                                    eksplisit — jangan teka model daripada angka duit. */}
+                                {payroll.uses_daily_model ? (
                                     <>
+                                        {parseFloat(payroll.base_salary) > 0 && (
+                                            <tr>
+                                                <td className="px-4 py-2 text-gray-500">0-</td>
+                                                <td className="px-4 py-2">Gaji pokok</td>
+                                                <td className="px-4 py-2 text-right font-medium">{parseFloat(payroll.base_salary).toFixed(2)}</td>
+                                            </tr>
+                                        )}
                                         <tr>
                                             <td className="px-4 py-2 text-gray-500">1-</td>
                                             <td className="px-4 py-2">
